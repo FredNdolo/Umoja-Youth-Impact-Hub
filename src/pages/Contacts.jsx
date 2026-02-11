@@ -300,7 +300,7 @@ export default function Contact() {
                 </div>
                 <div className="bg-neutral-50 p-4 rounded-lg">
                   <p className="font-semibold text-gray-800">How can organizations partner with UYIH?</p>
-                  <p className="text-gray-700 text-sm mt-1">Email partnership proposals to info@uyih.org with scope, timelines, and expected outcomes.</p>
+                  <p className="text-gray-700 text-sm mt-1">Email partnership proposals to umojayouthhub@gmail.com with scope, timelines, and expected outcomes.</p>
                 </div>
               </div>
             </div>
