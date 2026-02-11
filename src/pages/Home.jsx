@@ -1,9 +1,9 @@
 // File: src/pages/Home.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import heroImage from '../assets/hero-image.JPG';
 
-// Import gallery images (add as many as you have)
+// Gallery image imports (adjust filenames if yours are different)
 import gallery1 from '../assets/gallery-1.JPG';
 import gallery2 from '../assets/gallery-2.JPG';
 import gallery3 from '../assets/gallery-3.JPG';
@@ -17,11 +17,33 @@ function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // Ref for the scrollable gallery container
+  const galleryRef = useRef(null);
+
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  // Gallery images array – add/remove as needed
+  // Scroll functions
+  const scrollLeft = () => {
+    if (galleryRef.current) {
+      galleryRef.current.scrollBy({
+        left: -320, // Adjust scroll distance as needed
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (galleryRef.current) {
+      galleryRef.current.scrollBy({
+        left: 320,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  // Gallery images array
   const galleryImages = [
     { src: gallery1, alt: 'Community event 1' },
     { src: gallery2, alt: 'Tree planting activity' },
@@ -29,8 +51,8 @@ function Home() {
     { src: gallery4, alt: 'Healthcare camp' },
     { src: gallery5, alt: 'Green Futures school nursery' },
     { src: gallery6, alt: 'Community gathering' },
-    { src: gallery7, alt: 'Group photo' },
-    { src: gallery8, alt: 'Pad giveaway' },
+    { src: gallery7, alt: 'Group impact moment' },
+    { src: gallery8, alt: 'Environmental stewardship' },
   ];
 
   return (
@@ -120,21 +142,24 @@ function Home() {
         </div>
       </section>
 
-      {/* === Gallery Section (Carousel) === */}
+      {/* Gallery Section with Scroll Buttons */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-primary-600 text-center mb-10">
             Moments of Impact
           </h2>
 
-          {/* Carousel container */}
+          {/* Carousel wrapper */}
           <div className="relative overflow-hidden">
-            <div className="flex animate-scroll gap-6 px-4">
-              {/* Duplicate the images for seamless infinite scroll */}
-              {[...galleryImages, ...galleryImages].map((image, index) => (
+            {/* Scrollable container */}
+            <div
+              ref={galleryRef}
+              className="flex gap-6 px-4 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide"
+            >
+              {galleryImages.map((image, index) => (
                 <div
                   key={index}
-                  className="flex-shrink-0 w-80 md:w-96 h-64 md:h-80 rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                  className="flex-shrink-0 w-80 md:w-96 h-64 md:h-80 rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl snap-start"
                 >
                   <img
                     src={image.src}
@@ -145,6 +170,28 @@ function Home() {
                 </div>
               ))}
             </div>
+
+            {/* Left Arrow */}
+            <button
+              onClick={scrollLeft}
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/60 text-white p-3 md:p-4 rounded-full hover:bg-black/80 transition-all duration-300 z-10 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              aria-label="Scroll left"
+            >
+              <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Right Arrow */}
+            <button
+              onClick={scrollRight}
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/60 text-white p-3 md:p-4 rounded-full hover:bg-black/80 transition-all duration-300 z-10 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              aria-label="Scroll right"
+            >
+              <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
