@@ -5,11 +5,13 @@ import heroImage from '../assets/hero-image.JPG';
 
 // Import gallery images (add as many as you have)
 import gallery1 from '../assets/gallery-1.JPG';
-import gallery2 from '../assets/gallery-2.jpg';
+import gallery2 from '../assets/gallery-2.JPG';
 import gallery3 from '../assets/gallery-3.JPG';
 import gallery4 from '../assets/gallery-4.JPG';
 import gallery5 from '../assets/gallery-5.JPG';
 import gallery6 from '../assets/gallery-6.JPG';
+import gallery7 from '../assets/gallery-7.JPG';
+import gallery8 from '../assets/gallery-8.JPG';
 
 function Home() {
   const [isVisible, setIsVisible] = useState(false);
@@ -27,8 +29,8 @@ function Home() {
     { src: gallery4, alt: 'Healthcare camp' },
     { src: gallery5, alt: 'Green Futures school nursery' },
     { src: gallery6, alt: 'Community gathering' },
-    { src: gallery7, alt: 'Community gathering' },
-    { src: gallery8, alt: 'Community gathering' },
+    { src: gallery7, alt: 'Group photo' },
+    { src: gallery8, alt: 'Pad giveaway' },
   ];
 
   return (
