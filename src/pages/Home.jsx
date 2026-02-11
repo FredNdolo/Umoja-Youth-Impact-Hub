@@ -5,7 +5,7 @@ import heroImage from '../assets/hero-image.JPG';
 
 // Import gallery images (add as many as you have)
 import gallery1 from '../assets/gallery-1.JPG';
-import gallery2 from '../assets/gallery-2.jpg';
+import gallery2 from '../assets/gallery-2.JPG';
 import gallery3 from '../assets/gallery-3.JPG';
 import gallery4 from '../assets/gallery-4.JPG';
 import gallery5 from '../assets/gallery-5.JPG';
