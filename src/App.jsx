@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import { Analytics } from '@vercel/analytics/react';   // ← Import from the React version
 
 // Lazy load components for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -27,16 +28,19 @@ function App() {
       <Navbar />
       <main className="flex-grow">
         <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/programs" element={<Programs />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/community" element={<Community />} />
-              </Routes>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/programs" element={<Programs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/community" element={<Community />} />
+          </Routes>
         </Suspense>
       </main>
       <Footer />
+      
+      {/* Add Vercel Analytics here – it will track all page views and route changes */}
+      <Analytics />
     </div>
   );
 }
