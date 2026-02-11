@@ -1,6 +1,6 @@
 // File: src/pages/About.jsx
 import React, { useState, useEffect } from 'react';
-import storyImage from '../assets/story-image.jpg';
+import storyImage from '../assets/story-image.JPG';
 
 function About() {
   const [isVisible, setIsVisible] = useState(false);
