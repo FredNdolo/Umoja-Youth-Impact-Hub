@@ -78,16 +78,31 @@ a {
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
+/* === Infinite Carousel Animation for Gallery === */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
-.animate-fade-in-left {
-  animation: fadeInLeft 0.6s ease-out;
+.animate-scroll {
+  display: flex;
+  animation: scroll 30s linear infinite; /* Adjust 40s to make faster/slower */
+  will-change: transform; /* Better performance */
 }
 
-.animate-fade-in-right {
-  animation: fadeInRight 0.6s ease-out;
+.animate-scroll:hover {
+  animation-play-state: paused; /* Pause on hover – nice UX */
+}
+
+/* Optional: Add scroll snapping on touch devices */
+@media (hover: none) {
+  .animate-scroll {
+    scroll-snap-type: x mandatory;
+  }
 }
 
 /* Focus styles for accessibility */
@@ -129,4 +144,13 @@ a:focus {
 
 ::-moz-selection {
   @apply bg-primary-500 text-white;
+}
+
+/* === Gallery Image Styling (enhances the carousel look) === */
+.gallery-image-container {
+  @apply flex-shrink-0 w-80 md:w-96 h-64 md:h-80 rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+}
+
+.gallery-image {
+  @apply w-full h-full object-cover;
 }
