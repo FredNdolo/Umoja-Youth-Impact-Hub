@@ -1,284 +1,273 @@
 // File: src/pages/Community.jsx
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const categories = [
+  { value: 'general', label: 'General Discussion', icon: '💬', accent: '#a78bfa' },
+  { value: 'programs', label: 'Programs & Events', icon: '📅', accent: '#00d9ff' },
+  { value: 'volunteer', label: 'Volunteer', icon: '🤝', accent: '#00f594' },
+  { value: 'health', label: 'Health & Wellness', icon: '🏥', accent: '#f472b6' },
+  { value: 'environment', label: 'Environment', icon: '🌱', accent: '#4ade80' },
+  { value: 'feedback', label: 'Feedback', icon: '💡', accent: '#fbbf24' },
+];
 
 export default function Community() {
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-    category: 'general'
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [newMessage, setNewMessage] = useState({ name: '', email: '', subject: '', message: '', category: 'general' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load messages from localStorage on component mount
   useEffect(() => {
-    const savedMessages = JSON.parse(localStorage.getItem('communityMessages') || '[]');
-    setMessages(savedMessages);
+    const saved = JSON.parse(localStorage.getItem('communityMessages') || '[]');
+    setMessages(saved);
   }, []);
-
-  const categories = [
-    { value: 'general', label: 'General Discussion', icon: '💬' },
-    { value: 'programs', label: 'Programs & Events', icon: '📅' },
-    { value: 'volunteer', label: 'Volunteer Opportunities', icon: '🤝' },
-    { value: 'health', label: 'Health & Wellness', icon: '🏥' },
-    { value: 'environment', label: 'Environment', icon: '🌱' },
-    { value: 'feedback', label: 'Feedback & Suggestions', icon: '💡' }
-  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewMessage(prev => ({ ...prev, [name]: value }));
+    setNewMessage((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const message = {
-        ...newMessage,
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-        replies: []
-      };
-
-      const updatedMessages = [message, ...messages];
-      setMessages(updatedMessages);
-      localStorage.setItem('communityMessages', JSON.stringify(updatedMessages));
-
-      // Reset form
-      setNewMessage({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
-        category: 'general'
-      });
-      setShowForm(false);
-
-    } catch (error) {
-      console.error('Error submitting message:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await new Promise((r) => setTimeout(r, 1000));
+    const msg = { ...newMessage, id: Date.now(), timestamp: new Date().toISOString() };
+    const updated = [msg, ...messages];
+    setMessages(updated);
+    localStorage.setItem('communityMessages', JSON.stringify(updated));
+    setNewMessage({ name: '', email: '', subject: '', message: '', category: 'general' });
+    setShowForm(false);
+    setIsSubmitting(false);
   };
 
-  const formatDate = (timestamp) => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getCategoryInfo = (categoryValue) => {
-    return categories.find(cat => cat.value === categoryValue) || categories[0];
-  };
+  const getCat = (val) => categories.find((c) => c.value === val) || categories[0];
+  const formatDate = (ts) =>
+    new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-100 to-white">
-      {/* Hero Section */}
-      <section className="bg-primary-600 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">Community Forum</h1>
-          <p className="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">
-            Connect, share ideas, and collaborate with fellow community members
-          </p>
+    <div className="min-h-screen" style={{ background: '#060f1e' }}>
+      {/* ══════════ HERO ══════════ */}
+      <section className="relative pt-32 pb-24 hero-grid overflow-hidden" style={{ background: '#030812' }}>
+        <div className="glow-orb w-[500px] h-[500px] -top-40 right-1/4 opacity-25"
+          style={{ background: 'rgba(167,139,250,0.2)' }} />
+        <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
+          <motion.div variants={stagger} initial="hidden" animate="visible">
+            <motion.p variants={fadeUp} className="section-label justify-center">Connect & Collaborate</motion.p>
+            <motion.h1 variants={fadeUp} className="font-display text-5xl md:text-7xl font-extrabold text-white mb-6">
+              Community <span className="gradient-text">Forum</span>
+            </motion.h1>
+            <motion.p variants={fadeUp} className="text-neutral-400 text-xl max-w-2xl mx-auto">
+              Share ideas, ask questions, and collaborate with fellow community members.
+            </motion.p>
+          </motion.div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
-        {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+      <div className="container mx-auto px-4 md:px-8 py-16 max-w-4xl">
+        {/* ══ Action Bar ══ */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4"
+        >
           <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-bold text-primary-600">Community Messages</h2>
-            <span className="bg-primary-100 text-primary-600 px-3 py-1 rounded-full text-sm font-semibold">
-              {messages.length} messages
+            <h2 className="font-display text-2xl font-bold text-white">Conversations</h2>
+            <span className="px-3 py-1 rounded-full text-xs font-semibold text-primary-500"
+              style={{ background: 'rgba(0,245,148,0.1)', border: '1px solid rgba(0,245,148,0.2)' }}>
+              {messages.length} posts
             </span>
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-primary-500 text-white px-6 py-3 rounded-lg hover:bg-primary-600 transition-colors duration-200 font-semibold"
+            className={showForm ? 'btn-ghost text-sm px-5 py-2.5' : 'btn-primary text-sm px-5 py-2.5'}
           >
-            {showForm ? 'Cancel' : '+ New Message'}
+            {showForm ? '✕ Cancel' : '+ New Post'}
           </button>
-        </div>
+        </motion.div>
 
-        {/* New Message Form */}
-        {showForm && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h3 className="text-xl font-bold text-primary-600 mb-4">Post a New Message</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={newMessage.name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Your full name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={newMessage.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-                  <select
-                    name="category"
-                    value={newMessage.category}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    {categories.map(category => (
-                      <option key={category.value} value={category.value}>
-                        {category.icon} {category.label}
-                      </option>
+        {/* ══ Post Form ══ */}
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden mb-8"
+            >
+              <div className="glass rounded-2xl p-6 md:p-8"
+                style={{ borderColor: 'rgba(0,245,148,0.15)' }}>
+                <h3 className="font-display text-xl font-bold text-white mb-6">Share with the Community</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {['name', 'email'].map((field) => (
+                      <div key={field}>
+                        <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">
+                          {field === 'name' ? 'Your Name' : 'Email'} *
+                        </label>
+                        <input
+                          type={field === 'email' ? 'email' : 'text'}
+                          name={field}
+                          value={newMessage[field]}
+                          onChange={handleInputChange}
+                          required
+                          className="input-dark text-sm"
+                          placeholder={field === 'name' ? 'Your full name' : 'your@email.com'}
+                        />
+                      </div>
                     ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={newMessage.subject}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Brief subject line"
-                  />
-                </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Category *</label>
+                      <select
+                        name="category"
+                        value={newMessage.category}
+                        onChange={handleInputChange}
+                        className="input-dark text-sm"
+                      >
+                        {categories.map((c) => (
+                          <option key={c.value} value={c.value}>{c.icon} {c.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Subject *</label>
+                      <input
+                        type="text"
+                        name="subject"
+                        value={newMessage.subject}
+                        onChange={handleInputChange}
+                        required
+                        className="input-dark text-sm"
+                        placeholder="Brief subject line"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Message *</label>
+                    <textarea
+                      name="message"
+                      value={newMessage.message}
+                      onChange={handleInputChange}
+                      required
+                      rows={4}
+                      className="input-dark text-sm resize-none"
+                      placeholder="Share your thoughts, questions, or ideas…"
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="button" onClick={() => setShowForm(false)} className="btn-ghost py-2.5 text-sm">
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className={`btn-primary py-2.5 text-sm ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    >
+                      {isSubmitting ? 'Posting…' : 'Post Message'}
+                    </button>
+                  </div>
+                </form>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
-                <textarea
-                  name="message"
-                  value={newMessage.message}
-                  onChange={handleInputChange}
-                  required
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                  placeholder="Share your thoughts, questions, or ideas with the community..."
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
-                    isSubmitting
-                      ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-primary-500 hover:bg-primary-600 text-white'
-                  }`}
-                >
-                  {isSubmitting ? 'Posting...' : 'Post Message'}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* Messages List */}
-        <div className="space-y-6">
+        {/* ══ Messages ══ */}
+        <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-4">
           {messages.length === 0 ? (
-            <div className="text-center py-12">
+            <motion.div variants={fadeUp} className="glass rounded-2xl p-16 text-center">
               <div className="text-6xl mb-4">💬</div>
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">No messages yet</h3>
-              <p className="text-gray-500">Be the first to start a conversation!</p>
-            </div>
+              <h3 className="font-display text-xl font-bold text-white mb-2">No posts yet</h3>
+              <p className="text-neutral-500 text-sm">Be the first to start a conversation!</p>
+            </motion.div>
           ) : (
-            messages.map((message) => {
-              const categoryInfo = getCategoryInfo(message.category);
+            messages.map((msg) => {
+              const cat = getCat(msg.category);
               return (
-                <div key={message.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                  <div className="flex items-start justify-between mb-4">
+                <motion.div
+                  key={msg.id}
+                  variants={fadeUp}
+                  className="glass rounded-2xl p-6 hover:border-white/[0.12] transition-all duration-300 group"
+                >
+                  <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                        <span className="text-primary-600 font-semibold">
-                          {message.name.charAt(0).toUpperCase()}
-                        </span>
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-display font-bold text-sm"
+                        style={{ background: `${cat.accent}15`, border: `1px solid ${cat.accent}30`, color: cat.accent }}>
+                        {msg.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">{message.name}</h4>
-                        <p className="text-sm text-gray-500">{formatDate(message.timestamp)}</p>
+                        <p className="font-semibold text-white text-sm">{msg.name}</p>
+                        <p className="text-neutral-500 text-xs">{formatDate(msg.timestamp)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-                      <span>{categoryInfo.icon}</span>
-                      <span className="text-sm font-medium text-gray-600">{categoryInfo.label}</span>
-                    </div>
+                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
+                      style={{ background: `${cat.accent}10`, border: `1px solid ${cat.accent}25`, color: cat.accent }}>
+                      {cat.icon} {cat.label}
+                    </span>
                   </div>
-                  
-                  <h5 className="text-lg font-semibold text-primary-600 mb-2">{message.subject}</h5>
-                  <p className="text-gray-700 leading-relaxed">{message.message}</p>
-                  
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <button className="flex items-center gap-1 hover:text-primary-600 transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        Reply
+                  <h5 className="font-display font-bold text-white mb-2">{msg.subject}</h5>
+                  <p className="text-neutral-400 text-sm leading-relaxed">{msg.message}</p>
+                  <div className="mt-4 pt-4 border-t border-white/[0.06] flex gap-4">
+                    {['Reply', 'Like'].map((action) => (
+                      <button key={action} className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-primary-500 transition-colors">
+                        {action === 'Reply' ? (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        )}
+                        {action}
                       </button>
-                      <button className="flex items-center gap-1 hover:text-primary-600 transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                        Like
-                      </button>
-                    </div>
+                    ))}
                   </div>
-                </div>
+                </motion.div>
               );
             })
           )}
-        </div>
+        </motion.div>
 
-        {/* Guidelines */}
-        <div className="mt-12 bg-primary-50 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-primary-600 mb-3">Community Guidelines</h3>
-          <ul className="text-sm text-gray-700 space-y-2">
-            <li>• Be respectful and constructive in your interactions</li>
-            <li>• Stay on topic and use appropriate categories</li>
-            <li>• Share relevant information and resources</li>
-            <li>• Help build a positive community environment</li>
-            <li>• Report any inappropriate content to our team</li>
+        {/* ══ Guidelines ══ */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mt-12 glass rounded-2xl p-6"
+          style={{ borderColor: 'rgba(0,245,148,0.15)', background: 'rgba(0,245,148,0.03)' }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-lg">📋</span>
+            <h3 className="font-display text-base font-bold text-white">Community Guidelines</h3>
+          </div>
+          <ul className="grid sm:grid-cols-2 gap-2">
+            {[
+              'Be respectful and constructive',
+              'Stay on topic — use appropriate categories',
+              'Share relevant information and resources',
+              'Help build a positive community environment',
+              'Report inappropriate content to our team',
+            ].map((g, i) => (
+              <li key={i} className="flex items-start gap-2 text-xs text-neutral-400">
+                <span className="w-1 h-1 mt-1.5 rounded-full bg-primary-500 flex-shrink-0" />
+                {g}
+              </li>
+            ))}
           </ul>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
