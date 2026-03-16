@@ -1,388 +1,437 @@
 // File: src/pages/Programs.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
+};
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const programs = [
+  {
+    id: 1,
+    title: 'Healthcare Access',
+    description: 'Community medical camps reaching over 5,000 residents annually, health education programs, mental health awareness campaigns, and healthcare referral networks with major hospitals.',
+    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=900&q=80',
+    icon: '🏥',
+    stats: '5,000+ residents/year',
+    accent: '#00d9ff',
+  },
+  {
+    id: 2,
+    title: 'Green Futures Initiative',
+    description: 'Flagship program empowering school communities through tree propagation, sustainable income generation, agroforestry training, and school-based nurseries that generate income through seedling sales.',
+    image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
+    icon: '🌳',
+    stats: '15 schools · 3,000+ trees',
+    accent: '#00f594',
+  },
+  {
+    id: 3,
+    title: 'Environmental Stewardship',
+    description: 'Urban greening with 3,000+ trees planted, school-based eco-clubs, waste management education, recycling programs, and community clean-up drives engaging 1,000+ volunteers annually.',
+    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80',
+    icon: '🌱',
+    stats: '3,000+ trees planted',
+    accent: '#4ade80',
+  },
+  {
+    id: 4,
+    title: 'Youth Empowerment',
+    description: 'Skills development workshops benefiting 800+ youth, environmental entrepreneurship incubation, community leadership training, and green business startup support.',
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80',
+    icon: '👥',
+    stats: '800+ youth trained',
+    accent: '#a78bfa',
+  },
+  {
+    id: 5,
+    title: 'Community Events',
+    description: 'Regular community gatherings, educational workshops, and celebration events that bring people together, inspire action, and create positive change through shared purpose.',
+    image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=80',
+    icon: '🎉',
+    stats: 'Monthly events',
+    accent: '#fbbf24',
+  },
+];
+
+const kpis = [
+  {
+    title: 'Healthcare',
+    icon: '🏥',
+    accent: '#00d9ff',
+    items: ['Residents served per camp', 'Referrals completed within 14 days', 'Health literacy score improvement', 'Preventive care adoption rates'],
+  },
+  {
+    title: 'Environment',
+    icon: '🌱',
+    accent: '#00f594',
+    items: ['Trees planted & 12-month survival rate', 'Seedlings propagated in school nurseries', 'Income from tree-related activities', 'Schools with active eco-clubs'],
+  },
+  {
+    title: 'Livelihoods',
+    icon: '📈',
+    accent: '#a78bfa',
+    items: ['Youth completing trainings', 'Job placement or internship rate', 'New micro-enterprises sustained (6m)', 'Income from green businesses'],
+  },
+];
 
 export default function Programs() {
-  const [activeProgram, setActiveProgram] = useState(null);
-  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState(null);
-  const [registrationData, setRegistrationData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    program: '',
-    message: ''
-  });
+  const [registrationData, setRegistrationData] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleProgramClick = (program) => {
-    setSelectedProgram(program);
-    setRegistrationData(prev => ({ ...prev, program: program.title }));
-    setShowRegistrationModal(true);
-  };
-
   const handleRegistrationChange = (e) => {
     const { name, value } = e.target;
-    setRegistrationData(prev => ({ ...prev, [name]: value }));
+    setRegistrationData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Store registration in localStorage for demo
-      const registrations = JSON.parse(localStorage.getItem('programRegistrations') || '[]');
-      registrations.push({
-        ...registrationData,
-        id: Date.now(),
-        timestamp: new Date().toISOString()
-      });
-      localStorage.setItem('programRegistrations', JSON.stringify(registrations));
-      
-      setIsSubmitted(true);
-      setRegistrationData({ name: '', email: '', phone: '', program: '', message: '' });
-      
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setShowRegistrationModal(false);
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Registration error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    await new Promise((r) => setTimeout(r, 1800));
+    setIsSubmitted(true);
+    setTimeout(() => {
+      setIsSubmitted(false);
+      setSelectedProgram(null);
+      setRegistrationData({ name: '', email: '', phone: '', message: '' });
+    }, 3000);
+    setIsSubmitting(false);
   };
 
-  const programs = [
-    {
-      id: 1,
-      title: "Healthcare Access Initiatives",
-      description: "Community medical camps reaching over 5,000 residents annually, Health education programs focused on preventive care, Mental health awareness campaigns and support services, Healthcare referral networks with major Nairobi hospitals.",
-      image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "🏥",
-      stats: "5,000+ residents reached annually"
-    },
-    {
-      id: 2,
-      title: "Green Futures Initiative",
-      description: "Empowering school communities through tree propagation and sustainable income generation. This flagship program combines environmental education with economic empowerment by training students and community members in tree nursery management, agroforestry, and sustainable income-generating activities. Schools establish tree nurseries that serve as learning centers while generating income through seedling sales and environmental services.",
-      image: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "🌳",
-      stats: "15+ schools engaged, 3,000+ trees propagated"
-    },
-    {
-      id: 3,
-      title: "Environmental Stewardship",
-      description: "Urban greening initiatives with 3,000+ trees planted since 2019, School-based environmental clubs established in 15 local schools, Waste management education and recycling programs, Community clean-up drives engaging 1,000+ volunteers annually.",
-      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "🌱",
-      stats: "3,000+ trees planted"
-    },
-    {
-      id: 4,
-      title: "Youth Empowerment",
-      description: "Skills development workshops benefiting 800+ youth, Environmental entrepreneurship incubation programs, Community leadership training, Green business startup support.",
-      image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "👥",
-      stats: "800+ youth trained"
-    },
-    {
-      id: 5,
-      title: "Community Events",
-      description: "Organizing events to connect, inspire, and create positive change. We host regular community gatherings, educational workshops, and celebration events that bring people together.",
-      image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "🎉",
-      stats: "Monthly community events"
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-100 to-white">
-      {/* Hero Section */}
-      <section className="bg-primary-600 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">Our Programs</h1>
-          <p className="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">
-            Transforming communities through comprehensive initiatives in healthcare, environment, and youth empowerment
-          </p>
+    <div className="min-h-screen" style={{ background: '#060f1e' }}>
+      {/* ══════════ HERO ══════════ */}
+      <section
+        className="relative pt-32 pb-24 overflow-hidden hero-grid"
+        style={{ background: '#030812' }}
+      >
+        <div className="glow-orb w-[600px] h-[600px] -top-40 left-1/3 opacity-30"
+          style={{ background: 'rgba(0,217,255,0.12)' }} />
+        <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
+          <motion.div variants={stagger} initial="hidden" animate="visible">
+            <motion.p variants={fadeUp} className="section-label justify-center">What We Do</motion.p>
+            <motion.h1 variants={fadeUp} className="font-display text-5xl md:text-7xl font-extrabold text-white mb-6">
+              Our <span className="gradient-text">Programs</span>
+            </motion.h1>
+            <motion.p variants={fadeUp} className="text-neutral-400 text-xl max-w-2xl mx-auto">
+              Comprehensive initiatives in healthcare, environment, and youth empowerment — built by the community, for the community.
+            </motion.p>
+          </motion.div>
         </div>
       </section>
 
-      {/* Programs Grid */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {programs.map((program, index) => (
-              <div
+      {/* ══════════ PROGRAMS GRID ══════════ */}
+      <section className="py-24">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {programs.map((program, i) => (
+              <motion.div
                 key={program.id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
-                onMouseEnter={() => setActiveProgram(program.id)}
-                onMouseLeave={() => setActiveProgram(null)}
-                onClick={() => handleProgramClick(program)}
+                variants={fadeUp}
+                className="glass rounded-2xl overflow-hidden group cursor-pointer hover:-translate-y-2 transition-all duration-400"
+                style={{ borderColor: `${program.accent}20` }}
+                onClick={() => setSelectedProgram(program)}
+                whileHover={{ boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${program.accent}18` }}
               >
-                <div className="relative h-64 overflow-hidden">
+                {/* Image */}
+                <div className="relative h-52 overflow-hidden">
                   <img
                     src={program.image}
                     alt={program.title}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-110"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute top-4 left-4 text-4xl">{program.icon}</div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-2xl font-bold text-white mb-2">{program.title}</h3>
-                    <div className="bg-secondary-500 text-white px-3 py-1 rounded-full text-sm font-semibold inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-t from-dark-950 via-dark-950/40 to-transparent" />
+                  {/* Icon badge */}
+                  <div className="absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                    style={{ background: `${program.accent}25`, border: `1px solid ${program.accent}40`, backdropFilter: 'blur(8px)' }}>
+                    {program.icon}
+                  </div>
+                  {/* Stats badge */}
+                  <div className="absolute bottom-4 left-4">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold"
+                      style={{ background: `${program.accent}20`, border: `1px solid ${program.accent}40`, color: program.accent, backdropFilter: 'blur(8px)' }}>
                       {program.stats}
-                    </div>
+                    </span>
                   </div>
                 </div>
+
+                {/* Content */}
                 <div className="p-6">
-                  <p className="text-gray-700 leading-relaxed">
-                    {program.description}
-                  </p>
-                  <div className="mt-4 flex items-center text-primary-600 font-semibold">
-                    <span>Learn More</span>
-                    <svg className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <h3 className="font-display text-xl font-bold text-white mb-3">{program.title}</h3>
+                  <p className="text-neutral-400 text-sm leading-relaxed mb-5 line-clamp-3">{program.description}</p>
+                  <div className="flex items-center gap-2 text-sm font-semibold transition-colors duration-200"
+                    style={{ color: program.accent }}>
+                    <span>Register Interest</span>
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Green Futures Initiative Details */}
-      <section className="py-20 bg-gradient-to-br from-primary-50 to-white">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="bg-white p-8 rounded-xl shadow-lg">
-            <div className="text-center mb-8">
+      {/* ══════════ GREEN FUTURES FEATURE ══════════ */}
+      <section className="py-24" style={{ background: '#0d1526' }}>
+        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="glass rounded-2xl p-8 md:p-12"
+            style={{ borderColor: 'rgba(0,245,148,0.2)', boxShadow: '0 0 60px rgba(0,245,148,0.06)' }}
+          >
+            <div className="text-center mb-10">
               <div className="text-5xl mb-4">🌳</div>
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-600 mb-4">Green Futures Initiative</h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-                Empowering school communities through tree propagation and sustainable income generation
+              <p className="section-label justify-center">Flagship Program</p>
+              <h2 className="font-display text-3xl md:text-4xl font-extrabold text-white mb-3">
+                Green Futures Initiative
+              </h2>
+              <p className="text-neutral-400 max-w-2xl mx-auto">
+                Empowering school communities through tree propagation and sustainable income generation.
               </p>
             </div>
             <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-bold text-primary-600 mb-4">Program Components</h3>
-                <ul className="text-gray-700 space-y-2 list-disc pl-5">
-                  <li>School-based tree nursery establishment and management</li>
-                  <li>Training in tree propagation techniques and agroforestry</li>
-                  <li>Environmental education and climate literacy programs</li>
-                  <li>Income generation through seedling sales and environmental services</li>
-                  <li>Community tree planting and care initiatives</li>
-                  <li>Partnership development with local nurseries and markets</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-primary-600 mb-4">Expected Outcomes</h3>
-                <ul className="text-gray-700 space-y-2 list-disc pl-5">
-                  <li>Increased tree cover in school compounds and surrounding communities</li>
-                  <li>Enhanced environmental awareness among students and community members</li>
-                  <li>Sustainable income streams for participating schools</li>
-                  <li>Improved climate resilience in target communities</li>
-                  <li>Youth engagement in environmental stewardship</li>
-                  <li>Long-term sustainability through income-generating activities</li>
-                </ul>
-              </div>
-            </div>
-            <div className="mt-8 p-6 bg-primary-50 rounded-lg">
-              <h3 className="text-lg font-bold text-primary-600 mb-2">Program Impact</h3>
-              <p className="text-gray-700">
-                The Green Futures Initiative combines environmental conservation with economic empowerment, creating a sustainable model that benefits both the environment and local communities. By training students and community members in tree propagation and nursery management, we're building a generation of environmental stewards while generating income that supports continued program activities.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Program KPIs & Outcomes */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-600 mb-4">Key Performance Indicators</h2>
-            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-              We measure what matters: reach, adoption, behavior change, and sustainability. Below are example KPIs we track quarterly with partners.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-neutral-50 to-white p-6 rounded-xl shadow card-hover">
-              <h3 className="text-xl font-bold text-primary-600 mb-2">Healthcare</h3>
-              <ul className="text-gray-700 space-y-1 list-disc pl-5 text-sm">
-                <li>Residents served per camp</li>
-                <li>Referrals completed within 14 days</li>
-                <li>Health literacy score improvement</li>
-                <li>Preventive care adoption rates</li>
-              </ul>
-            </div>
-            <div className="bg-gradient-to-br from-neutral-50 to-white p-6 rounded-xl shadow card-hover">
-              <h3 className="text-xl font-bold text-primary-600 mb-2">Environment</h3>
-              <ul className="text-gray-700 space-y-1 list-disc pl-5 text-sm">
-                <li>Trees planted and survival rate (12m)</li>
-                <li>Seedlings propagated in school nurseries</li>
-                <li>Income generated from tree-related activities</li>
-                <li>Tonnes of waste recovered/recycled</li>
-                <li>Schools with active eco-clubs</li>
-              </ul>
-            </div>
-            <div className="bg-gradient-to-br from-neutral-50 to-white p-6 rounded-xl shadow card-hover">
-              <h3 className="text-xl font-bold text-primary-600 mb-2">Livelihoods</h3>
-              <ul className="text-gray-700 space-y-1 list-disc pl-5 text-sm">
-                <li>Youth completing trainings</li>
-                <li>Job placement or internship rate</li>
-                <li>New micro-enterprises sustained (6m)</li>
-                <li>Income generation from green businesses</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-16 bg-primary-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Join Our Mission</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Be part of the change. Whether you want to volunteer, partner with us, or support our programs, we'd love to hear from you.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              to="/contact" 
-              className="bg-secondary-500 text-white px-8 py-4 rounded-lg hover:bg-secondary-600 transform hover:scale-105 transition-all duration-300 font-semibold text-lg text-center"
-            >
-              Get Involved
-            </Link>
-            <Link 
-              to="/contact" 
-              className="border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-primary-600 transform hover:scale-105 transition-all duration-300 font-semibold text-lg text-center"
-            >
-              Contact Us
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Program Registration Modal */}
-      {showRegistrationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-bold text-primary-600">Register for Program</h3>
-                <button
-                  onClick={() => setShowRegistrationModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              {selectedProgram && (
-                <div className="mb-4 p-3 bg-primary-50 rounded-lg">
-                  <h4 className="font-semibold text-primary-600">{selectedProgram.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{selectedProgram.stats}</p>
+              {[
+                {
+                  title: 'Program Components',
+                  accent: '#00f594',
+                  items: [
+                    'School-based tree nursery establishment and management',
+                    'Training in tree propagation techniques and agroforestry',
+                    'Environmental education and climate literacy programs',
+                    'Income generation through seedling sales and services',
+                    'Community tree planting and care initiatives',
+                    'Partnership development with local nurseries',
+                  ],
+                },
+                {
+                  title: 'Expected Outcomes',
+                  accent: '#00d9ff',
+                  items: [
+                    'Increased tree cover in school compounds and communities',
+                    'Enhanced environmental awareness among students',
+                    'Sustainable income streams for participating schools',
+                    'Improved climate resilience in target communities',
+                    'Youth engagement in environmental stewardship',
+                    'Long-term sustainability through income activities',
+                  ],
+                },
+              ].map(({ title, accent, items }, i) => (
+                <div key={i}>
+                  <h3 className="font-display text-lg font-bold mb-5" style={{ color: accent }}>{title}</h3>
+                  <ul className="space-y-3">
+                    {items.map((item, j) => (
+                      <li key={j} className="flex items-start gap-3 text-sm text-neutral-400">
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: accent }} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )}
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-              {isSubmitted ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      {/* ══════════ KPIs ══════════ */}
+      <section className="py-24" style={{ background: '#060f1e' }}>
+        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center mb-14"
+          >
+            <p className="section-label justify-center">Measuring Impact</p>
+            <h2 className="font-display text-4xl md:text-5xl font-extrabold text-white">
+              Key Performance <span className="gradient-text">Indicators</span>
+            </h2>
+          </motion.div>
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid md:grid-cols-3 gap-5"
+          >
+            {kpis.map(({ title, icon, accent, items }, i) => (
+              <motion.div key={i} variants={fadeUp} className="glass rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300"
+                style={{ borderColor: `${accent}20` }}>
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                    style={{ background: `${accent}15`, border: `1px solid ${accent}25` }}>
+                    {icon}
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-white">{title}</h3>
+                </div>
+                <ul className="space-y-2.5">
+                  {items.map((item, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm text-neutral-400">
+                      <span className="mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: accent }} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════ CTA ══════════ */}
+      <section className="py-20 relative overflow-hidden" style={{ background: '#0d1526' }}>
+        <div className="glow-orb w-full h-full opacity-10"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(0,245,148,0.2) 0%, transparent 60%)' }} />
+        <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <motion.h2 variants={fadeUp} className="font-display text-4xl md:text-5xl font-extrabold text-white mb-5">
+              Join Our <span className="gradient-text">Mission</span>
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-neutral-400 text-lg max-w-xl mx-auto mb-10">
+              Volunteer, partner with us, or support our programs. Every contribution makes a difference.
+            </motion.p>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/contact" className="btn-primary text-base px-8 py-4">Get Involved</Link>
+              <Link to="/contact" className="btn-ghost text-base px-8 py-4">Contact Us</Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════ REGISTRATION MODAL ══════════ */}
+      <AnimatePresence>
+        {selectedProgram && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(3,8,18,0.85)', backdropFilter: 'blur(8px)' }}
+            onClick={(e) => e.target === e.currentTarget && setSelectedProgram(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+              className="glass-strong rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="p-7">
+                <div className="flex justify-between items-center mb-5">
+                  <h3 className="font-display text-xl font-bold text-white">Register Interest</h3>
+                  <button
+                    onClick={() => setSelectedProgram(null)}
+                    className="w-8 h-8 glass rounded-lg flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                  </div>
-                  <h4 className="text-xl font-bold text-primary-600 mb-2">Registration Successful!</h4>
-                  <p className="text-gray-700">We'll contact you soon with program details.</p>
+                  </button>
                 </div>
-              ) : (
-                <form onSubmit={handleRegistrationSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={registrationData.name}
-                      onChange={handleRegistrationChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Your full name"
-                    />
+
+                {/* Program info */}
+                <div className="rounded-xl p-4 mb-6"
+                  style={{ background: `${selectedProgram.accent}10`, border: `1px solid ${selectedProgram.accent}25` }}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span>{selectedProgram.icon}</span>
+                    <h4 className="font-display font-bold text-white">{selectedProgram.title}</h4>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={registrationData.email}
-                      onChange={handleRegistrationChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="your.email@example.com"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={registrationData.phone}
-                      onChange={handleRegistrationChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="+254 700 000 000"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Message (Optional)</label>
-                    <textarea
-                      name="message"
-                      value={registrationData.message}
-                      onChange={handleRegistrationChange}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                      placeholder="Tell us about your interest in this program..."
-                    />
-                  </div>
-                  
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowRegistrationModal(false)}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                        isSubmitting
-                          ? 'bg-gray-400 cursor-not-allowed text-white'
-                          : 'bg-primary-500 hover:bg-primary-600 text-white'
-                      }`}
-                    >
-                      {isSubmitting ? 'Registering...' : 'Register'}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                  <p className="text-xs" style={{ color: selectedProgram.accent }}>{selectedProgram.stats}</p>
+                </div>
+
+                {isSubmitted ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-8"
+                  >
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                      style={{ background: 'rgba(0,245,148,0.15)', border: '2px solid rgba(0,245,148,0.5)' }}>
+                      <svg className="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h4 className="font-display text-xl font-bold text-white mb-2">You're Registered!</h4>
+                    <p className="text-neutral-400 text-sm">We'll be in touch soon with program details.</p>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleRegistrationSubmit} className="space-y-4">
+                    {['name', 'email', 'phone'].map((field) => (
+                      <div key={field}>
+                        <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">
+                          {field === 'name' ? 'Full Name' : field === 'email' ? 'Email Address' : 'Phone Number'} *
+                        </label>
+                        <input
+                          type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                          name={field}
+                          value={registrationData[field]}
+                          onChange={handleRegistrationChange}
+                          required
+                          className="input-dark text-sm"
+                          placeholder={
+                            field === 'name' ? 'Your full name' :
+                            field === 'email' ? 'your@email.com' :
+                            '+254 700 000 000'
+                          }
+                        />
+                      </div>
+                    ))}
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">
+                        Message (Optional)
+                      </label>
+                      <textarea
+                        name="message"
+                        value={registrationData.message}
+                        onChange={handleRegistrationChange}
+                        rows={3}
+                        className="input-dark text-sm resize-none"
+                        placeholder="Tell us about your interest..."
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProgram(null)}
+                        className="btn-ghost flex-1 py-3 text-sm"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`btn-primary flex-1 py-3 text-sm justify-center ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      >
+                        {isSubmitting ? 'Registering…' : 'Register'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
