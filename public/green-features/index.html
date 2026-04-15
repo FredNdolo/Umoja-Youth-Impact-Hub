@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Inter:wght@300..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "primary-fixed": "#caecba",
+                "surface-container-high": "#e4eae3",
+                "surface-dim": "#d5dcd5",
+                "primary-fixed-dim": "#aed0a0",
+                "surface-variant": "#dee4dd",
+                "on-background": "#171d19",
+                "on-tertiary-fixed-variant": "#00530e",
+                "on-secondary": "#ffffff",
+                "on-secondary-fixed-variant": "#3c4d00",
+                "on-secondary-fixed": "#161e00",
+                "on-primary": "#ffffff",
+                "outline-variant": "#c3c8bc",
+                "on-surface": "#171d19",
+                "primary": "#011300",
+                "error-container": "#ffdad6",
+                "surface-container": "#e9efe9",
+                "inverse-primary": "#aed0a0",
+                "surface-container-lowest": "#ffffff",
+                "tertiary-fixed-dim": "#00e639",
+                "surface-bright": "#f5fbf4",
+                "outline": "#73796e",
+                "on-error": "#ffffff",
+                "tertiary": "#001401",
+                "primary-container": "#0f2a09",
+                "on-primary-fixed": "#062103",
+                "secondary-fixed": "#c3f400",
+                "surface-container-low": "#eff5ee",
+                "on-surface-variant": "#43483f",
+                "inverse-surface": "#2c322d",
+                "secondary": "#506600",
+                "secondary-fixed-dim": "#abd600",
+                "secondary-container": "#c1f100",
+                "on-tertiary-fixed": "#002203",
+                "on-tertiary": "#ffffff",
+                "on-error-container": "#93000a",
+                "tertiary-fixed": "#72ff70",
+                "inverse-on-surface": "#ecf2eb",
+                "error": "#ba1a1a",
+                "background": "#f5fbf4",
+                "on-primary-container": "#749468",
+                "tertiary-container": "#002c04",
+                "on-primary-fixed-variant": "#314e29",
+                "on-secondary-container": "#546b00",
+                "surface-container-highest": "#dee4dd",
+                "on-tertiary-container": "#00a225",
+                "surface": "#f5fbf4",
+                "surface-tint": "#48663e"
+            },
+            "borderRadius": {
+                "DEFAULT": "0px",
+                "lg": "0px",
+                "xl": "0px",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Space Grotesk"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .brutalist-border {
+            border-bottom: 1px solid rgba(15, 42, 9, 0.1);
+        }
+        .kerning-tight {
+            letter-spacing: -0.05em;
+        }
+        .kerning-loose {
+            letter-spacing: 0.15em;
+        }
+        .transition-brutalist {
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .hero-text-shadow {
+            text-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed antialiased">
+<!-- Navigation -->
+<nav class="fixed top-0 w-full z-[100] bg-background/80 backdrop-blur-md flex justify-between items-center px-6 md:px-12 py-5 border-b border-primary-container/5">
+<div class="text-xl md:text-2xl font-black kerning-tight text-primary-container font-headline uppercase">
+        GREEN FUTURES
+    </div>
+<div class="hidden md:flex gap-10 items-center">
+<a class="text-xs font-black kerning-loose text-primary-container/60 hover:text-primary transition-colors duration-300 uppercase" href="#">Program</a>
+<a class="text-xs font-black kerning-loose text-primary-container/60 hover:text-primary transition-colors duration-300 uppercase" href="#">Roadmap</a>
+<a class="text-xs font-black kerning-loose text-primary-container/60 hover:text-primary transition-colors duration-300 uppercase" href="#">Impact</a>
+<button class="bg-secondary-fixed text-on-secondary-fixed px-8 py-3 text-xs font-black kerning-loose uppercase hover:bg-primary-container hover:text-background transition-brutalist">
+            Take Action
+        </button>
+</div>
+<div class="md:hidden">
+<span class="material-symbols-outlined text-primary-container">menu</span>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-primary-container">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-50 mix-blend-overlay grayscale hover:grayscale-0 transition-all duration-1000" data-alt="dramatic wide angle shot of a massive reforestation project" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfGvJq0fn_QaVI-kVYOPZ-f9N-s9NDD_qeVbGbOg9DLhCUzEUvuOnykhQ83VcHBv82hwj_Ws6MpSJGvBCGrBeSw6VgA4Z07KYR_hcNMLX5qBu_LGZ69PJE4RMr0LE-ei6WoMebpprTbfaCFiHpvx5qgT_DLK2aehe7xk8fG4WMINGXAiLVfj0XtOgU6olRA--KN0MaRwSFThQkT4c3e06VtTBlUp7FIFCE8gZy5iysMecizdx0ENlZDkM88A88PPey4vhePLCdk3s"/>
+<div class="absolute inset-0 bg-gradient-to-br from-primary-container/90 via-primary-container/20 to-transparent"></div>
+</div>
+<div class="relative z-10 w-full px-6 md:px-12 lg:px-24">
+<div class="inline-flex items-center gap-3 mb-10">
+<div class="bg-secondary-fixed px-3 py-1 text-on-secondary-fixed text-[10px] font-black kerning-loose uppercase flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-on-secondary-fixed opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-on-secondary-fixed"></span>
+</span>
+                Phase 1 Live
+            </div>
+<div class="h-px w-12 bg-secondary-fixed/50"></div>
+</div>
+<h1 class="font-headline text-6xl md:text-8xl lg:text-[11rem] leading-[0.82] font-black text-background uppercase kerning-tight max-w-7xl mb-12 hero-text-shadow">
+            One seed.<br/>
+<span class="text-secondary-fixed">Two crises</span><br/>
+            solved.
+        </h1>
+<div class="flex flex-col md:flex-row gap-12 items-start md:items-center">
+<p class="text-background/70 text-lg md:text-xl font-medium max-w-xl leading-relaxed">
+                Aggressive conservation meets economic empowerment. We aren't just planting trees; we're building an unstoppable cycle of restoration.
+            </p>
+<div class="flex gap-4">
+<button class="w-16 h-16 rounded-full border border-background/20 flex items-center justify-center text-background hover:bg-secondary-fixed hover:text-on-secondary-fixed hover:border-secondary-fixed transition-brutalist group">
+<span class="material-symbols-outlined text-3xl group-hover:translate-y-1 transition-transform">arrow_downward</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Stats Section -->
+<section class="bg-background py-24 md:py-40">
+<div class="px-6 md:px-12 lg:px-24 grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-0">
+<div class="flex flex-col group">
+<div class="flex items-baseline gap-2 mb-4">
+<span class="font-headline text-8xl md:text-9xl font-black text-secondary-fixed kerning-tight leading-none group-hover:scale-105 transition-brutalist origin-left">200+</span>
+</div>
+<span class="text-primary-container font-headline font-black uppercase text-xs kerning-loose mb-6 block border-b border-primary-container/10 pb-4">Social Impact Reach</span>
+<p class="text-lg font-medium text-primary-container/60 max-w-xs leading-snug">Empowering young girls through ecological training and leadership modules.</p>
+</div>
+<div class="flex flex-col group md:px-12 md:border-l border-primary-container/5">
+<div class="flex items-baseline gap-2 mb-4">
+<span class="font-headline text-8xl md:text-9xl font-black text-primary-container kerning-tight leading-none group-hover:text-secondary-fixed transition-brutalist">3</span>
+</div>
+<span class="text-primary-container font-headline font-black uppercase text-xs kerning-loose mb-6 block border-b border-primary-container/10 pb-4">Strategic Alliances</span>
+<p class="text-lg font-medium text-primary-container/60 max-w-xs leading-snug">Key diplomatic MOUs signed with international conservation partners.</p>
+</div>
+<div class="flex flex-col group md:px-12 md:border-l border-primary-container/5">
+<div class="flex items-baseline gap-2 mb-4">
+<span class="font-headline text-8xl md:text-9xl font-black text-primary-container kerning-tight leading-none group-hover:text-secondary-fixed transition-brutalist">10K</span>
+</div>
+<span class="text-primary-container font-headline font-black uppercase text-xs kerning-loose mb-6 block border-b border-primary-container/10 pb-4">Conservation Milestone</span>
+<p class="text-lg font-medium text-primary-container/60 max-w-xs leading-snug">Native seedlings targeted for immediate reforestation in Phase 1 zones.</p>
+</div>
+</div>
+</section>
+<!-- Infrastructure Grid -->
+<section class="py-24 md:py-40 bg-surface-container-low">
+<div class="px-6 md:px-12 lg:px-24 mb-24 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12">
+<h2 class="font-headline text-5xl md:text-7xl font-black text-primary-container uppercase leading-[0.85] kerning-tight">
+            The Core<br/><span class="text-primary-container/30">Infrastructure</span>
+</h2>
+<p class="text-on-surface-variant max-w-md text-lg font-medium leading-relaxed">
+            Our model operates on four rigid pillars of intervention, ensuring that every dollar invested triggers a self-sustaining chain reaction of impact.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 px-6 md:px-12 lg:px-24 gap-px bg-primary-container/5">
+<!-- Pillar Cards -->
+<div class="bg-background p-10 md:p-14 hover:bg-primary-container transition-brutalist group cursor-pointer flex flex-col justify-between aspect-square lg:aspect-auto lg:h-[500px]">
+<div>
+<span class="font-headline text-xs font-black text-secondary-fixed kerning-loose block mb-10 group-hover:text-background">PILLAR 01</span>
+<span class="material-symbols-outlined text-5xl text-primary-container group-hover:text-secondary-fixed mb-8 transition-brutalist" data-icon="eco">eco</span>
+<h3 class="font-headline text-2xl font-black text-primary-container group-hover:text-background uppercase leading-tight">Environmental Restoration</h3>
+</div>
+<p class="text-on-surface-variant group-hover:text-background/60 leading-relaxed font-medium">
+                Aggressive reforestation using native species to rebuild lost ecosystems and stabilize local climates.
+            </p>
+</div>
+<div class="bg-background p-10 md:p-14 hover:bg-primary-container transition-brutalist group cursor-pointer flex flex-col justify-between aspect-square lg:aspect-auto lg:h-[500px]">
+<div>
+<span class="font-headline text-xs font-black text-secondary-fixed kerning-loose block mb-10 group-hover:text-background">PILLAR 02</span>
+<span class="material-symbols-outlined text-5xl text-primary-container group-hover:text-secondary-fixed mb-8 transition-brutalist" data-icon="payments">payments</span>
+<h3 class="font-headline text-2xl font-black text-primary-container group-hover:text-background uppercase leading-tight">Economic Empowerment</h3>
+</div>
+<p class="text-on-surface-variant group-hover:text-background/60 leading-relaxed font-medium">
+                Creating direct revenue streams for local communities through nursery management and seedling sales.
+            </p>
+</div>
+<div class="bg-background p-10 md:p-14 hover:bg-primary-container transition-brutalist group cursor-pointer flex flex-col justify-between aspect-square lg:aspect-auto lg:h-[500px]">
+<div>
+<span class="font-headline text-xs font-black text-secondary-fixed kerning-loose block mb-10 group-hover:text-background">PILLAR 03</span>
+<span class="material-symbols-outlined text-5xl text-primary-container group-hover:text-secondary-fixed mb-8 transition-brutalist" data-icon="groups">groups</span>
+<h3 class="font-headline text-2xl font-black text-primary-container group-hover:text-background uppercase leading-tight">Capacity Building</h3>
+</div>
+<p class="text-on-surface-variant group-hover:text-background/60 leading-relaxed font-medium">
+                Training and mentorship programs focused on technical ecological skills and business administration.
+            </p>
+</div>
+<div class="bg-background p-10 md:p-14 hover:bg-primary-container transition-brutalist group cursor-pointer flex flex-col justify-between aspect-square lg:aspect-auto lg:h-[500px]">
+<div>
+<span class="font-headline text-xs font-black text-secondary-fixed kerning-loose block mb-10 group-hover:text-background">PILLAR 04</span>
+<span class="material-symbols-outlined text-5xl text-primary-container group-hover:text-secondary-fixed mb-8 transition-brutalist" data-icon="sync">sync</span>
+<h3 class="font-headline text-2xl font-black text-primary-container group-hover:text-background uppercase leading-tight">Self-Sustaining Cycle</h3>
+</div>
+<p class="text-on-surface-variant group-hover:text-background/60 leading-relaxed font-medium">
+                A circular financial model where profits from environmental services fund further conservation efforts.
+            </p>
+</div>
+</div>
+</section>
+<!-- Strategic Roadmap -->
+<section class="py-24 md:py-40 bg-primary-container overflow-hidden">
+<div class="px-6 md:px-12 lg:px-24">
+<h2 class="font-headline text-4xl md:text-6xl font-black text-background uppercase mb-24 kerning-tight">Deployment Strategy</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-24 relative">
+<div class="absolute top-8 left-0 w-full h-px bg-background/10 hidden lg:block"></div>
+<div class="relative group">
+<div class="w-16 h-16 bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-black text-2xl mb-12 relative z-10 transition-brutalist group-hover:rotate-90">
+                    01
+                </div>
+<h4 class="text-secondary-fixed font-headline text-[10px] font-black uppercase kerning-loose mb-4">Phase 01 — ACTIVE</h4>
+<h3 class="text-background font-headline text-3xl font-black uppercase kerning-tight mb-6">Preparation</h3>
+<p class="text-background/50 leading-relaxed font-medium max-w-xs mb-8">
+                    Site assessment, MOU finalization, and nursery infrastructure setup in target regions.
+                </p>
+<div class="h-1 bg-secondary-fixed w-full transform origin-left scale-x-100 transition-transform"></div>
+</div>
+<div class="relative group">
+<div class="w-16 h-16 bg-background/5 text-background/30 border border-background/20 flex items-center justify-center font-black text-2xl mb-12 relative z-10 transition-brutalist group-hover:bg-background/10">
+                    02
+                </div>
+<h4 class="text-background/40 font-headline text-[10px] font-black uppercase kerning-loose mb-4">Phase 02 — Q3 2024</h4>
+<h3 class="text-background font-headline text-3xl font-black uppercase kerning-tight mb-6">Execution</h3>
+<p class="text-background/50 leading-relaxed font-medium max-w-xs mb-8">
+                    Recruitment of 200+ participants and ecological certification training modules.
+                </p>
+<div class="h-px bg-background/10 w-full"></div>
+</div>
+<div class="relative group">
+<div class="w-16 h-16 bg-background/5 text-background/30 border border-background/20 flex items-center justify-center font-black text-2xl mb-12 relative z-10 transition-brutalist group-hover:bg-background/10">
+                    03
+                </div>
+<h4 class="text-background/40 font-headline text-[10px] font-black uppercase kerning-loose mb-4">Phase 03 — Q4 2024</h4>
+<h3 class="text-background font-headline text-3xl font-black uppercase kerning-tight mb-6">Optimization</h3>
+<p class="text-background/50 leading-relaxed font-medium max-w-xs mb-8">
+                    Seedling distribution, carbon offset auditing, and revenue generation tracking.
+                </p>
+<div class="h-px bg-background/10 w-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Verified Progress & Quote -->
+<section class="py-24 md:py-40 bg-background overflow-hidden">
+<div class="px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-24">
+<div class="lg:col-span-6">
+<div class="mb-16">
+<h2 class="font-headline text-5xl font-black text-primary-container uppercase kerning-tight mb-6">Verified Progress</h2>
+<div class="h-1 w-24 bg-secondary-fixed"></div>
+</div>
+<div class="space-y-4">
+<div class="p-8 border border-primary-container/10 flex items-start gap-8 hover:border-secondary-fixed transition-brutalist group">
+<span class="material-symbols-outlined text-4xl text-secondary-fixed" data-icon="verified">verified</span>
+<div>
+<h4 class="text-xl font-black uppercase font-headline text-primary-container mb-2">Participant Reach</h4>
+<p class="text-on-surface-variant font-medium leading-relaxed">200+ individuals onboarded and verified in our regional impact network.</p>
+</div>
+</div>
+<div class="p-8 border border-primary-container/10 flex items-start gap-8 opacity-40 hover:opacity-100 hover:border-primary-container transition-brutalist">
+<span class="material-symbols-outlined text-4xl text-primary-container/30" data-icon="pending">pending</span>
+<div>
+<h4 class="text-xl font-black uppercase font-headline text-primary-container mb-2">Seedling Quota</h4>
+<p class="text-on-surface-variant font-medium leading-relaxed">Systematically progressing towards the 10,000 unit milestone for Phase 1.</p>
+</div>
+</div>
+<div class="p-8 border border-primary-container/10 flex items-start gap-8 opacity-40 hover:opacity-100 hover:border-primary-container transition-brutalist">
+<span class="material-symbols-outlined text-4xl text-primary-container/30" data-icon="public">public</span>
+<div>
+<h4 class="text-xl font-black uppercase font-headline text-primary-container mb-2">Export Capability</h4>
+<p class="text-on-surface-variant font-medium leading-relaxed">Drafting logistics for international sustainable sapling distribution.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6 relative">
+<div class="bg-primary-container p-12 md:p-20 text-background h-full flex flex-col justify-center relative z-10">
+<span class="material-symbols-outlined text-7xl text-secondary-fixed mb-12 block" data-icon="format_quote">format_quote</span>
+<blockquote class="text-3xl md:text-4xl font-light leading-[1.3] italic mb-16 font-headline kerning-tight">
+                    "Green Futures is not a charity project; it is an <span class="text-secondary-fixed">economic intervention</span> designed to make conservation the most profitable path for local communities."
+                </blockquote>
+<div class="flex items-center gap-6">
+<div class="h-16 w-16 bg-secondary-fixed grayscale hover:grayscale-0 transition-all duration-500 overflow-hidden">
+<img alt="Executive" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCweJTTcoURHbmNYA_sboptVTGlr6wi13aJOZVx6UA0iGm3-v759zCxL9ursAHAF6FyU9EmVlgZJezpoS7cr7XvMJB49W7buz-Rz2Rq8hX4ndIRkvpMvzJSht0gPSpp-60q-YEHjdliza97iwN5BaTRbmmVkPZru7dqenfyan39D_Pu0OHcL6nhEiDwsDtBW8uoRd4ndosTcTwVyCuSNPcvc_HSIMThQl8mJhcGQAJfYA4m0HGKLLmMK4zBMw9S7IUoac5bVq07bNc"/>
+</div>
+<div>
+<p class="font-black uppercase kerning-loose text-[10px] text-background/60 mb-1">Executive Director</p>
+<p class="text-secondary-fixed font-headline font-bold text-lg">Umoja Youth Impact Hub</p>
+</div>
+</div>
+</div>
+<!-- Geometric Accents -->
+<div class="absolute -top-12 -right-12 w-48 h-48 border-t-8 border-r-8 border-secondary-fixed/20 hidden lg:block"></div>
+<div class="absolute -bottom-12 -left-12 w-48 h-48 bg-secondary-fixed/5 hidden lg:block"></div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="py-24 md:py-40 bg-secondary-fixed text-on-secondary-fixed">
+<div class="px-6 md:px-12 lg:px-24 flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-24">
+<div class="max-w-3xl text-center lg:text-left">
+<h2 class="font-headline text-5xl md:text-8xl font-black uppercase kerning-tight leading-[0.85] mb-10">
+                Ready to scale<br/>the impact?
+            </h2>
+<p class="text-xl md:text-2xl font-medium opacity-70 leading-relaxed max-w-xl">
+                We are seeking strategic partners to accelerate Phase 2 deployment across the sub-region.
+            </p>
+</div>
+<div class="flex flex-col sm:flex-row gap-6 w-full lg:w-auto">
+<button class="bg-primary-container text-background px-12 py-8 text-xl font-black font-headline uppercase kerning-tight hover:scale-[1.02] transition-brutalist flex items-center justify-center gap-4 group">
+                Become a partner
+                <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="bg-transparent border-[3px] border-primary-container text-primary-container px-12 py-8 text-xl font-black font-headline uppercase kerning-tight hover:bg-primary-container hover:text-background transition-brutalist">
+                Concept Note
+            </button>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-primary-container py-24 px-6 md:px-12 lg:px-24 border-t border-background/5">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-16">
+<div>
+<div class="text-secondary-fixed font-black kerning-tight text-3xl font-headline uppercase mb-4">GREEN FUTURES</div>
+<p class="text-background/40 font-body text-xs kerning-loose uppercase">© 2024 Green Futures Global. Aggressive Conservation Strategies.</p>
+</div>
+<div class="grid grid-cols-2 md:flex gap-x-12 gap-y-6">
+<a class="text-background/50 hover:text-secondary-fixed transition-colors font-headline text-xs font-black kerning-loose uppercase" href="#">Privacy</a>
+<a class="text-background/50 hover:text-secondary-fixed transition-colors font-headline text-xs font-black kerning-loose uppercase" href="#">Strategy</a>
+<a class="text-background/50 hover:text-secondary-fixed transition-colors font-headline text-xs font-black kerning-loose uppercase" href="#">Impact Reports</a>
+<a class="text-background/50 hover:text-secondary-fixed transition-colors font-headline text-xs font-black kerning-loose uppercase" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>
