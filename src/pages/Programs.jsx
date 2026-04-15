@@ -7,6 +7,7 @@ const fadeUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
 };
+
 const stagger = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.1 } },
@@ -25,10 +26,10 @@ const programs = [
   {
     id: 2,
     title: 'Green Futures Initiative',
-    description: 'Flagship program empowering school communities through tree propagation, sustainable income generation, agroforestry training, and school-based nurseries that generate income through seedling sales.',
+    description: 'Our flagship program turning school grounds into productive tree nurseries that simultaneously provide sanitary supplies for girls and restore degraded ecosystems in Narok East.',
     image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
     icon: '🌳',
-    stats: '15 schools · 3,000+ trees',
+    stats: 'Phase 1 Live • 3 pilot schools • 200+ girls supported',
     accent: '#00f594',
   },
   {
@@ -107,13 +108,9 @@ export default function Programs() {
 
   return (
     <div className="min-h-screen" style={{ background: '#060f1e' }}>
-      {/* ══════════ HERO ══════════ */}
-      <section
-        className="relative pt-32 pb-24 overflow-hidden hero-grid"
-        style={{ background: '#030812' }}
-      >
-        <div className="glow-orb w-[600px] h-[600px] -top-40 left-1/3 opacity-30"
-          style={{ background: 'rgba(0,217,255,0.12)' }} />
+      {/* HERO */}
+      <section className="relative pt-32 pb-24 overflow-hidden hero-grid" style={{ background: '#030812' }}>
+        <div className="glow-orb w-[600px] h-[600px] -top-40 left-1/3 opacity-30" style={{ background: 'rgba(0,217,255,0.12)' }} />
         <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
           <motion.div variants={stagger} initial="hidden" animate="visible">
             <motion.p variants={fadeUp} className="section-label justify-center">What We Do</motion.p>
@@ -127,7 +124,7 @@ export default function Programs() {
         </div>
       </section>
 
-      {/* ══════════ PROGRAMS GRID ══════════ */}
+      {/* PROGRAMS GRID */}
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8">
           <motion.div
@@ -137,16 +134,19 @@ export default function Programs() {
             viewport={{ once: true, margin: '-60px' }}
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {programs.map((program, i) => (
+            {programs.map((program) => (
               <motion.div
                 key={program.id}
                 variants={fadeUp}
                 className="glass rounded-2xl overflow-hidden group cursor-pointer hover:-translate-y-2 transition-all duration-400"
                 style={{ borderColor: `${program.accent}20` }}
-                onClick={() => setSelectedProgram(program)}
+                onClick={() =>
+                  program.id === 2
+                    ? window.open('/green-futures', '_blank')   // Correct link for public/green-futures/index.html
+                    : setSelectedProgram(program)
+                }
                 whileHover={{ boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${program.accent}18` }}
               >
-                {/* Image */}
                 <div className="relative h-52 overflow-hidden">
                   <img
                     src={program.image}
@@ -155,12 +155,10 @@ export default function Programs() {
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-dark-950 via-dark-950/40 to-transparent" />
-                  {/* Icon badge */}
                   <div className="absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center text-xl"
                     style={{ background: `${program.accent}25`, border: `1px solid ${program.accent}40`, backdropFilter: 'blur(8px)' }}>
                     {program.icon}
                   </div>
-                  {/* Stats badge */}
                   <div className="absolute bottom-4 left-4">
                     <span className="px-3 py-1 rounded-full text-xs font-semibold"
                       style={{ background: `${program.accent}20`, border: `1px solid ${program.accent}40`, color: program.accent, backdropFilter: 'blur(8px)' }}>
@@ -168,14 +166,12 @@ export default function Programs() {
                     </span>
                   </div>
                 </div>
-
-                {/* Content */}
                 <div className="p-6">
                   <h3 className="font-display text-xl font-bold text-white mb-3">{program.title}</h3>
                   <p className="text-neutral-400 text-sm leading-relaxed mb-5 line-clamp-3">{program.description}</p>
                   <div className="flex items-center gap-2 text-sm font-semibold transition-colors duration-200"
                     style={{ color: program.accent }}>
-                    <span>Register Interest</span>
+                    <span>Learn More</span>
                     <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -187,7 +183,7 @@ export default function Programs() {
         </div>
       </section>
 
-      {/* ══════════ GREEN FUTURES FEATURE ══════════ */}
+      {/* GREEN FUTURES SHORT TEASER */}
       <section className="py-24" style={{ background: '#0d1526' }}>
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <motion.div
@@ -205,54 +201,24 @@ export default function Programs() {
                 Green Futures Initiative
               </h2>
               <p className="text-neutral-400 max-w-2xl mx-auto">
-                Empowering school communities through tree propagation and sustainable income generation.
+                One seed. Two crises solved. Turning school grounds into productive nurseries that fund sanitary supplies for girls and restore ecosystems in Narok East.
               </p>
             </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              {[
-                {
-                  title: 'Program Components',
-                  accent: '#00f594',
-                  items: [
-                    'School-based tree nursery establishment and management',
-                    'Training in tree propagation techniques and agroforestry',
-                    'Environmental education and climate literacy programs',
-                    'Income generation through seedling sales and services',
-                    'Community tree planting and care initiatives',
-                    'Partnership development with local nurseries',
-                  ],
-                },
-                {
-                  title: 'Expected Outcomes',
-                  accent: '#00d9ff',
-                  items: [
-                    'Increased tree cover in school compounds and communities',
-                    'Enhanced environmental awareness among students',
-                    'Sustainable income streams for participating schools',
-                    'Improved climate resilience in target communities',
-                    'Youth engagement in environmental stewardship',
-                    'Long-term sustainability through income activities',
-                  ],
-                },
-              ].map(({ title, accent, items }, i) => (
-                <div key={i}>
-                  <h3 className="font-display text-lg font-bold mb-5" style={{ color: accent }}>{title}</h3>
-                  <ul className="space-y-3">
-                    {items.map((item, j) => (
-                      <li key={j} className="flex items-start gap-3 text-sm text-neutral-400">
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: accent }} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+
+            <div className="flex justify-center">
+              <a
+                href="/green-futures"
+                target="_blank"
+                className="btn-primary text-base px-10 py-4 inline-flex items-center gap-3 hover:scale-105 transition-transform"
+              >
+                Explore Full Green Futures Program →
+              </a>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ══════════ KPIs ══════════ */}
+      {/* KPIs */}
       <section className="py-24" style={{ background: '#060f1e' }}>
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <motion.div
@@ -298,7 +264,7 @@ export default function Programs() {
         </div>
       </section>
 
-      {/* ══════════ CTA ══════════ */}
+      {/* CTA */}
       <section className="py-20 relative overflow-hidden" style={{ background: '#0d1526' }}>
         <div className="glow-orb w-full h-full opacity-10"
           style={{ background: 'radial-gradient(ellipse at center, rgba(0,245,148,0.2) 0%, transparent 60%)' }} />
@@ -318,7 +284,7 @@ export default function Programs() {
         </div>
       </section>
 
-      {/* ══════════ REGISTRATION MODAL ══════════ */}
+      {/* REGISTRATION MODAL */}
       <AnimatePresence>
         {selectedProgram && (
           <motion.div
@@ -349,7 +315,6 @@ export default function Programs() {
                   </button>
                 </div>
 
-                {/* Program info */}
                 <div className="rounded-xl p-4 mb-6"
                   style={{ background: `${selectedProgram.accent}10`, border: `1px solid ${selectedProgram.accent}25` }}>
                   <div className="flex items-center gap-2 mb-1">
@@ -360,11 +325,7 @@ export default function Programs() {
                 </div>
 
                 {isSubmitted ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-8"
-                  >
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
                       style={{ background: 'rgba(0,245,148,0.15)', border: '2px solid rgba(0,245,148,0.5)' }}>
                       <svg className="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
