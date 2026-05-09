@@ -96,18 +96,6 @@ export default function Programs() {
   const handleRegistrationSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-<<<<<<< Updated upstream
-    await new Promise((r) => setTimeout(r, 1800));
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setSelectedProgram(null);
-      setRegistrationData({ name: '', email: '', phone: '', message: '' });
-    }, 3000);
-    setIsSubmitting(false);
-  };
-
-=======
     
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -177,7 +165,6 @@ export default function Programs() {
     }
   ];
 
->>>>>>> Stashed changes
   return (
     <div className="min-h-screen" style={{ background: '#060f1e' }}>
       {/* HERO */}
@@ -196,7 +183,6 @@ export default function Programs() {
         </div>
       </section>
 
-<<<<<<< Updated upstream
       {/* PROGRAMS GRID */}
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8">
@@ -215,27 +201,10 @@ export default function Programs() {
                 style={{ borderColor: `${program.accent}20` }}
                 onClick={() =>
                   program.id === 2
-                    ? window.open('/green-futures', '_blank')   // Correct link for public/green-futures/index.html
+                    ? window.open('/green-futures', '_blank')
                     : setSelectedProgram(program)
                 }
                 whileHover={{ boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${program.accent}18` }}
-=======
-      {/* Programs Grid */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {programs.map((program) => (
-              <div
-                key={program.id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
-                onMouseEnter={() => setActiveProgram(program.id)}
-                onMouseLeave={() => setActiveProgram(null)}
-                onClick={() => 
-                  program.id === 2 
-                    ? window.open('/green-futures.html', '_blank') 
-                    : handleProgramClick(program)
-                }
->>>>>>> Stashed changes
               >
                 <div className="relative h-52 overflow-hidden">
                   <img
@@ -273,7 +242,6 @@ export default function Programs() {
         </div>
       </section>
 
-<<<<<<< Updated upstream
       {/* GREEN FUTURES SHORT TEASER */}
       <section className="py-24" style={{ background: '#0d1526' }}>
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
@@ -306,37 +274,6 @@ export default function Programs() {
               </a>
             </div>
           </motion.div>
-=======
-      {/* Green Futures Flagship Teaser */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-neutral-100">
-            <div className="grid md:grid-cols-2">
-              <div className="relative h-80 md:h-full min-h-[340px]">
-                <img 
-                  src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&q=80" 
-                  alt="Green Futures tree nursery"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
-              </div>
-              <div className="p-10 md:p-12 flex flex-col justify-center">
-                <div className="text-emerald-600 font-semibold mb-3">★ Flagship Program</div>
-                <h2 className="text-4xl font-bold text-primary-600 mb-6">Green Futures Initiative</h2>
-                <p className="text-neutral-700 text-lg leading-relaxed mb-8">
-                  One seed. Two crises solved. Turning school grounds into productive nurseries that fund sanitary supplies for girls and restore ecosystems.
-                </p>
-                <a 
-                  href="/green-futures.html" 
-                  target="_blank"
-                  className="btn-primary inline-flex items-center gap-3 w-fit"
-                >
-                  Explore Full Program →
-                </a>
-              </div>
-            </div>
-          </div>
->>>>>>> Stashed changes
         </div>
       </section>
 

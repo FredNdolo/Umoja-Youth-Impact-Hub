@@ -168,7 +168,6 @@ function Footer() {
           </div>
         </div>
 
-<<<<<<< Updated upstream
         {/* Newsletter */}
         <div className="glass rounded-2xl p-6 md:p-8 mb-10"
           style={{ background: 'rgba(0,245,148,0.04)', borderColor: 'rgba(0,245,148,0.15)' }}>
@@ -212,8 +211,6 @@ function Footer() {
           </div>
         </div>
 
-=======
->>>>>>> Stashed changes
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-6 border-t border-white/[0.06]">
           <p className="text-neutral-500 text-xs">
