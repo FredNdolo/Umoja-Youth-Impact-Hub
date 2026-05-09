@@ -104,7 +104,6 @@ function About() {
         </div>
       </section>
 
-<<<<<<< Updated upstream
       {/* ══════════ STORY ══════════ */}
       <section className="py-24" style={{ background: '#060f1e' }}>
         <div className="container mx-auto px-4 md:px-8">
@@ -119,13 +118,6 @@ function About() {
               {/* Neon frame effect */}
               <div className="absolute -inset-1 rounded-3xl opacity-40"
                 style={{ background: 'linear-gradient(135deg, rgba(0,245,148,0.3), rgba(0,217,255,0.3))', filter: 'blur(8px)' }} />
-=======
-      {/* Story Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <div className={`transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
->>>>>>> Stashed changes
               <img
                 src={storyImage}
                 alt="UYIH Story"
@@ -156,7 +148,6 @@ function About() {
                 Green Futures Initiative empowers school communities through tree propagation and
                 sustainable income generation.
               </p>
-<<<<<<< Updated upstream
               <div className="flex flex-wrap gap-3">
                 {['Healthcare', 'Environment', 'Youth Empowerment', 'Green Futures'].map((tag) => (
                   <span
@@ -167,29 +158,12 @@ function About() {
                     {tag}
                   </span>
                 ))}
-=======
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {values.map((value, index) => (
-              <div key={index} className="bg-gradient-to-br from-neutral-50 to-white p-6 rounded-xl shadow-lg text-center">
-                <div className="text-4xl mb-4">{value.icon}</div>
-                <h3 className="text-xl font-bold text-primary-600 mb-3">{value.title}</h3>
-                <p className="text-gray-700">{value.description}</p>
->>>>>>> Stashed changes
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-<<<<<<< Updated upstream
       {/* ══════════ VALUES ══════════ */}
       <section className="py-24" style={{ background: '#0d1526' }}>
         <div className="container mx-auto px-4 md:px-8">
@@ -233,26 +207,6 @@ function About() {
                   style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
                 />
               </motion.div>
-=======
-      {/* Team Section with Title */}
-      <section className="py-20 bg-gradient-to-br from-primary-50 to-white">
-        <div className="container mx-auto px-4">
-          {/* Added Team Title */}
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-600 text-center mb-12">
-            Team
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {teamMembers.map((member, index) => (
-              <div 
-                key={index} 
-                className="bg-white p-6 rounded-xl shadow-lg text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
-              >
-                <h3 className="text-xl font-bold text-primary-600 mb-2">{member.name}</h3>
-                <p className="text-secondary-500 font-semibold mb-3">{member.role}</p>
-                <p className="text-gray-700 text-sm">{member.bio}</p>
-              </div>
->>>>>>> Stashed changes
             ))}
           </motion.div>
         </div>
