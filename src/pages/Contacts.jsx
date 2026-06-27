@@ -1,26 +1,23 @@
 // File: src/pages/Contacts.jsx
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import contactImage from '../assets/contact-image.jpg';
+import { motion } from 'framer-motion';
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
+  hidden:  { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } },
 };
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-const fadeLeft = {
-  hidden: { opacity: 0, x: -40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: 'easeOut' } },
-};
-const fadeRight = {
-  hidden: { opacity: 0, x: 40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: 'easeOut' } },
-};
+const stagger = { visible: { transition: { staggerChildren: 0.12 } } };
 
-const contactDetails = [
+const subjects = [
+  'Volunteer Enquiry',
+  'Partnership / MOU',
+  'Program Information',
+  'Donation / Funding',
+  'Media / Press',
+  'General Enquiry',
+];
+
+const contactInfo = [
   {
     icon: (
       <>
@@ -29,333 +26,265 @@ const contactDetails = [
       </>
     ),
     label: 'Location',
-    value: 'Narok, Kenya',
-    accent: '#00f594',
+    value: 'Narok County, Kenya',
+    href: null,
   },
   {
-    icon: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-    ),
+    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
     label: 'Email',
     value: 'umojayouthhub@gmail.com',
-    accent: '#00d9ff',
+    href: 'mailto:umojayouthhub@gmail.com',
   },
   {
-    icon: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-    ),
+    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />,
     label: 'Phone',
     value: '+254 783 218 081',
-    accent: '#ff5e1f',
+    href: 'tel:+254783218081',
   },
 ];
 
-const faqs = [
-  {
-    q: 'Who can participate in UYIH programs?',
-    a: 'Youth, caregivers, schools, and community members. Some trainings have limited slots — follow our socials for calls.',
-  },
-  {
-    q: 'Do you offer certificates?',
-    a: 'Yes — upon completing specified training hours and assessments in selected bootcamps.',
-  },
-  {
-    q: 'How can organizations partner with UYIH?',
-    a: 'Email partnership proposals to umojayouthhub@gmail.com with scope, timelines, and expected outcomes.',
-  },
+const involvedOptions = [
+  { icon: '🙌', title: 'Volunteer',   desc: 'Join our team on the ground in Narok East — program delivery, outreach, skills training, and more.' },
+  { icon: '🤝', title: 'Partner',     desc: 'Formalise collaboration through an MOU. We welcome NGOs, schools, government bodies, and businesses.' },
+  { icon: '💛', title: 'Support',     desc: 'Fund a program, sponsor a school nursery kit, or donate sanitary supplies for girls in our network.' },
+  { icon: '📣', title: 'Advocate',    desc: 'Amplify our work through your networks, media, or advocacy platforms to expand our reach.' },
 ];
 
-export default function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
-  };
+export default function Contacts() {
+  const [form, setForm]       = useState({ name: '', email: '', phone: '', subject: '', message: '' });
+  const [errors, setErrors]   = useState({});
+  const [status, setStatus]   = useState('idle'); // idle | loading | success | error
 
   const validate = () => {
     const e = {};
-    if (!formData.name.trim()) e.name = 'Name is required';
-    if (!formData.email.trim()) e.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email = 'Email is invalid';
-    if (!formData.subject.trim()) e.subject = 'Subject is required';
-    if (!formData.message.trim()) e.message = 'Message is required';
-    else if (formData.message.trim().length < 10) e.message = 'Message must be at least 10 characters';
+    if (!form.name.trim())    e.name    = 'Name is required';
+    if (!form.email.trim())   e.email   = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email';
+    if (!form.subject)        e.subject = 'Please select a subject';
+    if (!form.message.trim()) e.message = 'Message is required';
     return e;
+  };
+
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    if (errors[e.target.name]) setErrors(prev => ({ ...prev, [e.target.name]: '' }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 2000));
-    setIsSubmitted(true);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    setIsSubmitting(false);
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    setStatus('loading');
+    try {
+      await new Promise(r => setTimeout(r, 1500));
+      setStatus('success');
+      setForm({ name: '', email: '', phone: '', subject: '', message: '' });
+      setTimeout(() => setStatus('idle'), 6000);
+    } catch {
+      setStatus('error');
+    }
   };
 
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#060f1e' }}>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="glass rounded-2xl p-12 text-center max-w-md w-full"
-          style={{ borderColor: 'rgba(0,245,148,0.2)' }}
-        >
-          <div className="relative inline-flex mb-6">
-            <div className="absolute inset-0 rounded-full blur-xl opacity-60" style={{ background: '#00f594' }} />
-            <div className="relative w-20 h-20 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(0,245,148,0.15)', border: '2px solid rgba(0,245,148,0.5)' }}>
-              <svg className="w-10 h-10 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          </div>
-          <h2 className="font-display text-3xl font-extrabold text-white mb-3">Message Sent!</h2>
-          <p className="text-neutral-400 mb-8">
-            Thank you for reaching out. We'll get back to you within 24 hours.
-          </p>
-          <button onClick={() => setIsSubmitted(false)} className="btn-primary px-8 py-3">
-            Send Another Message
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen" style={{ background: '#060f1e' }}>
-      {/* ══════════ HERO ══════════ */}
-      <section className="relative pt-32 pb-24 hero-grid overflow-hidden" style={{ background: '#030812' }}>
-        <div className="glow-orb w-[500px] h-[500px] -top-32 right-0 opacity-25"
-          style={{ background: 'rgba(255,94,31,0.12)' }} />
-        <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
+    <div className="bg-cream">
+
+      {/* ══ HERO ══════════════════════════════════════════════════ */}
+      <section className="relative pt-32 pb-20 bg-forest overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'radial-gradient(circle at 60% 40%, rgba(196,98,45,0.12) 0%, transparent 55%)',
+        }} />
+        <div className="container-narrow relative z-10 text-center">
           <motion.div variants={stagger} initial="hidden" animate="visible">
-            <motion.p variants={fadeUp} className="section-label justify-center">Reach Out</motion.p>
-            <motion.h1 variants={fadeUp} className="font-display text-5xl md:text-7xl font-extrabold text-white mb-6">
-              Contact <span className="gradient-text">Us</span>
+            <motion.span variants={fadeUp} className="eyebrow text-cream/60 mb-6 justify-center block">Reach Out</motion.span>
+            <motion.h1 variants={fadeUp} className="font-display font-bold text-display-2xl text-cream mb-6">
+              Contact <span className="text-terracotta">UYIH</span>
             </motion.h1>
-            <motion.p variants={fadeUp} className="text-neutral-400 text-xl max-w-xl mx-auto">
-              We'd love to hear from you. Get in touch — we respond within 24 hours.
+            <motion.p variants={fadeUp} className="font-sans text-lg text-cream/70 max-w-lg mx-auto leading-relaxed">
+              Reach out to empower our community. Whether you want to volunteer, partner, or just learn more — we would love to hear from you.
             </motion.p>
           </motion.div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-terracotta" />
       </section>
 
-      {/* ══════════ CONTACT GRID ══════════ */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            {/* Left column */}
-            <motion.div
-              variants={fadeLeft}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-60px' }}
-              className="space-y-6"
-            >
-              <div>
-                <p className="section-label">How to find us</p>
-                <h2 className="font-display text-4xl font-extrabold text-white mb-3">
-                  Get in <span className="gradient-text">Touch</span>
-                </h2>
-                <p className="text-neutral-400 leading-relaxed">
-                  We're here to help and answer any questions. We look forward to hearing from you.
-                </p>
-              </div>
 
-              {/* Contact info cards */}
-              <div className="space-y-4">
-                {contactDetails.map(({ icon, label, value, accent }, i) => (
-                  <div key={i} className="glass rounded-xl p-4 flex items-center gap-4 hover:border-white/[0.12] transition-all duration-300">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${accent}15`, border: `1px solid ${accent}30` }}>
-                      <svg className="w-5 h-5" fill="none" stroke={accent} viewBox="0 0 24 24">{icon}</svg>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-0.5">{label}</p>
-                      <p className="text-neutral-200 text-sm">{value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Photo */}
-              <div className="glass rounded-2xl overflow-hidden">
-                <img
-                  src={contactImage}
-                  alt="UYIH office visit"
-                  className="w-full h-48 object-cover"
-                  loading="lazy"
-                />
-                <div className="p-5">
-                  <h3 className="font-display font-bold text-white mb-1">Visit Us</h3>
-                  <p className="text-neutral-400 text-sm">
-                    Come visit our office and see the work we're doing in the community. We're always happy to meet new people.
-                  </p>
+      {/* ══ CONTACT INFO CARDS ═══════════════════════════════════ */}
+      <section className="bg-sand border-b border-sand-dark/60 py-10">
+        <div className="container-wide">
+          <div className="grid md:grid-cols-3 gap-4 stagger-children">
+            {contactInfo.map((c, i) => (
+              <div key={i} className="card p-5 flex items-start gap-4">
+                <div className="w-11 h-11 rounded-lg bg-terracotta/15 border border-terracotta/25 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24">{c.icon}</svg>
                 </div>
-              </div>
-
-              {/* Hours */}
-              <div className="glass rounded-xl p-5"
-                style={{ borderColor: 'rgba(0,217,255,0.15)' }}>
-                <h3 className="font-display font-bold text-white mb-3 flex items-center gap-2">
-                  <span>🕐</span> Office Hours
-                </h3>
-                <ul className="space-y-1.5 text-sm text-neutral-400">
-                  <li className="flex justify-between">
-                    <span>Monday – Friday</span>
-                    <span className="text-neutral-300">9:00 AM – 5:00 PM (EAT)</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Saturday</span>
-                    <span className="text-neutral-300">By schedule</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Sunday & Holidays</span>
-                    <span className="text-neutral-500">Closed</span>
-                  </li>
-                </ul>
-                <p className="text-xs text-neutral-500 mt-3">Responses within 24–48 hours.</p>
-              </div>
-            </motion.div>
-
-            {/* Right column — Form */}
-            <motion.div
-              variants={fadeRight}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-60px' }}
-              className="glass rounded-2xl p-8"
-              style={{ borderColor: 'rgba(0,245,148,0.1)' }}
-            >
-              <h2 className="font-display text-2xl font-extrabold text-white mb-7">Send Us a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {[
-                  { id: 'name', label: 'Full Name', type: 'text', placeholder: 'Your full name' },
-                  { id: 'email', label: 'Email Address', type: 'email', placeholder: 'your@email.com' },
-                  { id: 'subject', label: 'Subject', type: 'text', placeholder: "What's this about?" },
-                ].map(({ id, label, type, placeholder }) => (
-                  <div key={id}>
-                    <label htmlFor={id} className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">
-                      {label} *
-                    </label>
-                    <input
-                      type={type}
-                      id={id}
-                      name={id}
-                      value={formData[id]}
-                      onChange={handleChange}
-                      className={`input-dark text-sm ${errors[id] ? 'border-red-500/60' : ''}`}
-                      placeholder={placeholder}
-                    />
-                    {errors[id] && <p className="text-red-400 text-xs mt-1">{errors[id]}</p>}
-                  </div>
-                ))}
-
                 <div>
-                  <label htmlFor="message" className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">
-                    Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows={5}
-                    className={`input-dark text-sm resize-none ${errors.message ? 'border-red-500/60' : ''}`}
-                    placeholder="Tell us more about your inquiry…"
-                  />
-                  {errors.message && <p className="text-red-400 text-xs mt-1">{errors.message}</p>}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`btn-primary w-full py-4 text-base justify-center ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Sending…
-                    </span>
+                  <p className="font-sans font-semibold text-xs uppercase tracking-[0.1em] text-ink-muted mb-1">{c.label}</p>
+                  {c.href ? (
+                    <a href={c.href} className="font-sans text-sm font-medium text-forest hover:text-terracotta transition-colors">{c.value}</a>
                   ) : (
-                    <>Send Message <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg></>
+                    <p className="font-sans text-sm text-ink leading-snug">{c.value}</p>
                   )}
-                </button>
-              </form>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ FAQs ══════════ */}
-      <section className="py-20" style={{ background: '#0d1526' }}>
-        <div className="container mx-auto px-4 md:px-8 max-w-3xl">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <p className="section-label justify-center">Got Questions?</p>
-            <h2 className="font-display text-4xl font-extrabold text-white">
-              Frequently <span className="gradient-text">Asked</span>
-            </h2>
-          </motion.div>
-          <div className="space-y-3">
-            {faqs.map(({ q, a }, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="glass rounded-xl overflow-hidden"
-              >
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left"
-                >
-                  <span className="font-semibold text-white text-sm">{q}</span>
-                  <motion.span
-                    animate={{ rotate: openFaq === i ? 45 : 0 }}
-                    className="text-primary-500 text-xl flex-shrink-0 ml-4"
-                  >
-                    +
-                  </motion.span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {openFaq === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
-                    >
-                      <p className="px-6 pb-5 text-neutral-400 text-sm leading-relaxed border-t border-white/[0.06] pt-4">
-                        {a}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
+
+
+      {/* ══ GET IN TOUCH FORM ════════════════════════════════════ */}
+      <section className="section-cream">
+        <div className="container-narrow">
+          <div className="grid md:grid-cols-5 gap-12 md:gap-16">
+
+            {/* Left — Ways to get involved */}
+            <div className="md:col-span-2 reveal">
+              <span className="eyebrow mb-5 block">Get Involved</span>
+              <h2 className="font-display font-bold text-display-md text-forest mb-8">
+                There is a role for everyone.
+              </h2>
+              <div className="space-y-5">
+                {involvedOptions.map((opt) => (
+                  <div key={opt.title} className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-sand flex items-center justify-center text-xl flex-shrink-0">{opt.icon}</div>
+                    <div>
+                      <h3 className="font-sans font-semibold text-sm text-forest mb-1">{opt.title}</h3>
+                      <p className="font-sans text-xs text-ink-muted leading-relaxed">{opt.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — Form */}
+            <div className="md:col-span-3 reveal-right">
+              <h2 className="font-display font-bold text-display-md text-forest mb-8">Send a Message</h2>
+
+              {status === 'success' ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-lg bg-forest/5 border border-forest/20 p-8 text-center"
+                >
+                  <div className="text-4xl mb-4">✅</div>
+                  <h3 className="font-display font-bold text-display-sm text-forest mb-2">Message Sent!</h3>
+                  <p className="font-sans text-sm text-ink-muted">Thank you for reaching out. We will be in touch soon.</p>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                  {/* Name + Email */}
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="input-label">Full Name *</label>
+                      <input
+                        type="text" name="name" value={form.name} onChange={handleChange}
+                        placeholder="Your full name"
+                        className={`input-field ${errors.name ? 'border-red-400 ring-1 ring-red-400/30' : ''}`}
+                      />
+                      {errors.name && <p className="font-sans text-xs text-red-500 mt-1">{errors.name}</p>}
+                    </div>
+                    <div>
+                      <label className="input-label">Email Address *</label>
+                      <input
+                        type="email" name="email" value={form.email} onChange={handleChange}
+                        placeholder="your@email.com"
+                        className={`input-field ${errors.email ? 'border-red-400 ring-1 ring-red-400/30' : ''}`}
+                      />
+                      {errors.email && <p className="font-sans text-xs text-red-500 mt-1">{errors.email}</p>}
+                    </div>
+                  </div>
+
+                  {/* Phone + Subject */}
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="input-label">Phone (Optional)</label>
+                      <input
+                        type="tel" name="phone" value={form.phone} onChange={handleChange}
+                        placeholder="+254 700 000 000"
+                        className="input-field"
+                      />
+                    </div>
+                    <div>
+                      <label className="input-label">Subject *</label>
+                      <select
+                        name="subject" value={form.subject} onChange={handleChange}
+                        className={`input-field ${errors.subject ? 'border-red-400 ring-1 ring-red-400/30' : ''}`}
+                      >
+                        <option value="">Select a subject</option>
+                        {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      {errors.subject && <p className="font-sans text-xs text-red-500 mt-1">{errors.subject}</p>}
+                    </div>
+                  </div>
+
+                  {/* Message */}
+                  <div>
+                    <label className="input-label">Message *</label>
+                    <textarea
+                      name="message" value={form.message} onChange={handleChange}
+                      rows={5} placeholder="How can we help? Tell us about yourself and what you have in mind..."
+                      className={`input-field resize-none ${errors.message ? 'border-red-400 ring-1 ring-red-400/30' : ''}`}
+                    />
+                    {errors.message && <p className="font-sans text-xs text-red-500 mt-1">{errors.message}</p>}
+                  </div>
+
+                  {status === 'error' && (
+                    <p className="font-sans text-sm text-red-500 bg-red-50 rounded-md px-4 py-3">
+                      Something went wrong. Please try again or email us directly.
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="btn-primary w-full py-4 text-base disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {status === 'loading' ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        Sending...
+                      </span>
+                    ) : (
+                      'Send Message'
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ══ SOCIAL LINKS ════════════════════════════════════════ */}
+      <section className="section-sand border-t border-sand-dark/60">
+        <div className="container-narrow text-center reveal">
+          <span className="eyebrow mb-5 justify-center">Follow Us</span>
+          <h2 className="font-display font-bold text-display-md text-forest mb-10">
+            Stay connected.
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {[
+              { label: 'Follow on Instagram', href: 'https://instagram.com', color: 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]' },
+              { label: 'Connect on LinkedIn', href: 'https://linkedin.com',  color: 'bg-[#0077b5]' },
+            ].map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-md font-sans font-semibold text-sm text-cream ${s.color} hover:opacity-90 transition-opacity shadow-card`}
+              >
+                {s.label} →
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

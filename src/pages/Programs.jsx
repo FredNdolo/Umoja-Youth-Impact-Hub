@@ -1,457 +1,336 @@
-// File: src/pages/Programs.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } },
+  hidden:  { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } },
 };
+const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
+function PhotoPlaceholder({ alt, className = '', bg = '#D4C8B0' }) {
+  return (
+    <div className={`relative overflow-hidden flex items-center justify-center ${className}`}
+      style={{ background: bg }} role="img" aria-label={alt}>
+      {/* PHOTO SWAP: replace with <img src={yourPhoto} alt="..." className="w-full h-full object-cover" /> */}
+      <div className="text-center px-4 py-4 select-none pointer-events-none">
+        <svg className="w-6 h-6 mx-auto mb-2 opacity-25" fill="none" stroke="#F7F2E8" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <p className="font-sans text-[11px] text-cream/40 leading-snug max-w-[140px] mx-auto">{alt}</p>
+      </div>
+    </div>
+  );
+}
+
+// Import program images
+import greenFuturesImg from '../assets/environment.jpg';     // Using environment for Green Futures as it's flagship environmental
+import healthImg from '../assets/health.jpg';
+import empowermentImg from '../assets/empowerment.jpg';
+import environmentImg from '../assets/environment.jpg';
+import partnershipImg from '../assets/partnership.jpg';
 
 const programs = [
   {
     id: 1,
-    title: 'Healthcare Access',
-    description: 'Community medical camps reaching over 5,000 residents annually, health education programs, mental health awareness campaigns, and healthcare referral networks with major hospitals.',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=900&q=80',
-    icon: '🏥',
-    stats: '5,000+ residents/year',
-    accent: '#00d9ff',
+    eyebrow:  'Flagship Program',
+    title:    'Green Futures Initiative',
+    tagline:  'One seed. Two crises solved.',
+    desc:     'School nurseries that simultaneously fund sanitary supplies for girls and restore degraded ecosystems in Narok East. Indigenous seedlings are propagated by students, sold to the community, and proceeds fund menstrual health supplies — keeping girls in school.',
+    bullets:  ['3 pilot schools active', '200+ girls supported with sanitary supplies', 'Indigenous seedling propagation training', 'Community nursery markets established'],
+    stat:     'Phase 1 Live',
+    image: greenFuturesImg,
+    placeholderAlt: 'Students and UYIH members tending to a school tree nursery as part of the Green Futures Initiative',
+    placeholderBg:  '#1A3C2A',
+    featured: true,
   },
   {
     id: 2,
-    title: 'Green Futures Initiative',
-    description: 'Our flagship program turning school grounds into productive tree nurseries that simultaneously provide sanitary supplies for girls and restore degraded ecosystems in Narok East.',
-    image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
-    icon: '🌳',
-    stats: 'Phase 1 Live • 3 pilot schools • 200+ girls supported',
-    accent: '#00f594',
+    eyebrow:  'Health Program',
+    title:    'Youth Health Access',
+    tagline:  'Dignity. Health. Education.',
+    desc:     'Delivering sanitary products, health education, and reproductive health awareness to girls across underserved schools in Narok East. We tackle period poverty directly — because no girl should miss school because of her period.',
+    bullets:  ['Sanitary towel distribution drives', 'Menstrual health education sessions', 'School health awareness workshops', 'Community health referral networks'],
+    stat:     '200+ Girls Reached',
+    image: healthImg,
+    placeholderAlt: 'UYIH volunteers distributing sanitary towels to female students at a partner school in Narok East',
+    placeholderBg:  '#9B3A5A',
+    featured: false,
   },
   {
     id: 3,
-    title: 'Environmental Stewardship',
-    description: 'Urban greening with 3,000+ trees planted, school-based eco-clubs, waste management education, recycling programs, and community clean-up drives engaging 1,000+ volunteers annually.',
-    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80',
-    icon: '🌱',
-    stats: '3,000+ trees planted',
-    accent: '#4ade80',
+    eyebrow:  'Empowerment',
+    title:    'Leadership & Skills',
+    tagline:  'Build leaders. Build community.',
+    desc:     'Bootcamps, workshops, and mentorship programs designed to equip young people in Narok East with the leadership skills and practical knowledge needed to drive community transformation.',
+    bullets:  ['Youth leadership bootcamps', 'Skills development workshops', 'Environmental entrepreneurship incubation', 'Mentorship and peer support networks'],
+    stat:     '500+ Youth Trained',
+    image: empowermentImg,
+    placeholderAlt: 'Youth attending a UYIH leadership training or skills development workshop in Narok',
+    placeholderBg:  '#8B6914',
+    featured: false,
   },
   {
     id: 4,
-    title: 'Youth Empowerment',
-    description: 'Skills development workshops benefiting 800+ youth, environmental entrepreneurship incubation, community leadership training, and green business startup support.',
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80',
-    icon: '👥',
-    stats: '800+ youth trained',
-    accent: '#a78bfa',
+    eyebrow:  'Environment',
+    title:    'Environmental Stewardship',
+    tagline:  'Restore the land. Restore the future.',
+    desc:     'Community-wide environmental programs including reforestation drives, eco-clubs in schools, waste management education, and clean-up campaigns that engage the whole community in environmental action.',
+    bullets:  ['3,000+ trees planted since 2024', 'School eco-clubs established', 'Waste management and recycling education', 'Annual community clean-up drives'],
+    stat:     '3,000+ Trees Planted',
+    image: environmentImg,
+    placeholderAlt: 'UYIH volunteers and community members planting trees during a reforestation drive in Narok East',
+    placeholderBg:  '#2A5C40',
+    featured: false,
   },
   {
     id: 5,
-    title: 'Community Events',
-    description: 'Regular community gatherings, educational workshops, and celebration events that bring people together, inspire action, and create positive change through shared purpose.',
-    image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=80',
-    icon: '🎉',
-    stats: 'Monthly events',
-    accent: '#fbbf24',
+    eyebrow:  'Community',
+    title:    'Events & Partnerships',
+    tagline:  'Together, further.',
+    desc:     'Open days, scouting expos, partnership forums, and community gatherings that connect youth to opportunities, celebrate impact, and build the coalitions needed for lasting change across Narok County.',
+    bullets:  ['Scouts for a Sustainable Narok — July 2025', 'MOU partnerships with KGGA, KSA, ENSDA', 'Annual Green Futures Open Day', 'Government and NGO collaboration forums'],
+    stat:     '4 Key Partners',
+    image: partnershipImg,
+    placeholderAlt: 'UYIH team and partner organizations at a community event or open day in Narok',
+    placeholderBg:  '#2C4A7C',
+    featured: false,
   },
+];
+
+const faqs = [
+  { q: 'Who is eligible to participate in UYIH programs?',
+    a: 'Our programs primarily target youth aged 12-35 in Narok. School-based programs focus on primary and secondary students, while skills and leadership programs are open to all youth in the region.' },
+  { q: 'How can I get involved or volunteer?',
+    a: 'We welcome volunteers for program delivery, community outreach, administration, and skills training. Reach out via our contact page and mention the area you want to contribute to.' },
+  { q: 'How can an organization partner with UYIH?',
+    a: 'We actively seek partnerships with schools, NGOs, government bodies, and private sector organizations. Contact us to discuss an MOU or collaboration framework.' },
+  { q: 'Where does UYIH operate?',
+    a: 'Our primary focus is Narok East, Narok County, Kenya. We are in the process of expanding our model to neighboring sub-counties and counties.' },
 ];
 
 const kpis = [
-  {
-    title: 'Healthcare',
-    icon: '🏥',
-    accent: '#00d9ff',
-    items: ['Residents served per camp', 'Referrals completed within 14 days', 'Health literacy score improvement', 'Preventive care adoption rates'],
-  },
-  {
-    title: 'Environment',
-    icon: '🌱',
-    accent: '#00f594',
-    items: ['Trees planted & 12-month survival rate', 'Seedlings propagated in school nurseries', 'Income from tree-related activities', 'Schools with active eco-clubs'],
-  },
-  {
-    title: 'Livelihoods',
-    icon: '📈',
-    accent: '#a78bfa',
-    items: ['Youth completing trainings', 'Job placement or internship rate', 'New micro-enterprises sustained (6m)', 'Income from green businesses'],
-  },
+  { label: 'Youth Reached',     value: '500+',   icon: '👥', detail: 'Across all programs'          },
+  { label: 'Trees Planted',     value: '3,000+', icon: '🌳', detail: 'Native species since 2024'    },
+  { label: 'Girls Supported',   value: '200+',   icon: '🎗️', detail: 'Via health programs'          },
+  { label: 'Partner Schools',   value: '3',      icon: '🏫', detail: 'Active nursery sites'         },
 ];
 
 export default function Programs() {
-  const [selectedProgram, setSelectedProgram] = useState(null);
-  const [registrationData, setRegistrationData] = useState({ name: '', email: '', phone: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const handleRegistrationChange = (e) => {
-    const { name, value } = e.target;
-    setRegistrationData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleRegistrationSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const registrations = JSON.parse(localStorage.getItem('programRegistrations') || '[]');
-      registrations.push({
-        ...registrationData,
-        id: Date.now(),
-        timestamp: new Date().toISOString()
-      });
-      localStorage.setItem('programRegistrations', JSON.stringify(registrations));
-      
-      setIsSubmitted(true);
-      setRegistrationData({ name: '', email: '', phone: '', program: '', message: '' });
-      
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setShowRegistrationModal(false);
-      }, 3000);
-    } catch (error) {
-      console.error('Registration error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const programs = [
-    {
-      id: 1,
-      title: "Healthcare Access Initiatives",
-      description: "Community medical camps reaching over 5,000 residents annually, Health education programs focused on preventive care, Mental health awareness campaigns and support services, Healthcare referral networks with major Nairobi hospitals.",
-      image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "🏥",
-      stats: "5,000+ residents reached annually"
-    },
-    {
-      id: 2,
-      title: "Green Futures Initiative",
-      description: "Our flagship program turning school grounds into productive tree nurseries. It solves two crises at once: providing sanitary supplies for girls while restoring degraded ecosystems in Narok East through indigenous seedling propagation and community empowerment.",
-      image: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-      icon: "🌳",
-      stats: "Phase 1 Live • 3 pilot schools • 200+ girls supported"
-    },
-    {
-      id: 3,
-      title: "Environmental Stewardship",
-      description: "Urban greening initiatives with 3,000+ trees planted since 2019, School-based environmental clubs established in 15 local schools, Waste management education and recycling programs, Community clean-up drives engaging 1,000+ volunteers annually.",
-      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "🌱",
-      stats: "3,000+ trees planted"
-    },
-    {
-      id: 4,
-      title: "Youth Empowerment",
-      description: "Skills development workshops benefiting 800+ youth, Environmental entrepreneurship incubation programs, Community leadership training, Green business startup support.",
-      image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "👥",
-      stats: "800+ youth trained"
-    },
-    {
-      id: 5,
-      title: "Community Events",
-      description: "Organizing events to connect, inspire, and create positive change. We host regular community gatherings, educational workshops, and celebration events that bring people together.",
-      image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      icon: "🎉",
-      stats: "Monthly community events"
-    }
-  ];
+  const [openFaq, setOpenFaq]     = useState(null);
+  const [activeProgram, setActive] = useState(null);
 
   return (
-    <div className="min-h-screen" style={{ background: '#060f1e' }}>
-      {/* HERO */}
-      <section className="relative pt-32 pb-24 overflow-hidden hero-grid" style={{ background: '#030812' }}>
-        <div className="glow-orb w-[600px] h-[600px] -top-40 left-1/3 opacity-30" style={{ background: 'rgba(0,217,255,0.12)' }} />
-        <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
+    <div className="bg-cream">
+
+      {/* ══ HERO ══════════════════════════════════════════════════ */}
+      <section className="relative pt-32 pb-20 bg-forest overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(196,98,45,0.15) 0%, transparent 55%)',
+        }} />
+        <div className="container-narrow relative z-10 text-center">
           <motion.div variants={stagger} initial="hidden" animate="visible">
-            <motion.p variants={fadeUp} className="section-label justify-center">What We Do</motion.p>
-            <motion.h1 variants={fadeUp} className="font-display text-5xl md:text-7xl font-extrabold text-white mb-6">
-              Our <span className="gradient-text">Programs</span>
+            <motion.span variants={fadeUp} className="eyebrow text-cream/60 mb-6 justify-center block">What We Do</motion.span>
+            <motion.h1 variants={fadeUp} className="font-display font-bold text-display-2xl text-cream mb-6">
+              Our <span className="text-terracotta">Programs</span>
             </motion.h1>
-            <motion.p variants={fadeUp} className="text-neutral-400 text-xl max-w-2xl mx-auto">
-              Comprehensive initiatives in healthcare, environment, and youth empowerment — built by the community, for the community.
+            <motion.p variants={fadeUp} className="font-sans text-lg text-cream/70 max-w-xl mx-auto leading-relaxed">
+              Comprehensive initiatives in environment, health, and youth empowerment — built by the community, for the community.
             </motion.p>
           </motion.div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-terracotta" />
       </section>
 
-      {/* PROGRAMS GRID */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {programs.map((program) => (
-              <motion.div
-                key={program.id}
-                variants={fadeUp}
-                className="glass rounded-2xl overflow-hidden group cursor-pointer hover:-translate-y-2 transition-all duration-400"
-                style={{ borderColor: `${program.accent}20` }}
-                onClick={() =>
-                  program.id === 2
-                    ? window.open('/green-futures', '_blank')
-                    : setSelectedProgram(program)
-                }
-                whileHover={{ boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 40px ${program.accent}18` }}
-              >
-                <div className="relative h-52 overflow-hidden">
-                  <img
-                    src={program.image}
-                    alt={program.title}
-                    className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark-950 via-dark-950/40 to-transparent" />
-                  <div className="absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                    style={{ background: `${program.accent}25`, border: `1px solid ${program.accent}40`, backdropFilter: 'blur(8px)' }}>
-                    {program.icon}
-                  </div>
-                  <div className="absolute bottom-4 left-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold"
-                      style={{ background: `${program.accent}20`, border: `1px solid ${program.accent}40`, color: program.accent, backdropFilter: 'blur(8px)' }}>
-                      {program.stats}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-display text-xl font-bold text-white mb-3">{program.title}</h3>
-                  <p className="text-neutral-400 text-sm leading-relaxed mb-5 line-clamp-3">{program.description}</p>
-                  <div className="flex items-center gap-2 text-sm font-semibold transition-colors duration-200"
-                    style={{ color: program.accent }}>
-                    <span>Learn More</span>
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
-      {/* GREEN FUTURES SHORT TEASER */}
-      <section className="py-24" style={{ background: '#0d1526' }}>
-        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="glass rounded-2xl p-8 md:p-12"
-            style={{ borderColor: 'rgba(0,245,148,0.2)', boxShadow: '0 0 60px rgba(0,245,148,0.06)' }}
-          >
-            <div className="text-center mb-10">
-              <div className="text-5xl mb-4">🌳</div>
-              <p className="section-label justify-center">Flagship Program</p>
-              <h2 className="font-display text-3xl md:text-4xl font-extrabold text-white mb-3">
-                Green Futures Initiative
-              </h2>
-              <p className="text-neutral-400 max-w-2xl mx-auto">
-                One seed. Two crises solved. Turning school grounds into productive nurseries that fund sanitary supplies for girls and restore ecosystems in Narok East.
-              </p>
-            </div>
-
-            <div className="flex justify-center">
-              <a
-                href="/green-futures"
-                target="_blank"
-                className="btn-primary text-base px-10 py-4 inline-flex items-center gap-3 hover:scale-105 transition-transform"
-              >
-                Explore Full Green Futures Program →
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* KPIs */}
-      <section className="py-24" style={{ background: '#060f1e' }}>
-        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <p className="section-label justify-center">Measuring Impact</p>
-            <h2 className="font-display text-4xl md:text-5xl font-extrabold text-white">
-              Key Performance <span className="gradient-text">Indicators</span>
-            </h2>
-          </motion.div>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-3 gap-5"
-          >
-            {kpis.map(({ title, icon, accent, items }, i) => (
-              <motion.div key={i} variants={fadeUp} className="glass rounded-2xl p-6 hover:-translate-y-1 transition-all duration-300"
-                style={{ borderColor: `${accent}20` }}>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                    style={{ background: `${accent}15`, border: `1px solid ${accent}25` }}>
-                    {icon}
-                  </div>
-                  <h3 className="font-display text-lg font-bold text-white">{title}</h3>
-                </div>
-                <ul className="space-y-2.5">
-                  {items.map((item, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-neutral-400">
-                      <span className="mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: accent }} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 relative overflow-hidden" style={{ background: '#0d1526' }}>
-        <div className="glow-orb w-full h-full opacity-10"
-          style={{ background: 'radial-gradient(ellipse at center, rgba(0,245,148,0.2) 0%, transparent 60%)' }} />
-        <div className="container mx-auto px-4 md:px-8 text-center relative z-10">
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <motion.h2 variants={fadeUp} className="font-display text-4xl md:text-5xl font-extrabold text-white mb-5">
-              Join Our <span className="gradient-text">Mission</span>
-            </motion.h2>
-            <motion.p variants={fadeUp} className="text-neutral-400 text-lg max-w-xl mx-auto mb-10">
-              Volunteer, partner with us, or support our programs. Every contribution makes a difference.
-            </motion.p>
-            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact" className="btn-primary text-base px-8 py-4">Get Involved</Link>
-              <Link to="/contact" className="btn-ghost text-base px-8 py-4">Contact Us</Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* REGISTRATION MODAL */}
-      <AnimatePresence>
-        {selectedProgram && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(3,8,18,0.85)', backdropFilter: 'blur(8px)' }}
-            onClick={(e) => e.target === e.currentTarget && setSelectedProgram(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
-              transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
-              className="glass-strong rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
-            >
-              <div className="p-7">
-                <div className="flex justify-between items-center mb-5">
-                  <h3 className="font-display text-xl font-bold text-white">Register Interest</h3>
-                  <button
-                    onClick={() => setSelectedProgram(null)}
-                    className="w-8 h-8 glass rounded-lg flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="rounded-xl p-4 mb-6"
-                  style={{ background: `${selectedProgram.accent}10`, border: `1px solid ${selectedProgram.accent}25` }}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span>{selectedProgram.icon}</span>
-                    <h4 className="font-display font-bold text-white">{selectedProgram.title}</h4>
-                  </div>
-                  <p className="text-xs" style={{ color: selectedProgram.accent }}>{selectedProgram.stats}</p>
-                </div>
-
-                {isSubmitted ? (
-                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{ background: 'rgba(0,245,148,0.15)', border: '2px solid rgba(0,245,148,0.5)' }}>
-                      <svg className="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <h4 className="font-display text-xl font-bold text-white mb-2">You're Registered!</h4>
-                    <p className="text-neutral-400 text-sm">We'll be in touch soon with program details.</p>
-                  </motion.div>
-                ) : (
-                  <form onSubmit={handleRegistrationSubmit} className="space-y-4">
-                    {['name', 'email', 'phone'].map((field) => (
-                      <div key={field}>
-                        <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">
-                          {field === 'name' ? 'Full Name' : field === 'email' ? 'Email Address' : 'Phone Number'} *
-                        </label>
-                        <input
-                          type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
-                          name={field}
-                          value={registrationData[field]}
-                          onChange={handleRegistrationChange}
-                          required
-                          className="input-dark text-sm"
-                          placeholder={
-                            field === 'name' ? 'Your full name' :
-                            field === 'email' ? 'your@email.com' :
-                            '+254 700 000 000'
-                          }
-                        />
-                      </div>
-                    ))}
-                    <div>
-                      <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">
-                        Message (Optional)
-                      </label>
-                      <textarea
-                        name="message"
-                        value={registrationData.message}
-                        onChange={handleRegistrationChange}
-                        rows={3}
-                        className="input-dark text-sm resize-none"
-                        placeholder="Tell us about your interest..."
-                      />
-                    </div>
-                    <div className="flex gap-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedProgram(null)}
-                        className="btn-ghost flex-1 py-3 text-sm"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={`btn-primary flex-1 py-3 text-sm justify-center ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
-                      >
-                        {isSubmitting ? 'Registering…' : 'Register'}
-                      </button>
-                    </div>
-                  </form>
-                )}
+      {/* ══ PROGRAM IMPACT STRIP ═════════════════════════════════ */}
+      <section className="bg-sand border-b border-sand-dark/60">
+        <div className="container-wide py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 stagger-children">
+            {kpis.map((k, i) => (
+              <div key={i} className={`flex flex-col px-4 md:px-6 ${i > 0 ? 'md:border-l border-sand-dark/60' : ''}`}>
+                <span className="text-2xl mb-2">{k.icon}</span>
+                <span className="stat-number text-4xl md:text-5xl mb-1">{k.value}</span>
+                <span className="font-sans font-semibold text-sm text-forest mb-0.5">{k.label}</span>
+                <span className="font-sans text-xs text-ink-muted">{k.detail}</span>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ══ FEATURED PROGRAM ════════════════════════════════════ */}
+      <section className="section-cream">
+        <div className="container-wide">
+          <div className="reveal mb-12">
+            <span className="eyebrow mb-4 block">Featured</span>
+            <h2 className="font-display font-bold text-display-lg text-forest">Flagship Program</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-0 rounded-lg overflow-hidden shadow-card-lg border border-sand-dark/40">
+            <img
+              src={programs[0].image}
+              alt={programs[0].placeholderAlt}
+              className="w-full h-72 md:h-full min-h-[300px] object-cover"
+              loading="lazy"
+            />
+            <div className="p-8 md:p-10 bg-cream flex flex-col justify-center">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-terracotta text-cream font-sans font-semibold text-xs mb-5 self-start">
+                ⭐ {programs[0].eyebrow}
+              </span>
+              <h2 className="font-display font-bold text-display-md text-forest mb-2">{programs[0].title}</h2>
+              <p className="font-sans font-medium text-sm text-terracotta mb-4">{programs[0].tagline}</p>
+              <p className="font-sans text-sm text-ink-muted leading-relaxed mb-5">{programs[0].desc}</p>
+              <ul className="space-y-2 mb-6">
+                {programs[0].bullets.map((b, i) => (
+                  <li key={i} className="flex items-start gap-3 font-sans text-sm text-ink">
+                    <span className="w-1.5 h-1.5 rounded-full bg-terracotta flex-shrink-0 mt-1.5" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex gap-4">
+                <Link to="/contact" className="btn-primary text-sm">Get Involved →</Link>
+                <a href="/green-futures" target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
+                  Project Site →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ══ ALL PROGRAMS GRID ════════════════════════════════════ */}
+      <section className="section-sand border-t border-sand-dark/60">
+        <div className="container-wide">
+          <div className="reveal mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <span className="eyebrow mb-4 block">All Programs</span>
+              <h2 className="font-display font-bold text-display-lg text-forest">Every angle covered.</h2>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 stagger-children">
+            {programs.slice(1).map((p) => (
+              <div
+                key={p.id}
+                className="card-hover overflow-hidden flex flex-col cursor-pointer"
+                onClick={() => setActive(activeProgram === p.id ? null : p.id)}
+              >
+                <img
+                  src={p.image}
+                  alt={p.placeholderAlt}
+                  className="w-full h-52 object-cover"
+                  loading="lazy"
+                />
+                <div className="p-6 flex flex-col flex-1">
+                  <span className="eyebrow text-xs mb-3">{p.eyebrow}</span>
+                  <h3 className="font-display font-bold text-display-sm text-forest mb-1">{p.title}</h3>
+                  <p className="font-sans font-medium text-sm text-terracotta mb-3">{p.tagline}</p>
+                  <p className="font-sans text-sm text-ink-muted leading-relaxed mb-4">{p.desc}</p>
+
+                  <AnimatePresence>
+                    {activeProgram === p.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <ul className="space-y-2 mb-4 border-t border-sand-dark/60 pt-4">
+                          {p.bullets.map((b, i) => (
+                            <li key={i} className="flex items-start gap-3 font-sans text-sm text-ink">
+                              <span className="w-1.5 h-1.5 rounded-full bg-terracotta flex-shrink-0 mt-1.5" />
+                              {b}
+                            </li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <div className="mt-auto flex items-center justify-between pt-4 border-t border-sand-dark/60">
+                    <span className="font-sans font-semibold text-xs text-terracotta">{p.stat}</span>
+                    <button className="font-sans text-xs font-semibold text-forest hover:text-terracotta transition-colors flex items-center gap-1">
+                      {activeProgram === p.id ? 'Less detail ↑' : 'More detail ↓'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ══ FAQ ══════════════════════════════════════════════════ */}
+      <section className="section-cream border-t border-sand-dark/60">
+        <div className="container-narrow">
+          <div className="reveal mb-12 text-center">
+            <span className="eyebrow mb-4 justify-center">FAQ</span>
+            <h2 className="font-display font-bold text-display-lg text-forest">Frequently Asked Questions</h2>
+          </div>
+          <div className="space-y-3 stagger-children">
+            {faqs.map((faq, i) => (
+              <div key={i} className="card p-0 overflow-hidden">
+                <button
+                  className="w-full flex items-center justify-between p-5 md:p-6 text-left"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  <span className="font-sans font-semibold text-sm md:text-base text-forest pr-4">{faq.q}</span>
+                  <svg
+                    className={`w-5 h-5 text-terracotta flex-shrink-0 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.28 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-5 md:px-6 pb-5 border-t border-sand-dark/60 pt-4">
+                        <p className="font-sans text-sm text-ink-muted leading-relaxed">{faq.a}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ══ CTA ═════════════════════════════════════════════════ */}
+      <section className="bg-terracotta py-20 md:py-24 relative overflow-hidden">
+        <div className="absolute -left-16 top-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-cream/15 pointer-events-none" />
+        <div className="container-narrow text-center relative z-10 reveal">
+          <h2 className="font-display font-bold text-display-xl text-cream mb-6">
+            Join a program.<br />Change a community.
+          </h2>
+          <p className="font-sans text-lg text-cream/80 mb-10 max-w-md mx-auto">
+            Whether you are a student, volunteer, partner organisation, or donor — there is a role for you.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-terracotta bg-cream hover:bg-sand transition-all duration-200 shadow-terra-lg">
+              Get Involved →
+            </Link>
+            <Link to="/about" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-cream border-2 border-cream/50 hover:border-cream hover:bg-cream/10 transition-all duration-200">
+              About UYIH
+            </Link>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
