@@ -1,5 +1,5 @@
 // UYIH Orientation: who we are, what we do and how membership works.
-// Drawn from the UYIH Organisation Profile and the Green Futures concept note.
+// Drawn from the UYIH Organisation Profile and the Green Futures proposal (Aug 2026).
 // The quiz questions and answers live in the database
 // (supabase/migrations/…_orientation_course.sql) so they're checked on the server.
 //
@@ -55,13 +55,14 @@ export const LESSONS = [
   {
     icon: '🌱',
     title: 'Green Futures in 60 seconds',
-    ref: 'Green Futures concept note',
+    ref: 'Green Futures proposal',
     points: [
       'Two problems keep each other going in Narok East: degraded land, and girls missing school because they lack sanitary products.',
-      'The loop: students and teachers grow indigenous and fruit tree seedlings → sell them → profits buy sanitary products for girls in the same school → surplus grows the nursery.',
+      'The loop: grow indigenous and fruit tree seedlings in a school nursery → sell them to local markets → profits buy sanitary products for girls (preferably reusable pads) → the surplus grows the nursery.',
       'It is built to sustain itself. One-off pad drives run out; a nursery keeps producing.',
-      'Phase 1 runs in 3 pilot schools: needs assessments and baseline surveys first, then nursery training, then sales and reinvestment.',
-      'Pilot-year targets: 5,000+ trees, 20–30% less absenteeism among girls, and KES 0.5–1 million in seedling sales.',
+      'We deliver it with the Kenya Girl Guides Association (KGGA). Girl Guides in each school are trained to run the nursery; UYIH members on site handle the technical nursery work and pass their training on to the Girl Guides.',
+      'The 3 pilot schools are in Narok East: Ntulele Primary, Ongata Naado Junior and Primary, and Mosiro Day and Boarding Primary. Each aims for about 10,000 seedlings with at least 75% surviving.',
+      'Pilot-year targets: 5,000+ trees planted, 20–30% less absenteeism among girls, and KES 100,000–500,000 in seedling sales.',
     ],
   },
   {
