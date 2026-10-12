@@ -41,7 +41,9 @@ export default function PaybillCard({ amount, title = 'Pay with M-Pesa' }) {
     `Business number: ${PAYBILL.number}`,
     `Account number: ${PAYBILL.account || 'your name'}`,
     amount ? `Amount: Ksh ${amount.toLocaleString('en-KE')}` : 'Amount: any amount you choose',
-    `Enter your PIN and check the name shows ${PAYBILL.registeredName || 'Umoja Youth Impact Hub'} before you send.`,
+    PAYBILL.registeredName
+      ? `Enter your PIN and check the name shows ${PAYBILL.registeredName} before you send.`
+      : 'Check the business and account numbers, then enter your PIN and send.',
   ];
   return (
     <div className="card p-6 md:p-7">

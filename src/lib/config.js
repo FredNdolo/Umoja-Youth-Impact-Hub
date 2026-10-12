@@ -22,8 +22,8 @@ export const CONTACT_EMAIL = 'umojayouthhub@gmail.com';
 // People pay, then enter their M-Pesa confirmation code so UYIH can match it
 // to the paybill statement in /admin → Payments.
 export const PAYBILL = {
-  number: import.meta.env.VITE_PAYBILL_NUMBER || '',            // business number
-  account: import.meta.env.VITE_PAYBILL_ACCOUNT || '',          // account number to enter
+  number: import.meta.env.VITE_PAYBILL_NUMBER || '891300',            // business number
+  account: import.meta.env.VITE_PAYBILL_ACCOUNT || '150176',          // account number to enter
   registeredName: import.meta.env.VITE_PAYBILL_NAME || '',      // name M-Pesa shows on the confirmation screen
 };
 export const MEMBERSHIP_FEE = 1000; // Ksh
