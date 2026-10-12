@@ -192,7 +192,7 @@ export default function Programs() {
               </ul>
               <div className="flex gap-4">
                 <Link to="/contact" className="btn-primary text-sm">Get Involved →</Link>
-                <a href="/green-futures" target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
+                <a href="/green-features/" target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
                   Project Site →
                 </a>
               </div>

@@ -268,7 +268,7 @@ export default function Contacts() {
           </h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {[
-              { label: 'Follow on Instagram', href: 'https://instagram.com', color: 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]' },
+              { label: 'Follow on Instagram', href: 'https://www.instagram.com/umojayouthimpacthub/', color: 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]' },
               { label: 'Connect on LinkedIn', href: 'https://linkedin.com',  color: 'bg-[#0077b5]' },
             ].map((s) => (
               <a
