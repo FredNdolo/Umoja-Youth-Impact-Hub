@@ -19,18 +19,44 @@ The function uses keys Supabase provides automatically; nothing else to set.
 - `https://umoja-youth-impact-hub.vercel.app/me`
 - `http://localhost:5173/me` (for local development)
 
-## 3. Turn on email login for members (custom email sender)
+## 3. Turn on email login for members (Gmail as the email sender)
 
 WhatsApp login links work without this. Email login links don't: Supabase's
 built-in email sender only delivers to people on your Supabase team.
+Gmail is free and sends up to about 500 emails a day, plenty for login links.
 
-**Authentication → Emails → SMTP Settings** (or Project Settings → Auth → SMTP):
-connect an email account or service. The quickest option is the UYIH Gmail
-account with a Gmail *app password* (Google Account → Security → 2-Step
-Verification → App passwords), using host `smtp.gmail.com`, port `587`.
-A transactional email service with a free tier works too and scales better.
+**a. Create a Gmail app password** (signed in as umojayouthhub@gmail.com)
+1. Turn on **2-Step Verification**: myaccount.google.com → Security.
+2. Go to **myaccount.google.com/apppasswords**, name it `Supabase`, click **Create**.
+3. Copy the 16-character password (shown once; spaces don't matter).
 
-Then raise the email rate limit under **Authentication → Rate Limits** if needed.
+**b. Connect it in Supabase**: **Authentication → Emails → SMTP Settings**,
+turn on **Enable custom SMTP** and fill in:
+
+| Field | Value |
+|---|---|
+| Sender email | `umojayouthhub@gmail.com` |
+| Sender name | `Umoja Youth Impact Hub` |
+| Host | `smtp.gmail.com` |
+| Port | `587` |
+| Username | `umojayouthhub@gmail.com` |
+| Password | the 16-character app password |
+| Minimum interval between emails | leave the default |
+
+Save.
+
+**c. Rate limit**: Supabase starts custom senders at 30 emails an hour.
+That's fine to begin with; raise it under **Authentication → Rate Limits** if
+a big sign-up push is coming (stay well under Gmail's ~500 a day).
+
+**d. Branded login email (optional)**: **Authentication → Emails → Templates
+→ Magic Link**. Subject `Your UYIH login link`; paste the contents of
+`docs/email-templates/magic-link.html` as the body.
+
+**e. Test**: on `/me`, enter your own email and tap **Email me a login link**.
+If it doesn't arrive, check spam, and Supabase **Logs → Auth** for SMTP errors.
+If you ever change the Gmail password, the app password stops working: make a
+new one and paste it in again.
 
 ## 4. Optional: how long WhatsApp login links last
 
@@ -68,7 +94,7 @@ open their link later in the day, raise it (the maximum is 24 hours).
   is the Designated Safeguarding Lead's countersignature. You can still mark it
   done directly for someone briefed in person.
 - **Orientation is an online course too**, built from the organisation
-  profile and the Green Futures concept note: 7 short lessons and a 10-question
+  profile and the Green Futures proposal: 7 short lessons and a 10-question
   quiz (pass mark 8). Members send their result and you confirm it under
   **Tasks → To review**. You can still mark it done directly for someone who
   attended an in-person orientation.
