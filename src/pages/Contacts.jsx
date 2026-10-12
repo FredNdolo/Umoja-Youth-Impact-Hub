@@ -1,6 +1,8 @@
 // File: src/pages/Contacts.jsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { submitContact } from '../lib/publicApi';
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 28 },
@@ -51,13 +53,15 @@ const involvedOptions = [
 ];
 
 export default function Contacts() {
-  const [form, setForm]       = useState({ name: '', email: '', phone: '', subject: '', message: '' });
+  const [form, setForm]       = useState({ name: '', email: '', phone: '', subject: '', message: '', website: '' });
+  const [errorMsg, setErrorMsg] = useState('');
   const [errors, setErrors]   = useState({});
   const [status, setStatus]   = useState('idle'); // idle | loading | success | error
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim())    e.name    = 'Name is required';
+    if (form.name.trim().length < 2) e.name = 'Name is required';
+    if (form.message.length > 3000)  e.message = 'Please keep your message under 3,000 characters';
     if (!form.email.trim())   e.email   = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email';
     if (!form.subject)        e.subject = 'Please select a subject';
@@ -76,11 +80,13 @@ export default function Contacts() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setStatus('loading');
     try {
-      await new Promise(r => setTimeout(r, 1500));
+      setErrorMsg('');
+      await submitContact(form);
       setStatus('success');
-      setForm({ name: '', email: '', phone: '', subject: '', message: '' });
+      setForm({ name: '', email: '', phone: '', subject: '', message: '', website: '' });
       setTimeout(() => setStatus('idle'), 6000);
-    } catch {
+    } catch (err) {
+      setErrorMsg(err.message);
       setStatus('error');
     }
   };
@@ -172,6 +178,10 @@ export default function Contacts() {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                  {/* Honeypot: hidden from people, tempting to bots */}
+                  <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true"
+                    value={form.website} onChange={handleChange}
+                    style={{ position: 'absolute', left: '-10000px', width: 1, height: 1 }} />
                   {/* Name + Email */}
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div>
@@ -217,6 +227,13 @@ export default function Contacts() {
                     </div>
                   </div>
 
+                  {form.subject === 'Volunteer Enquiry' && (
+                    <p className="font-sans text-sm text-forest bg-forest/5 border border-forest/15 rounded-md px-4 py-3">
+                      Want to volunteer? <Link to="/join" className="text-terracotta font-semibold underline">Joining takes about a minute</Link>,
+                      and we’ll reach you on WhatsApp within 48 hours.
+                    </p>
+                  )}
+
                   {/* Message */}
                   <div>
                     <label className="input-label">Message *</label>
@@ -230,7 +247,7 @@ export default function Contacts() {
 
                   {status === 'error' && (
                     <p className="font-sans text-sm text-red-500 bg-red-50 rounded-md px-4 py-3">
-                      Something went wrong. Please try again or email us directly.
+                      {errorMsg || 'Something went wrong. Please try again or email us directly.'}
                     </p>
                   )}
 
@@ -251,6 +268,9 @@ export default function Contacts() {
                       'Send Message'
                     )}
                   </button>
+                  <p className="font-sans text-xs text-ink-faint text-center">
+                    We use your details only to reply. See our <Link to="/privacy" className="underline">privacy notice</Link>.
+                  </p>
                 </form>
               )}
             </div>

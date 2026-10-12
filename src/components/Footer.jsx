@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { subscribeNewsletter } from '../lib/publicApi';
 
 const navLinks = [
   { to: '/',         label: 'Home'     },
   { to: '/about',    label: 'About Us' },
   { to: '/programs', label: 'Programs' },
+  { to: '/join',     label: 'Join UYIH' },
   { to: '/contact',  label: 'Contact'  },
 ];
 
@@ -39,6 +41,7 @@ export default function Footer() {
   const [email,        setEmail]        = useState('');
   const [status,       setStatus]       = useState('idle'); // idle | loading | success | error
   const [errorMsg,     setErrorMsg]     = useState('');
+  const [honeypot,     setHoneypot]     = useState('');
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -49,13 +52,13 @@ export default function Footer() {
     setStatus('loading');
     setErrorMsg('');
     try {
-      await new Promise((r) => setTimeout(r, 1200));
+      await subscribeNewsletter(email.trim(), honeypot);
       setStatus('success');
       setEmail('');
       setTimeout(() => setStatus('idle'), 5000);
-    } catch {
+    } catch (err) {
       setStatus('error');
-      setErrorMsg('Failed to subscribe. Please try again.');
+      setErrorMsg(err.message || 'Failed to subscribe. Please try again.');
     }
   };
 
@@ -204,12 +207,16 @@ export default function Footer() {
               onSubmit={handleSubscribe}
               className="flex flex-col sm:flex-row gap-3 md:min-w-[360px]"
             >
+              <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                style={{ position: 'absolute', left: '-10000px', width: 1, height: 1 }} />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setErrorMsg(''); }}
                 placeholder="your@email.com"
-                className="flex-1 px-4 py-3 rounded-md bg-cream/8 border border-cream/20
+                aria-label="Email address for updates"
+                className="flex-1 px-4 py-3 rounded-md bg-cream/10 border border-cream/25
                            font-sans text-sm text-cream placeholder-cream/40
                            focus:outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/25
                            transition-all duration-200"
@@ -246,7 +253,11 @@ export default function Footer() {
         {/* ── Bottom bar ── */}
         <div className="border-t border-cream/10 pt-6 flex flex-col md:flex-row items-center
                         justify-between gap-3 text-xs font-sans text-cream/40">
-          <p>© {currentYear} Umoja Youth Impact Hub. All rights reserved.</p>
+          <p>
+            © {currentYear} Umoja Youth Impact Hub. All rights reserved.
+            <span className="mx-2">·</span>
+            <Link to="/privacy" className="hover:text-cream underline-offset-2 hover:underline">Privacy notice</Link>
+          </p>
           <p className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-terracotta inline-block" />
             Narok, Kenya
