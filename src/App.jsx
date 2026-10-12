@@ -15,6 +15,7 @@ const Join     = React.lazy(() => import('./pages/Join'));
 const Privacy  = React.lazy(() => import('./pages/Privacy'));
 const RequestDocument = React.lazy(() => import('./pages/RequestDocument'));
 const GreenFutures = React.lazy(() => import('./pages/GreenFutures'));
+const Donate = React.lazy(() => import('./pages/Donate'));
 const MemberApp = React.lazy(() => import('./member/MemberApp'));
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
@@ -264,6 +265,14 @@ function App() {
               element={
                 <Suspense fallback={<PageSkeleton path="/privacy" />}>
                   <PageWrapper><Privacy /></PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/donate"
+              element={
+                <Suspense fallback={<PageSkeleton path="/join" />}>
+                  <PageWrapper><Donate /></PageWrapper>
                 </Suspense>
               }
             />

@@ -1,28 +1,17 @@
 // File: src/member/Dashboard.jsx
-import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { STAGES, UYIH_WHATSAPP_NUMBER } from '../lib/config';
 import { CURRENT_STATUS, AVAILABILITY, HOURS, labelFor } from '../lib/profileOptions';
-import { sameSkill } from '../lib/skills';
 import { prettyPhone } from '../lib/phone';
 import { MemberHero } from './MemberApp';
+import { MyTask, CategoryChip, STATUS, withMatches, categoryOf } from './TaskCards';
 
 const TRIAL_DAYS = 90;
 const TZ = 'Africa/Nairobi';
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric', timeZone: TZ }) : '');
 const daysSince = (d) => Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
-
-const KIND_LABEL = { task: 'Task', course: 'Course', content: 'Content' };
-const STATUS = {
-  todo:      { label: 'To do',            cls: 'bg-sand text-forest' },
-  submitted: { label: 'Waiting for UYIH', cls: 'bg-terracotta/15 text-terracotta-dark' },
-  done:      { label: 'Done',             cls: 'bg-forest text-cream' },
-  returned:  { label: 'Needs a change',   cls: 'bg-red-50 text-red-700' },
-};
-
-// Tasks with an online course open the course instead of “Mark as done”
-const COURSE_TASKS = { orientation: '/me/course/orientation', safeguarding: '/me/course/safeguarding' };
 
 const Section = ({ title, action, children }) => (
   <section className="card p-5 md:p-7">
@@ -42,14 +31,19 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
   const doneCount = progress.filter((c) => c.done).length;
   const mySkills = profile?.skills || [];
 
-  // Open tasks that match your skills come first
-  const rankedOpen = useMemo(() => openTasks
-    .map((t) => ({ ...t, match: (t.skills || []).filter((s) => mySkills.some((m) => sameSkill(m, s))) }))
-    .sort((a, b) => (a.code ? -1 : 0) - (b.code ? -1 : 0) || b.match.length - a.match.length), [openTasks, mySkills]);
+  const open = useMemo(() => withMatches(openTasks, mySkills), [openTasks, mySkills]);
+  const forYou = open.filter((t) => t.match.length > 0).length;
+  const active = myTasks.filter((t) => t.status !== 'done');
+  const counts = Object.fromEntries(Object.keys(STATUS).map((k) => [k, myTasks.filter((t) => t.status === k).length]));
+  // Most urgent first: needs a change, to do, then waiting
+  const order = { returned: 0, todo: 1, submitted: 2 };
+  const topActive = [...active].sort((a, b) => order[a.status] - order[b.status]).slice(0, 2);
 
-  const [showAllOpen, setShowAllOpen] = useState(false);
-  const OPEN_LIMIT = 6;
-  const visibleOpen = showAllOpen ? rankedOpen : rankedOpen.slice(0, OPEN_LIMIT);
+  // Membership fee: pending payment?
+  const [feePending, setFeePending] = useState(false);
+  useEffect(() => {
+    supabase.rpc('get_my_fee_payments').then(({ data }) => setFeePending((data || []).some((p) => p.status === 'pending')));
+  }, [dash]);
 
   return (
     <>
@@ -125,6 +119,14 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
                     </p>
                     {!c.done && <p className="font-sans text-xs text-ink-faint">{c.hint}</p>}
                   </div>
+                  {!c.done && c.key === 'fee' && (
+                    feePending
+                      ? <span className="flex-shrink-0 rounded-full bg-terracotta/15 text-terracotta-dark text-[11px] font-semibold px-2.5 py-1">Waiting for confirmation</span>
+                      : <Link to="/me/pay" className="flex-shrink-0 btn-primary text-xs px-3 py-1.5">Pay now</Link>
+                  )}
+                  {!c.done && (c.key === 'orientation' || c.key === 'safeguarding') && (
+                    <Link to={`/me/course/${c.key}`} className="flex-shrink-0 btn-secondary text-xs px-3 py-1.5">Open course</Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -132,24 +134,37 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
         )}
 
         {/* Tasks */}
-        <Section title="My tasks">
-          {myTasks.length === 0
-            ? <p className="font-sans text-sm text-ink-muted">No tasks yet. Pick one below, or we’ll assign you one that fits your skills.</p>
-            : <ul className="space-y-3">{myTasks.map((t) => <MyTask key={t.assignment_id} t={t} reload={reload} />)}</ul>}
+        <Section title="Tasks" action={<Link to="/me/tasks" className="btn-secondary text-sm">All tasks →</Link>}>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            {[['todo', 'To do', counts.todo + counts.returned], ['submitted', 'Waiting', counts.submitted], ['done', 'Done', counts.done]].map(([k, label, n]) => (
+              <Link key={k} to="/me/tasks" className="rounded-md bg-sand-light hover:bg-sand transition-colors p-3">
+                <p className="font-display font-bold text-3xl text-forest tabular-nums">{n}</p>
+                <p className="font-sans text-xs text-ink-muted">{label}</p>
+              </Link>
+            ))}
+          </div>
+          {topActive.length > 0 && (
+            <ul className="mt-5 grid md:grid-cols-2 gap-4">{topActive.map((t) => <MyTask key={t.assignment_id} t={t} reload={reload} />)}</ul>
+          )}
+          {active.length > topActive.length && (
+            <p className="font-sans text-sm text-ink-muted mt-3"><Link to="/me/tasks" className="underline">+ {active.length - topActive.length} more of your tasks</Link></p>
+          )}
+          {open.length > 0 && (
+            <Link to="/me/tasks?tab=find" className="mt-5 flex items-center gap-4 rounded-lg border-2 border-dashed border-terracotta/40 bg-terracotta/5 hover:bg-terracotta/10 transition-colors p-4">
+              <span className="text-3xl" aria-hidden="true">🧭</span>
+              <span className="flex-1">
+                <span className="block font-sans font-semibold text-forest">Find tasks to pick up</span>
+                <span className="block font-sans text-sm text-ink-muted">
+                  {open.length} open{forYou > 0 ? ` · ${forYou} match your skills` : ''}
+                </span>
+                <span className="flex flex-wrap gap-1.5 mt-2">
+                  {[...new Set(open.map(categoryOf))].slice(0, 4).map((c) => <CategoryChip key={c} cat={c} />)}
+                </span>
+              </span>
+              <span className="font-sans text-terracotta font-semibold" aria-hidden="true">→</span>
+            </Link>
+          )}
         </Section>
-
-        {rankedOpen.length > 0 && (
-          <Section title="Tasks you can pick up">
-            <ul className="space-y-3">
-              {visibleOpen.map((t) => <OpenTask key={t.task_id} t={t} reload={reload} />)}
-            </ul>
-            {rankedOpen.length > OPEN_LIMIT && (
-              <button className="btn-secondary w-full mt-4 text-sm" onClick={() => setShowAllOpen(!showAllOpen)}>
-                {showAllOpen ? 'Show fewer' : `Show all ${rankedOpen.length} tasks`}
-              </button>
-            )}
-          </Section>
-        )}
 
         {/* History */}
         <div className="grid md:grid-cols-2 gap-6">
@@ -195,94 +210,6 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
         <MyDetails person={person} reload={reload} />
       </div>
     </>
-  );
-}
-
-function MyTask({ t, reload }) {
-  const [open, setOpen] = useState(false);
-  const [note, setNote] = useState('');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-  const st = STATUS[t.status];
-  const canSubmit = t.status === 'todo' || t.status === 'returned';
-  const courseUrl = COURSE_TASKS[t.code];
-
-  const submit = async () => {
-    setBusy(true);
-    const { error: err } = await supabase.rpc('submit_task', { p_assignment_id: t.assignment_id, p_note: note || null });
-    setBusy(false);
-    if (err) { setError(err.message); return; }
-    setOpen(false); reload();
-  };
-
-  return (
-    <li className="rounded-md border border-sand-dark/70 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <p className="font-sans font-semibold text-forest">{t.title}</p>
-          <p className="font-sans text-xs text-ink-muted">
-            {KIND_LABEL[t.kind]}{t.project ? ` · ${t.project}` : ''}{t.due_on ? ` · due ${fmtDate(t.due_on)}` : ''}
-          </p>
-        </div>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${st.cls}`}>{st.label}</span>
-      </div>
-      {t.description && <p className="font-sans text-sm text-ink mt-2 whitespace-pre-wrap">{t.description}</p>}
-      {t.status === 'returned' && t.admin_note && (
-        <p className="font-sans text-sm bg-red-50 text-red-800 rounded px-3 py-2 mt-2">UYIH: {t.admin_note}</p>
-      )}
-      {canSubmit && courseUrl && (
-        <Link to={courseUrl} className="btn-primary text-sm mt-3">Start the course →</Link>
-      )}
-      {canSubmit && !courseUrl && !open && (
-        <button className="btn-primary text-sm mt-3" onClick={() => setOpen(true)}>Mark as done</button>
-      )}
-      {canSubmit && !courseUrl && open && (
-        <div className="mt-3 space-y-3">
-          <label className="block">
-            <span className="input-label">{t.kind === 'content' ? 'Link to your post *' : 'Anything we should know? (optional)'}</span>
-            <textarea className="input-field resize-none" rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} />
-          </label>
-          {error && <p className="font-sans text-sm text-red-700" role="alert">{error}</p>}
-          <div className="flex gap-2">
-            <button className="btn-primary text-sm" disabled={busy || (t.kind === 'content' && !note.trim())} onClick={submit}>
-              {busy ? 'Sending…' : 'Send to UYIH'}
-            </button>
-            <button className="btn-secondary text-sm" onClick={() => setOpen(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-    </li>
-  );
-}
-
-function OpenTask({ t, reload }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const courseUrl = COURSE_TASKS[t.code];
-  const claim = async () => {
-    setBusy(true);
-    const { error: err } = await supabase.rpc('claim_task', { p_task_id: t.task_id });
-    setBusy(false);
-    if (err) setError(err.message);
-    else if (courseUrl) navigate(courseUrl);
-    else reload();
-  };
-  return (
-    <li className="rounded-md border border-sand-dark/70 p-4 flex flex-wrap gap-3 items-start">
-      <div className="flex-1 min-w-[200px]">
-        <p className="font-sans font-semibold text-forest">
-          {t.title}
-          {t.match.length > 0 && <span className="ml-2 align-middle inline-block whitespace-nowrap rounded-full bg-terracotta/15 text-terracotta-dark text-[11px] font-semibold px-2 py-0.5">Matches your skills</span>}
-          {t.code && <span className="ml-2 align-middle inline-block whitespace-nowrap rounded-full bg-forest/10 text-forest text-[11px] font-semibold px-2 py-0.5">Counts toward membership</span>}
-        </p>
-        <p className="font-sans text-xs text-ink-muted">{KIND_LABEL[t.kind]}{t.project ? ` · ${t.project}` : ''}{t.due_on ? ` · due ${fmtDate(t.due_on)}` : ''}</p>
-        {t.description && <p className="font-sans text-sm text-ink mt-1.5">{t.description}</p>}
-        {t.skills?.length > 0 && <p className="font-sans text-xs text-ink-faint mt-1.5">Skills: {t.skills.join(', ')}</p>}
-        {error && <p className="font-sans text-sm text-red-700 mt-1" role="alert">{error}</p>}
-      </div>
-      <button className="btn-secondary text-sm" onClick={claim} disabled={busy}>{busy ? 'Adding…' : courseUrl ? 'Start the course' : 'I’ll do this'}</button>
-    </li>
   );
 }
 

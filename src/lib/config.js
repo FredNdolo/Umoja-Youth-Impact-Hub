@@ -18,6 +18,16 @@ export const UYIH_WHATSAPP_NUMBER = '254783218081'; // follow-up number, interna
 
 export const CONTACT_EMAIL = 'umojayouthhub@gmail.com';
 
+// M-Pesa paybill for donations and membership fees (one account for both).
+// People pay, then enter their M-Pesa confirmation code so UYIH can match it
+// to the paybill statement in /admin → Payments.
+export const PAYBILL = {
+  number: import.meta.env.VITE_PAYBILL_NUMBER || '',            // business number
+  account: import.meta.env.VITE_PAYBILL_ACCOUNT || '',          // account number to enter
+  registeredName: import.meta.env.VITE_PAYBILL_NAME || '',      // name M-Pesa shows on the confirmation screen
+};
+export const MEMBERSHIP_FEE = 1000; // Ksh
+
 // Bump this whenever the wording of the consent text or privacy notice changes,
 // so each person's record shows which version they agreed to.
 export const CONSENT_VERSION = '2026-10';

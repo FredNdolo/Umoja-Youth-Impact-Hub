@@ -120,3 +120,22 @@ open their link later in the day, raise it (the maximum is 24 hours).
   (`supabase/migrations/20261013020000_orientation_course.sql`).
 - The starter tasks (`supabase/migrations/20261013030000_starter_tasks.sql`,
   or **/admin → Tasks**): switch off any that don't fit the current plan.
+
+## Payments: donations and the membership fee (M-Pesa paybill)
+
+Payments go straight to the UYIH paybill; the website never handles money.
+
+- **/donate** shows the paybill and account number with copy buttons. Donors
+  can optionally send their M-Pesa code, amount and contact details so you
+  can thank them.
+- **Membership fee**: on the member page, the last checklist item has a
+  **Pay now** button → **/me/pay** (Ksh 1,000, then the M-Pesa code).
+- **/admin → Payments** lists every code sent in. Check each one against the
+  paybill statement, then **Confirm** or **Reject** (with a reason the member
+  sees). Confirming a membership fee ticks *fee paid* on their record and
+  their checklist. Totals for the month are shown at the top.
+
+**Paybill details**: set them in `src/lib/config.js` (`PAYBILL`), or in Vercel
+→ Project → Settings → Environment Variables as `VITE_PAYBILL_NUMBER`,
+`VITE_PAYBILL_ACCOUNT` and `VITE_PAYBILL_NAME`, then redeploy. Until they're
+set, the pages ask people to message UYIH on WhatsApp for the details.

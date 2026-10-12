@@ -8,6 +8,9 @@ import { Modal } from './People';
 import SkillPicker from '../components/SkillPicker';
 import { sameSkill } from '../lib/skills';
 import { AVAILABILITY, labelFor } from '../lib/profileOptions';
+import { categoryOf, CategoryChip, CATEGORY_STYLE } from '../member/TaskCards';
+
+const CATEGORY_ORDER = Object.keys(CATEGORY_STYLE);
 
 const KINDS = [
   { value: 'task', label: 'Task' },
@@ -23,6 +26,8 @@ export default function Tasks() {
   const [editing, setEditing]   = useState(null);  // task object or {} for new
   const [assigning, setAssigning] = useState(null);
   const [showInactive, setShowInactive] = useState(false);
+  const [search, setSearch] = useState('');
+  const [collapsed, setCollapsed] = useState({});
 
   const load = useCallback(async () => {
     try {
@@ -36,7 +41,13 @@ export default function Tasks() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  const shown = tasks.filter((t) => showInactive || t.active);
+  const shown = tasks.filter((t) => showInactive || t.active)
+    .filter((t) => !search.trim() || `${t.title} ${(t.skills || []).join(' ')}`.toLowerCase().includes(search.trim().toLowerCase()));
+  const groups = useMemo(() => {
+    const g = {};
+    shown.forEach((t) => { const c = categoryOf({ ...t, project: t.projects?.name }); (g[c] = g[c] || []).push(t); });
+    return [...CATEGORY_ORDER.filter((c) => g[c]), ...Object.keys(g).filter((c) => !CATEGORY_ORDER.includes(c))].map((c) => [c, g[c]]);
+  }, [shown]);
 
   return (
     <div className="space-y-5">
@@ -55,33 +66,56 @@ export default function Tasks() {
         )}
       </Panel>
 
-      <Panel title="All tasks" action={
-        <label className="text-xs flex items-center gap-1.5 text-ink-muted"><input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} /> Show archived</label>}>
-        {shown.length === 0 ? <p className="text-sm text-ink-muted">No tasks yet.</p> : (
-          <ul className="-m-5 divide-y divide-sand-dark/40">
-            {shown.map((t) => {
-              const n = t.task_assignments.length;
-              const done = t.task_assignments.filter((a) => a.status === 'done').length;
+      <Panel title={`All tasks · ${shown.length}`} action={
+        <div className="flex flex-wrap items-center gap-3">
+          <input className={`${inputCls} w-44 py-1.5`} type="search" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search tasks" />
+          <label className="text-xs flex items-center gap-1.5 text-ink-muted"><input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} /> Show archived</label>
+        </div>}>
+        {shown.length === 0 ? <p className="text-sm text-ink-muted">No tasks found.</p> : (
+          <div className="space-y-5">
+            {groups.map(([cat, list]) => {
+              const isClosed = collapsed[cat];
+              const waiting = list.reduce((n, t) => n + t.task_assignments.filter((a) => a.status === 'submitted').length, 0);
               return (
-                <li key={t.id} className={`px-5 py-3 flex flex-wrap gap-3 items-center ${t.active ? '' : 'opacity-60'}`}>
-                  <div className="flex-1 min-w-[220px]">
-                    <p className="font-semibold text-forest text-sm">
-                      {t.title}
-                      {t.code && <span className="ml-2 rounded-full bg-forest/10 text-forest text-[10px] font-semibold px-2 py-0.5 align-middle">MEMBERSHIP</span>}
-                      {t.is_open && <span className="ml-2 rounded-full bg-terracotta/15 text-terracotta-dark text-[10px] font-semibold px-2 py-0.5 align-middle">OPEN TO CLAIM</span>}
-                    </p>
-                    <p className="text-xs text-ink-muted">
-                      {KINDS.find((k) => k.value === t.kind)?.label}{t.projects ? ` · ${t.projects.name}` : ''}{t.due_on ? ` · due ${fmtDate(t.due_on)}` : ''}
-                      {t.skills.length > 0 && ` · ${t.skills.join(', ')}`}
-                    </p>
-                  </div>
-                  <span className="text-xs text-ink-muted">{done}/{n} done</span>
-                  <button className={btnGhost} onClick={() => setAssigning(t)}>Assign</button>
-                  <button className="text-xs text-ink-muted underline" onClick={() => setEditing(t)}>Edit</button>
-                </li>
+                <section key={cat} className="rounded-lg border border-sand-dark/50 overflow-hidden">
+                  <button className="w-full flex items-center gap-3 px-4 py-3 bg-sand-light hover:bg-sand transition-colors text-left"
+                    onClick={() => setCollapsed((c) => ({ ...c, [cat]: !c[cat] }))} aria-expanded={!isClosed}>
+                    <CategoryChip cat={cat} />
+                    <span className="text-xs text-ink-muted">{list.length} task{list.length > 1 ? 's' : ''}{waiting ? ` · ${waiting} to review` : ''}</span>
+                    <span className="ml-auto text-ink-muted text-xs" aria-hidden="true">{isClosed ? '▼' : '▲'}</span>
+                  </button>
+                  {!isClosed && (
+                    <ul className="divide-y divide-sand-dark/40">
+                      {list.map((t) => {
+                        const n = t.task_assignments.length;
+                        const done = t.task_assignments.filter((a) => a.status === 'done').length;
+                        return (
+                          <li key={t.id} className={`px-4 py-3 flex flex-wrap gap-3 items-center ${t.active ? '' : 'opacity-60'}`}>
+                            <div className="flex-1 min-w-[220px]">
+                              <p className="font-semibold text-forest text-sm">
+                                {t.title}
+                                {t.is_open
+                                  ? <span className="ml-2 rounded-full bg-terracotta/15 text-terracotta-dark text-[10px] font-semibold px-2 py-0.5 align-middle">OPEN</span>
+                                  : <span className="ml-2 rounded-full bg-sand text-ink-muted text-[10px] font-semibold px-2 py-0.5 align-middle">ASSIGN ONLY</span>}
+                                {!t.active && <span className="ml-2 text-[10px] text-ink-faint align-middle">ARCHIVED</span>}
+                              </p>
+                              <p className="text-xs text-ink-muted">
+                                {KINDS.find((k) => k.value === t.kind)?.label}{t.due_on ? ` · due ${fmtDate(t.due_on)}` : ''}
+                                {t.skills.length > 0 && ` · ${t.skills.slice(0, 4).join(', ')}${t.skills.length > 4 ? '…' : ''}`}
+                              </p>
+                            </div>
+                            <span className="text-xs text-ink-muted tabular-nums">{done}/{n} done</span>
+                            <button className={btnGhost} onClick={() => setAssigning(t)}>Assign</button>
+                            <button className="text-xs text-ink-muted underline" onClick={() => setEditing(t)}>Edit</button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </section>
               );
             })}
-          </ul>
+          </div>
         )}
       </Panel>
 
