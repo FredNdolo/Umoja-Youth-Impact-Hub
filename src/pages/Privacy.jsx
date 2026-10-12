@@ -38,13 +38,14 @@ export default function Privacy() {
             As you take part we also record your stage (newcomer, volunteer, member or lead), events you attend,
             projects you join, notes from our follow-up messages and whether you have paid the membership fee.</p>
           <p><strong>When you use the contact form:</strong> your name, email, optional phone number and your message.</p>
+          <p><strong>When you request a document:</strong> your name, email, optional organisation and how you plan to use it.</p>
           <p><strong>When you subscribe to updates:</strong> your email address.</p>
           <p>We never ask for ID numbers, dates of birth or health information. Online joining is for people aged 18 and over.</p>
         </Section>
 
         <Section title="Why we use it">
           <p>To welcome you, contact you on WhatsApp about events and volunteering, place you in a project, keep track of
-            membership, reply to your messages and send the updates you asked for. We also count totals (such as how
+            membership, reply to your messages, send documents you request and send the updates you asked for. We also count totals (such as how
             many people joined each month) to report on our work; those counts do not identify anyone.</p>
           <p>We rely on your consent, which you give with the checkbox on the form. We do not sell your data or use it for advertising.</p>
         </Section>
@@ -58,7 +59,7 @@ export default function Privacy() {
         <Section title="How long we keep it">
           <p>If you sign up but don’t take part within 12 months, we delete your record. If you volunteer or become a
             member, we keep your record while you are involved and delete it within 12 months after you leave, unless you
-            ask us to delete it sooner. Contact messages are deleted once they have been dealt with and are no longer needed.</p>
+            ask us to delete it sooner. Contact messages and document requests are deleted once they have been dealt with and are no longer needed.</p>
         </Section>
 
         <Section title="Your rights">

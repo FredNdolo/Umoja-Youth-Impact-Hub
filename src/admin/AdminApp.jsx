@@ -1,6 +1,7 @@
 // File: src/admin/AdminApp.jsx
 // Admin dashboard: magic-link login, then People / Events / Messages / Metrics.
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { NavLink, Route, Routes, Link } from 'react-router-dom';
 import { supabase } from './supabase';
 import { btnPrimary, inputCls, labelCls, ErrorNote } from './ui';
@@ -106,7 +107,20 @@ const TABS = [
   { to: '/admin/metrics',  label: 'Metrics'  },
 ];
 
+function useInboxCount() {
+  const [n, setN] = useState(0);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    Promise.all([
+      supabase.from('document_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('handled', false),
+    ]).then(([a, b]) => setN((a.count || 0) + (b.count || 0)));
+  }, [pathname]);
+  return n;
+}
+
 function Shell({ email }) {
+  const inbox = useInboxCount();
   return (
     <div className="min-h-screen bg-cream">
       <header className="bg-forest text-cream sticky top-0 z-30">
@@ -129,6 +143,9 @@ function Shell({ email }) {
                 `px-4 py-2.5 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors ${
                   isActive ? 'border-terracotta text-cream' : 'border-transparent text-cream/60 hover:text-cream'}`}>
               {t.label}
+              {t.label === 'Messages' && inbox > 0 && (
+                <span className="ml-1.5 inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full bg-terracotta px-1.5 text-[11px] text-white">{inbox}</span>
+              )}
             </NavLink>
           ))}
         </nav>
