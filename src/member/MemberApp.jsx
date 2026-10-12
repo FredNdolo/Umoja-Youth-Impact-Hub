@@ -7,6 +7,7 @@ import { supabase, loginLink } from '../lib/supabase';
 import { UYIH_WHATSAPP_NUMBER } from '../lib/config';
 import Dashboard from './Dashboard';
 import GetToKnowYou from './GetToKnowYou';
+import Course from './Course';
 
 export function MemberHero({ eyebrow, title, children }) {
   return (
@@ -31,6 +32,7 @@ export default function MemberApp() {
     <Routes>
       <Route index element={<MemberHome />} />
       <Route path="activate" element={<Activate />} />
+      <Route path="course/safeguarding" element={<Course />} />
       <Route path="*" element={<MemberHome />} />
     </Routes>
   );
@@ -105,7 +107,7 @@ function MemberHome() {
   return <Shell><Dashboard dash={dash} reload={load} onEditProfile={() => { setEditing(true); window.scrollTo({ top: 0 }); }} /></Shell>;
 }
 
-function Login() {
+export function Login() {
   const [email, setEmail] = useState('');
   const [state, setState] = useState('idle'); // idle | sending | sent
   const [msg, setMsg] = useState('');
