@@ -28,18 +28,21 @@ npm run build     # production build into dist/ (do not commit dist/)
 
 ```
 src/
-  pages/         Home, About, Programs, Contacts, Join, Privacy (Community.jsx is unused)
+  pages/         Home, About, Programs, Contacts, Join, Privacy, RequestDocument (Community.jsx is unused)
+  member/        Member area at /me (login, get-to-know-you profile, progress, tasks)
   components/    Navbar, Footer, InstagramFeed
-  admin/         Admin dashboard at /admin (People, Events, Messages, Metrics)
+  admin/         Admin dashboard at /admin (People, Tasks, Events, Messages, Metrics)
   lib/           Site settings (config.js), public form client, phone helpers
   assets/        Photos and logo, imported by the pages
 public/
   green-features/   Static Green Futures Initiative page (served at /green-features/)
   favicon.png, apple-touch-icon.png, og-image.jpg
 supabase/
-  migrations/    Database setup script for the membership pipeline
+  migrations/    Database scripts (run in order)
+  functions/     Edge Functions (member-login-link)
 docs/
   PHASE1_SETUP.md   One-time Supabase setup and day-to-day admin guide
+  PHASE2A_SETUP.md  Member logins, profiles and tasks: setup and how it works
 ```
 
 ## Membership pipeline

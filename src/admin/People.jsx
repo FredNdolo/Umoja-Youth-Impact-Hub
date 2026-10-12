@@ -13,7 +13,13 @@ const FILTERS = [
   { key: 'due', label: 'Follow-up due' },
   { key: 'all', label: 'Everyone' },
   ...STAGES.map((s) => ({ key: s.value, label: s.label })),
+  { key: 'review', label: 'Ready for review' },
+  { key: 'deletion', label: 'Deletion requested' },
 ];
+
+// Volunteers who've met every membership criterion except the fee
+const readyForReview = (p, overview) =>
+  p.stage === 'volunteer' && (overview[p.id]?.criteria_done_excl_fee ?? 0) >= 7;
 
 export default function People() {
   const [people, setPeople]     = useState([]);
@@ -24,15 +30,18 @@ export default function People() {
   const [search, setSearch]     = useState('');
   const [openId, setOpenId]     = useState(null);
   const [adding, setAdding]     = useState(false);
+  const [overview, setOverview] = useState({});
 
   const load = useCallback(async () => {
     try {
-      const [p, pr] = await Promise.all([
-        q(supabase.from('people').select('*').order('created_at', { ascending: false })),
+      const [p, pr, ov] = await Promise.all([
+        q(supabase.from('people').select('*, member_profiles(skills, completed_at)').order('created_at', { ascending: false })),
         q(supabase.from('projects').select('*').order('sort_order')),
+        q(supabase.from('membership_overview').select('*')),
       ]);
       setPeople(p);
       setProjects(pr);
+      setOverview(Object.fromEntries(ov.map((o) => [o.person_id, o])));
       setError('');
     } catch (e) { setError(e.message); }
     setLoading(false);
@@ -41,15 +50,17 @@ export default function People() {
   useEffect(() => { load(); }, [load]);
 
   const counts = useMemo(() => {
-    const c = { all: people.length, due: 0 };
+    const c = { all: people.length, due: 0, review: 0, deletion: 0 };
     STAGES.forEach((s) => { c[s.value] = 0; });
     people.forEach((p) => {
       c[p.stage] += 1;
+      if (readyForReview(p, overview)) c.review += 1;
+      if (p.deletion_requested_at) c.deletion += 1;
       const st = followUpState(p.next_follow_up_at);
       if (st === 'overdue' || st === 'today') c.due += 1;
     });
     return c;
-  }, [people]);
+  }, [people, overview]);
 
   const shown = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -57,16 +68,20 @@ export default function People() {
       if (filter === 'due') {
         const st = followUpState(p.next_follow_up_at);
         if (st !== 'overdue' && st !== 'today') return false;
+      } else if (filter === 'review') {
+        if (!readyForReview(p, overview)) return false;
+      } else if (filter === 'deletion') {
+        if (!p.deletion_requested_at) return false;
       } else if (filter !== 'all' && p.stage !== filter) return false;
       if (!term) return true;
-      return [p.full_name, p.phone, p.area, p.email].some((v) => (v || '').toLowerCase().includes(term))
+      return [p.full_name, p.phone, p.area, p.email, ...(p.member_profiles?.skills || [])].some((v) => (v || '').toLowerCase().includes(term))
         || prettyPhone(p.phone).replace(/\s/g, '').includes(term.replace(/\s/g, ''));
     });
     if (filter === 'due') {
       list = [...list].sort((a, b) => new Date(a.next_follow_up_at) - new Date(b.next_follow_up_at));
     }
     return list;
-  }, [people, filter, search]);
+  }, [people, filter, search, overview]);
 
   const projectName = (slug) => projects.find((p) => p.slug === slug)?.name || slug;
 
@@ -94,7 +109,7 @@ export default function People() {
         ))}
       </div>
 
-      <input type="search" placeholder="Search by name, phone, area or email" value={search}
+      <input type="search" placeholder="Search by name, phone, area, email or skill" value={search}
         onChange={(e) => setSearch(e.target.value)} className={`${inputCls} max-w-md`} aria-label="Search people" />
 
       <ErrorNote error={error} />
