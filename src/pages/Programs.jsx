@@ -77,8 +77,8 @@ const programs = [
     title:    'Environmental Stewardship',
     tagline:  'Restore the land. Restore the future.',
     desc:     'Community-wide environmental programs including reforestation drives, eco-clubs in schools, waste management education, and clean-up campaigns that engage the whole community in environmental action.',
-    bullets:  ['3,000+ trees planted since 2024', 'School eco-clubs established', 'Waste management and recycling education', 'Annual community clean-up drives'],
-    stat:     '3,000+ Trees Planted',
+    bullets:  ['3,500+ trees planted since 2024', 'School eco-clubs established', 'Waste management and recycling education', 'Annual community clean-up drives'],
+    stat:     '3,500+ Trees Planted',
     image: environmentImg,
     placeholderAlt: 'UYIH volunteers and community members planting trees during a reforestation drive in Narok East',
     placeholderBg:  '#2A5C40',
@@ -112,7 +112,7 @@ const faqs = [
 
 const kpis = [
   { label: 'Youth Reached',     value: '500+',   icon: '👥', detail: 'Across all programs'          },
-  { label: 'Trees Planted',     value: '3,000+', icon: '🌳', detail: 'Native species since 2024'    },
+  { label: 'Trees Planted',     value: '3,500+', icon: '🌳', detail: 'Native species since 2024'    },
   { label: 'Girls Supported',   value: '200+',   icon: '🎗️', detail: 'Via health programs'          },
   { label: 'Partner Schools',   value: '3',      icon: '🏫', detail: 'Active nursery sites'         },
 ];

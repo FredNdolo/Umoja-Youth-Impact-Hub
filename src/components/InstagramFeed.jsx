@@ -6,15 +6,15 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const POSTS = [
   {
-    url:     'https://www.instagram.com/p/DRH5tOSCr0O/',
-    label:   'Community Event',
-  },
-  {
-    url:     'https://www.instagram.com/reel/DUGU56QCEio/',
+    url:     'https://www.instagram.com/reel/Dbc_FHQo5UA/',
     label:   'Program Reel',
   },
   {
-    url:     'https://www.instagram.com/p/DXgj1ixjSJ0/',
+    url:     'https://www.instagram.com/p/DeK6mRDok1q/',
+    label:   'Community Post',
+  },
+  {
+    url:     'https://www.instagram.com/p/DcG-2IyIay7/',
     label:   'Latest Post',
   },
 ];
