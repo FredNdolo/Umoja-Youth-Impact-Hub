@@ -296,33 +296,57 @@ export default function Join() {
   );
 }
 
+const REDIRECT_SECONDS = 5;
+
+// After joining, people go straight into the WhatsApp community, where
+// upcoming activities are shared. A short pause lets them read the welcome
+// and save the follow-up number first; they can also go now or stay.
 function Welcome({ firstName, onAgain }) {
+  const [left, setLeft] = useState(REDIRECT_SECONDS);
+  const [cancelled, setCancelled] = useState(false);
+
+  useEffect(() => {
+    if (cancelled) return undefined;
+    if (left <= 0) {
+      window.location.assign(WHATSAPP_COMMUNITY_URL);
+      return undefined;
+    }
+    const t = setTimeout(() => setLeft((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [left, cancelled]);
+
   return (
     <motion.div key="welcome" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
       className="text-center py-2" role="status">
       <div className="w-16 h-16 mx-auto rounded-full bg-terracotta/10 flex items-center justify-center text-3xl mb-5" aria-hidden="true">🎉</div>
       <h2 className="font-display font-bold text-display-md text-forest">Karibu{firstName ? `, ${firstName}` : ''}!</h2>
-      <p className="font-sans text-ink-muted mt-2 mb-7">You’re in. One last step:</p>
+      <p className="font-sans text-ink-muted mt-2">You’re in. Upcoming activities are shared in our WhatsApp community.</p>
 
-      <a href={WHATSAPP_COMMUNITY_URL} target="_blank" rel="noopener noreferrer"
+      <p className="font-sans text-sm text-ink mt-5 mb-6 bg-sand-light rounded-md px-4 py-3">
+        Save <strong>0783 218 081</strong> as “UYIH”. We’ll also message you personally within 48 hours.
+      </p>
+
+      <a href={WHATSAPP_COMMUNITY_URL}
         className="inline-flex items-center justify-center gap-2.5 w-full rounded-md px-6 py-4 font-sans font-semibold text-white
                    bg-[#1F8F4E] hover:bg-[#187540] shadow-card transition-colors">
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35zM12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.32l-.34-.2-3.57.94.95-3.48-.22-.36a9.43 9.43 0 1 1 7.99 4.42zm8.02-17.45A11.33 11.33 0 0 0 12.05.75C5.8.75.72 5.83.72 12.08c0 2 .52 3.95 1.52 5.67L.62 23.62l6.01-1.58a11.3 11.3 0 0 0 5.42 1.38h.01c6.25 0 11.33-5.08 11.33-11.33 0-3.03-1.18-5.87-3.32-8.01z"/></svg>
         Join our WhatsApp community
       </a>
 
-      <div className="text-left mt-8 space-y-4 font-sans text-sm text-ink">
-        <p className="flex gap-3"><span className="text-terracotta font-bold">1.</span>
-          <span>Save <strong>0783 218 081</strong> as “UYIH” so our message doesn’t get lost.</span></p>
-        <p className="flex gap-3"><span className="text-terracotta font-bold">2.</span>
-          <span>We’ll message you within 48 hours with your first event and a role to try.</span></p>
-        <p className="flex gap-3"><span className="text-terracotta font-bold">3.</span>
-          <span>After that, pick a project. Your 90-day volunteer trial has no fee.</span></p>
-      </div>
+      <p className="font-sans text-xs text-ink-muted mt-3 min-h-[1rem]" aria-live="polite">
+        {cancelled ? 'Tap the button whenever you’re ready.' : `Opening WhatsApp in ${left}…`}
+      </p>
 
-      <button type="button" onClick={onAgain} className="font-sans text-xs text-ink-faint underline mt-8">
-        Signing up someone else? Use the form again
-      </button>
+      <div className="flex flex-col items-center gap-2 mt-6">
+        {!cancelled && (
+          <button type="button" onClick={() => setCancelled(true)} className="font-sans text-xs text-ink-faint underline">
+            Stay on this page
+          </button>
+        )}
+        <button type="button" onClick={() => { setCancelled(true); onAgain(); }} className="font-sans text-xs text-ink-faint underline">
+          Signing up someone else? Use the form again
+        </button>
+      </div>
     </motion.div>
   );
 }
