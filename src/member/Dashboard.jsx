@@ -22,7 +22,7 @@ const STATUS = {
 };
 
 // Tasks with an online course open the course instead of “Mark as done”
-const COURSE_TASKS = { safeguarding: '/me/course/safeguarding' };
+const COURSE_TASKS = { orientation: '/me/course/orientation', safeguarding: '/me/course/safeguarding' };
 
 const Section = ({ title, action, children }) => (
   <section className="card p-5 md:p-7">
@@ -46,6 +46,10 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
   const rankedOpen = useMemo(() => openTasks
     .map((t) => ({ ...t, match: (t.skills || []).filter((s) => mySkills.some((m) => sameSkill(m, s))) }))
     .sort((a, b) => (a.code ? -1 : 0) - (b.code ? -1 : 0) || b.match.length - a.match.length), [openTasks, mySkills]);
+
+  const [showAllOpen, setShowAllOpen] = useState(false);
+  const OPEN_LIMIT = 6;
+  const visibleOpen = showAllOpen ? rankedOpen : rankedOpen.slice(0, OPEN_LIMIT);
 
   return (
     <>
@@ -137,8 +141,13 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
         {rankedOpen.length > 0 && (
           <Section title="Tasks you can pick up">
             <ul className="space-y-3">
-              {rankedOpen.map((t) => <OpenTask key={t.task_id} t={t} reload={reload} />)}
+              {visibleOpen.map((t) => <OpenTask key={t.task_id} t={t} reload={reload} />)}
             </ul>
+            {rankedOpen.length > OPEN_LIMIT && (
+              <button className="btn-secondary w-full mt-4 text-sm" onClick={() => setShowAllOpen(!showAllOpen)}>
+                {showAllOpen ? 'Show fewer' : `Show all ${rankedOpen.length} tasks`}
+              </button>
+            )}
           </Section>
         )}
 

@@ -67,8 +67,17 @@ open their link later in the day, raise it (the maximum is 24 hours).
   arrives in **Tasks → To review** with the score and signature; confirming it
   is the Designated Safeguarding Lead's countersignature. You can still mark it
   done directly for someone briefed in person.
-- **Orientation** is still a task you confirm after an orientation session,
-  until its online course arrives in Phase 2B.
+- **Orientation is an online course too**, built from the organisation
+  profile and the Green Futures concept note: 7 short lessons and a 10-question
+  quiz (pass mark 8). Members send their result and you confirm it under
+  **Tasks → To review**. You can still mark it done directly for someone who
+  attended an in-person orientation.
+- **Starter task library**: 22 ready-made tasks for Green Futures, school
+  visits, the MHM curriculum, content and general support, each tagged with
+  skills. Desk tasks are **Open** (any member can pick them up); anything
+  involving schools, children, money or coordination is assign-only and says
+  that Safeguarding Basics comes first. Edit or switch them off in
+  **/admin → Tasks**.
 - **Deletion requests**: members can ask for deletion on their page; they
   appear under **People → Deletion requested**. Delete within 30 days.
 
@@ -81,4 +90,7 @@ open their link later in the day, raise it (the maximum is 24 hours).
   so members can read what they sign. Remove `public/docs/` if it shouldn't be public.
 - When the policy changes, update the lessons, the quiz and `DECLARATION`
   (Annex 1 wording) together.
-- The Orientation task description (editable in **/admin → Tasks**).
+- The Orientation lessons (`src/member/courses/orientation.js`) and quiz
+  (`supabase/migrations/20261013020000_orientation_course.sql`).
+- The starter tasks (`supabase/migrations/20261013030000_starter_tasks.sql`,
+  or **/admin → Tasks**): switch off any that don't fit the current plan.

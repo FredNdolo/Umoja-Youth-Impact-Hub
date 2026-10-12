@@ -32,7 +32,7 @@ export default function MemberApp() {
     <Routes>
       <Route index element={<MemberHome />} />
       <Route path="activate" element={<Activate />} />
-      <Route path="course/safeguarding" element={<Course />} />
+      <Route path="course/:code" element={<Course />} />
       <Route path="*" element={<MemberHome />} />
     </Routes>
   );
