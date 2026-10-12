@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "@vercel/analytics": "^1.6.1",
     "@vitejs/plugin-react": "^4.4.1",
     "framer-motion": "^10.0.0",
