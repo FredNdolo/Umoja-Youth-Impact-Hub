@@ -38,6 +38,10 @@ export default function Privacy() {
             As you take part we also record your stage (newcomer, volunteer, member or lead), events you attend,
             projects you join, notes from our follow-up messages and whether you have paid the membership fee.</p>
           <p><strong>When you use the contact form:</strong> your name, email, optional phone number and your message.</p>
+          <p><strong>If you complete your member profile:</strong> what you do at the moment, your skills, languages,
+            when you're free, what you hope to gain and anything you can bring, plus a short bio if you choose. We also
+            record the tasks you take on, when you complete them, when you log in, and whether you signed the
+            safeguarding declaration.</p>
           <p><strong>When you request a document:</strong> your name, email, optional organisation and how you plan to use it.</p>
           <p><strong>When you subscribe to updates:</strong> your email address.</p>
           <p>We never ask for ID numbers, dates of birth or health information. Online joining is for people aged 18 and over.</p>
@@ -45,7 +49,7 @@ export default function Privacy() {
 
         <Section title="Why we use it">
           <p>To welcome you, contact you on WhatsApp about events and volunteering, place you in a project, keep track of
-            membership, reply to your messages, send documents you request and send the updates you asked for. We also count totals (such as how
+            membership, match you with roles and tasks that suit your skills, track your progress toward membership, reply to your messages, send documents you request and send the updates you asked for. We also count totals (such as how
             many people joined each month) to report on our work; those counts do not identify anyone.</p>
           <p>We rely on your consent, which you give with the checkbox on the form. We do not sell your data or use it for advertising.</p>
         </Section>
@@ -64,7 +68,9 @@ export default function Privacy() {
 
         <Section title="Your rights">
           <p>You can ask to see the information we hold about you, correct it, or have it deleted, and you can withdraw your
-            consent at any time by messaging us on WhatsApp or emailing us. To stop receiving updates, just tell us.
+            consent at any time by messaging us on WhatsApp or emailing us. Members can also see most of their information,
+            edit their profile and details, and ask for deletion themselves on their member page; we act on deletion
+            requests within 30 days. To stop receiving updates, just tell us.
             If you are unhappy with how we handle your data, you can complain to the Office of the Data Protection
             Commissioner (ODPC) at <a className="text-terracotta underline" href="https://www.odpc.go.ke" target="_blank" rel="noopener noreferrer">odpc.go.ke</a>.</p>
         </Section>

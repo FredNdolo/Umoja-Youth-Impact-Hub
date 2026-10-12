@@ -9,6 +9,7 @@ const navLinks = [
   { to: '/about',    label: 'About Us' },
   { to: '/programs', label: 'Programs' },
   { to: '/join',     label: 'Join UYIH' },
+  { to: '/me',       label: 'Member login' },
   { to: '/contact',  label: 'Contact'  },
 ];
 

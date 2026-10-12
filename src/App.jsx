@@ -14,6 +14,7 @@ const Contact  = React.lazy(() => import('./pages/Contacts'));
 const Join     = React.lazy(() => import('./pages/Join'));
 const Privacy  = React.lazy(() => import('./pages/Privacy'));
 const RequestDocument = React.lazy(() => import('./pages/RequestDocument'));
+const MemberApp = React.lazy(() => import('./member/MemberApp'));
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
 // ── Page transition variants ────────────────────────────────────────
@@ -270,6 +271,14 @@ function App() {
               element={
                 <Suspense fallback={<PageSkeleton path="/join" />}>
                   <PageWrapper><RequestDocument /></PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/me/*"
+              element={
+                <Suspense fallback={<div className="min-h-screen bg-forest" />}>
+                  <PageWrapper><MemberApp /></PageWrapper>
                 </Suspense>
               }
             />
