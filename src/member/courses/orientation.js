@@ -61,8 +61,8 @@ export const LESSONS = [
       'The loop: grow indigenous and fruit tree seedlings in a school nursery → sell them to local markets → profits buy sanitary products for girls (preferably reusable pads) → the surplus grows the nursery.',
       'It is built to sustain itself. One-off pad drives run out; a nursery keeps producing.',
       'We deliver it with the Kenya Girl Guides Association (KGGA). Girl Guides in each school are trained to run the nursery; UYIH members on site handle the technical nursery work and pass their training on to the Girl Guides.',
-      'The 3 pilot schools are in Narok East: Ntulele Primary, Ongata Naado Junior and Primary, and Mosiro Day and Boarding Primary. Each aims for about 10,000 seedlings with at least 75% surviving.',
-      'Pilot-year targets: 5,000+ trees planted, 20–30% less absenteeism among girls, and KES 100,000–500,000 in seedling sales.',
+      'The 3 pilot schools are in Narok East: Ntulele Primary, Ongata Naado Junior and Primary, and Mosiro Day and Boarding Primary. Each nursery starts from a starter stock (1,000–5,000 seedlings shared across the schools) and grows towards about 10,000 seedlings, with at least 75% surviving.',
+      'Pilot-year targets: 5,000+ trees planted (the rest of the seedlings are sold), 20–30% less absenteeism among girls, and KES 100,000–500,000 in seedling sales.',
     ],
   },
   {

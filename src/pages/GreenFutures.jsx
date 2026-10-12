@@ -17,7 +17,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } 
 
 const STATS = [
   { value: '3',       label: 'Pilot schools',        detail: 'Selected in Narok East sub-county' },
-  { value: '10,000',  label: 'Seedlings per school', detail: 'Approximate target for each pilot school' },
+  { value: '10,000',  label: 'Seedlings per school', detail: 'Grown in each nursery over the pilot' },
   { value: '75%+',    label: 'Survival target',      detail: 'For seedlings in every school' },
   { value: '3,500+',  label: 'Trees planted',        detail: 'By UYIH since 2024' },
 ];
@@ -59,7 +59,7 @@ const PILLARS = [
 const PHASES = [
   {
     phase: 'Phase 1', name: 'Preparation', when: 'Months 1–3', status: 'Active',
-    items: ['Three pilot schools selected in Narok East', 'Source 1,000–5,000 indigenous and fruit tree seedlings', 'Set up nurseries so training can begin as soon as schools reopen'],
+    items: ['Three pilot schools selected in Narok East', 'Source a starter stock of 1,000–5,000 indigenous and fruit tree seedlings', 'Set up nurseries so training can begin as soon as schools reopen'],
   },
   {
     phase: 'Phase 2', name: 'Training & nursery establishment', when: 'Months 4–6', status: 'Next',
@@ -76,7 +76,7 @@ const PHASES = [
 ];
 
 const TARGETS = [
-  { value: '5,000+', label: 'trees planted during the pilot, for carbon capture, erosion control and habitat restoration', area: 'Environmental' },
+  { value: '5,000+', label: 'trees planted during the pilot, for carbon capture, erosion control and habitat restoration. The rest of the seedlings are sold.', area: 'Environmental' },
   { value: '20–30%', label: 'less absenteeism among girls, through a consistent supply of sanitary products', area: 'Social' },
   { value: 'KES 100K–500K', label: 'in seedling and tree sales within the first year', area: 'Economic' },
   { value: 'Quarterly', label: 'reports on trees planted, people trained, income generated and sanitary products distributed', area: 'Monitoring' },
@@ -231,8 +231,8 @@ export default function GreenFutures() {
               </ul>
               <p className="font-sans text-sm text-cream/75 mt-6 leading-relaxed">
                 Nurseries are being set up so that training and environmental education can begin as soon as schools
-                reopen. Each school is targeted to receive about 10,000 seedlings, with a survival-rate target of at
-                least 75%.
+                reopen. Each nursery starts from a shared starter stock and propagates its own, growing towards about
+                10,000 seedlings per school with at least 75% surviving.
               </p>
             </div>
           </div>

@@ -68,7 +68,7 @@ open their link later in the day, raise it (the maximum is 24 hours).
   is the Designated Safeguarding Lead's countersignature. You can still mark it
   done directly for someone briefed in person.
 - **Orientation is an online course too**, built from the organisation
-  profile and the Green Futures concept note: 7 short lessons and a 10-question
+  profile and the Green Futures proposal: 7 short lessons and a 10-question
   quiz (pass mark 8). Members send their result and you confirm it under
   **Tasks → To review**. You can still mark it done directly for someone who
   attended an in-person orientation.

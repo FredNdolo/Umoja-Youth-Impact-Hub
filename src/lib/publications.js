@@ -18,12 +18,4 @@ export const PUBLICATIONS = [
     date: 'May 2025',
     icon: '📄',
   },
-  {
-    slug: 'green-futures-phase1-concept-note',
-    type: 'Concept Note',
-    title: 'Green Futures Initiative — Phase 1 Concept Note',
-    desc: 'Overview of the school nursery model linking seedling sales to menstrual health support for girls in Narok East.',
-    date: 'March 2025',
-    icon: '📋',
-  },
 ];

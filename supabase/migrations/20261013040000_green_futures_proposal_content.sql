@@ -1,8 +1,9 @@
 -- ════════════════════════════════════════════════════════════════════
 -- Align the Orientation quiz and the Green Futures starter tasks with the
 -- Green Futures proposal (August 2026): delivered with the Kenya Girl Guides
--- Association, Girl Guides trained to run the school nurseries, ~10,000
--- seedlings per pilot school with a 75% survival target.
+-- Association, Girl Guides trained to run the school nurseries. Seedlings:
+-- a 1,000–5,000 starter stock (Phase 1), nurseries growing towards ~10,000
+-- per school, 5,000+ planted in the pilot, 75% survival target.
 -- ════════════════════════════════════════════════════════════════════
 
 -- ── Orientation quiz ────────────────────────────────────────────────
@@ -54,7 +55,7 @@ Safeguarding Basics must be completed first.'
 
 insert into public.tasks (title, description, kind, project_id, skills, points, is_open)
 select 'Green Futures: find seedling suppliers',
-       'Phase 1 needs 1,000–5,000 indigenous and fruit tree seedlings. List at least 5 suppliers in and around Narok (Kenya Forest Service and community or private nurseries): species available, price per seedling, minimum order and delivery.',
+       'Phase 1 needs a starter stock of 1,000–5,000 indigenous and fruit tree seedlings across the three pilot schools; the nurseries then propagate their own. List at least 5 suppliers in and around Narok (Kenya Forest Service and community or private nurseries): species available, price per seedling, minimum order and delivery.',
        'task', p.id, array['Research', 'Procurement', 'Indigenous trees', 'Negotiation'], 2, true
   from public.projects p
  where p.slug = 'green-futures'
