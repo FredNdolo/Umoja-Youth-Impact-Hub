@@ -191,7 +191,7 @@ export default function Programs() {
                 ))}
               </ul>
               <div className="flex gap-4">
-                <Link to="/contact" className="btn-primary text-sm">Get Involved →</Link>
+                <Link to="/join" className="btn-primary text-sm">Get Involved →</Link>
                 <a href="/green-features/" target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
                   Project Site →
                 </a>
@@ -321,8 +321,8 @@ export default function Programs() {
             Whether you are a student, volunteer, partner organisation, or donor — there is a role for you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-terracotta bg-cream hover:bg-sand transition-all duration-200 shadow-terra-lg">
-              Get Involved →
+            <Link to="/join" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-terracotta bg-cream hover:bg-sand transition-all duration-200 shadow-terra-lg">
+              Join UYIH →
             </Link>
             <Link to="/about" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-cream border-2 border-cream/50 hover:border-cream hover:bg-cream/10 transition-all duration-200">
               About UYIH

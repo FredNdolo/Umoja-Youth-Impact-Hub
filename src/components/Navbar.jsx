@@ -107,8 +107,8 @@ export default function Navbar() {
               >
                 Donate
               </Link>
-              <Link to="/contact" className="btn-primary text-sm px-5 py-2.5">
-                Get Involved
+              <Link to="/join" className="btn-primary text-sm px-5 py-2.5">
+                Join Us
               </Link>
             </div>
 
@@ -217,11 +217,11 @@ export default function Navbar() {
                   Donate
                 </Link>
                 <Link
-                  to="/contact"
+                  to="/join"
                   className="btn-primary w-full text-base py-3.5 justify-center"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Get Involved →
+                  Join Us →
                 </Link>
                 <p className="text-center font-sans text-xs text-ink-faint mt-4">
                   Narok, Kenya

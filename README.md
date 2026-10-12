@@ -28,13 +28,29 @@ npm run build     # production build into dist/ (do not commit dist/)
 
 ```
 src/
-  pages/         Home, About, Programs, Contacts (Community.jsx is unused)
+  pages/         Home, About, Programs, Contacts, Join, Privacy (Community.jsx is unused)
   components/    Navbar, Footer, InstagramFeed
+  admin/         Admin dashboard at /admin (People, Events, Messages, Metrics)
+  lib/           Site settings (config.js), public form client, phone helpers
   assets/        Photos and logo, imported by the pages
 public/
   green-features/   Static Green Futures Initiative page (served at /green-features/)
   favicon.png, apple-touch-icon.png, og-image.jpg
+supabase/
+  migrations/    Database setup script for the membership pipeline
+docs/
+  PHASE1_SETUP.md   One-time Supabase setup and day-to-day admin guide
 ```
+
+## Membership pipeline
+
+The Join page (`/join`) feeds a Supabase database that the admin works from at
+`/admin`: Newcomer → Volunteer (90-day trial) → Member → Lead, with WhatsApp
+as the main channel. Setup steps are in [`docs/PHASE1_SETUP.md`](docs/PHASE1_SETUP.md).
+
+Settings such as the WhatsApp community link, follow-up number and consent
+version live in `src/lib/config.js`. Bump `CONSENT_VERSION` whenever the consent
+wording or privacy notice changes.
 
 ## Working together on this repo
 
