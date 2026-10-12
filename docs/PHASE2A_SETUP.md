@@ -60,14 +60,37 @@ open their link later in the day, raise it (the maximum is 24 hours).
   · profile · Orientation · Safeguarding Basics + declaration · social media
   content · membership fee. **People → Ready for review** lists volunteers who
   have met everything except the fee.
-- **Orientation and Safeguarding Basics** are tasks you confirm (after an
-  orientation session or briefing) until the online courses arrive in Phase 2B.
+- **Safeguarding Basics is an online course** built from the UYIH Child
+  Protection and Safeguarding Policy: 7 short lessons, then a 14-question
+  scenario quiz (pass mark 12, retakes allowed, answers checked on the server),
+  then the policy's Annex 1 declaration signed by typing their full name. It
+  arrives in **Tasks → To review** with the score and signature; confirming it
+  is the Designated Safeguarding Lead's countersignature. You can still mark it
+  done directly for someone briefed in person.
+- **Orientation is an online course too**, built from the organisation
+  profile and the Green Futures concept note: 7 short lessons and a 10-question
+  quiz (pass mark 8). Members send their result and you confirm it under
+  **Tasks → To review**. You can still mark it done directly for someone who
+  attended an in-person orientation.
+- **Starter task library**: 22 ready-made tasks for Green Futures, school
+  visits, the MHM curriculum, content and general support, each tagged with
+  skills. Desk tasks are **Open** (any member can pick them up); anything
+  involving schools, children, money or coordination is assign-only and says
+  that Safeguarding Basics comes first. Edit or switch them off in
+  **/admin → Tasks**.
 - **Deletion requests**: members can ask for deletion on their page; they
   appear under **People → Deletion requested**. Delete within 30 days.
 
 ## Please review
 
-- The safeguarding declaration wording in `src/member/Dashboard.jsx`
-  (`DECLARATION`) against UYIH's Child Protection and Safeguarding Policy.
-- The descriptions of the Orientation and Safeguarding Basics tasks
-  (editable in **/admin → Tasks**).
+- The Safeguarding Basics lessons (`src/member/courses/safeguarding.js`) and
+  quiz (`supabase/migrations/20261013010000_safeguarding_course.sql`, or the
+  `course_questions` table in Supabase) with the Designated Safeguarding Lead.
+- The full policy is published at `/docs/uyih-child-protection-safeguarding-policy.pdf`
+  so members can read what they sign. Remove `public/docs/` if it shouldn't be public.
+- When the policy changes, update the lessons, the quiz and `DECLARATION`
+  (Annex 1 wording) together.
+- The Orientation lessons (`src/member/courses/orientation.js`) and quiz
+  (`supabase/migrations/20261013020000_orientation_course.sql`).
+- The starter tasks (`supabase/migrations/20261013030000_starter_tasks.sql`,
+  or **/admin → Tasks**): switch off any that don't fit the current plan.

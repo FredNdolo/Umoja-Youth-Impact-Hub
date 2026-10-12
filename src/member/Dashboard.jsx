@@ -1,5 +1,6 @@
 // File: src/member/Dashboard.jsx
 import React, { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { STAGES, UYIH_WHATSAPP_NUMBER } from '../lib/config';
 import { CURRENT_STATUS, AVAILABILITY, HOURS, labelFor } from '../lib/profileOptions';
@@ -20,11 +21,8 @@ const STATUS = {
   returned:  { label: 'Needs a change',   cls: 'bg-red-50 text-red-700' },
 };
 
-// Draft wording for UYIH to review against its safeguarding policy
-const DECLARATION =
-  'I have completed UYIH’s Safeguarding Basics. I will follow UYIH’s Child Protection and Safeguarding Policy and Code of Conduct. ' +
-  'I will not be alone with a child out of sight of other adults, I will not contact children privately (including by phone or social media), ' +
-  'I will not take or share photos of children without permission from UYIH and the school, and I will report any safeguarding concern to UYIH straight away.';
+// Tasks with an online course open the course instead of “Mark as done”
+const COURSE_TASKS = { orientation: '/me/course/orientation', safeguarding: '/me/course/safeguarding' };
 
 const Section = ({ title, action, children }) => (
   <section className="card p-5 md:p-7">
@@ -48,6 +46,10 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
   const rankedOpen = useMemo(() => openTasks
     .map((t) => ({ ...t, match: (t.skills || []).filter((s) => mySkills.some((m) => sameSkill(m, s))) }))
     .sort((a, b) => (a.code ? -1 : 0) - (b.code ? -1 : 0) || b.match.length - a.match.length), [openTasks, mySkills]);
+
+  const [showAllOpen, setShowAllOpen] = useState(false);
+  const OPEN_LIMIT = 6;
+  const visibleOpen = showAllOpen ? rankedOpen : rankedOpen.slice(0, OPEN_LIMIT);
 
   return (
     <>
@@ -139,8 +141,13 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
         {rankedOpen.length > 0 && (
           <Section title="Tasks you can pick up">
             <ul className="space-y-3">
-              {rankedOpen.map((t) => <OpenTask key={t.task_id} t={t} reload={reload} />)}
+              {visibleOpen.map((t) => <OpenTask key={t.task_id} t={t} reload={reload} />)}
             </ul>
+            {rankedOpen.length > OPEN_LIMIT && (
+              <button className="btn-secondary w-full mt-4 text-sm" onClick={() => setShowAllOpen(!showAllOpen)}>
+                {showAllOpen ? 'Show fewer' : `Show all ${rankedOpen.length} tasks`}
+              </button>
+            )}
           </Section>
         )}
 
@@ -194,17 +201,15 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
 function MyTask({ t, reload }) {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
-  const [agree, setAgree] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const st = STATUS[t.status];
   const canSubmit = t.status === 'todo' || t.status === 'returned';
-  const isSafeguarding = t.code === 'safeguarding';
+  const courseUrl = COURSE_TASKS[t.code];
 
   const submit = async () => {
-    if (isSafeguarding && !agree) { setError('Please read and accept the declaration.'); return; }
     setBusy(true);
-    const { error: err } = await supabase.rpc('submit_task', { p_assignment_id: t.assignment_id, p_note: note || null, p_declaration: agree });
+    const { error: err } = await supabase.rpc('submit_task', { p_assignment_id: t.assignment_id, p_note: note || null });
     setBusy(false);
     if (err) { setError(err.message); return; }
     setOpen(false); reload();
@@ -225,21 +230,18 @@ function MyTask({ t, reload }) {
       {t.status === 'returned' && t.admin_note && (
         <p className="font-sans text-sm bg-red-50 text-red-800 rounded px-3 py-2 mt-2">UYIH: {t.admin_note}</p>
       )}
-      {canSubmit && !open && (
+      {canSubmit && courseUrl && (
+        <Link to={courseUrl} className="btn-primary text-sm mt-3">Start the course →</Link>
+      )}
+      {canSubmit && !courseUrl && !open && (
         <button className="btn-primary text-sm mt-3" onClick={() => setOpen(true)}>Mark as done</button>
       )}
-      {canSubmit && open && (
+      {canSubmit && !courseUrl && open && (
         <div className="mt-3 space-y-3">
           <label className="block">
             <span className="input-label">{t.kind === 'content' ? 'Link to your post *' : 'Anything we should know? (optional)'}</span>
             <textarea className="input-field resize-none" rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} />
           </label>
-          {isSafeguarding && (
-            <label className="flex gap-3 items-start font-sans text-sm bg-sand-light rounded-md p-3 cursor-pointer">
-              <input type="checkbox" className="mt-0.5 w-4 h-4 accent-[#1A3C2A]" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-              <span><strong className="text-forest">Safeguarding declaration.</strong> {DECLARATION}</span>
-            </label>
-          )}
           {error && <p className="font-sans text-sm text-red-700" role="alert">{error}</p>}
           <div className="flex gap-2">
             <button className="btn-primary text-sm" disabled={busy || (t.kind === 'content' && !note.trim())} onClick={submit}>
@@ -256,11 +258,15 @@ function MyTask({ t, reload }) {
 function OpenTask({ t, reload }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const courseUrl = COURSE_TASKS[t.code];
   const claim = async () => {
     setBusy(true);
     const { error: err } = await supabase.rpc('claim_task', { p_task_id: t.task_id });
     setBusy(false);
-    if (err) setError(err.message); else reload();
+    if (err) setError(err.message);
+    else if (courseUrl) navigate(courseUrl);
+    else reload();
   };
   return (
     <li className="rounded-md border border-sand-dark/70 p-4 flex flex-wrap gap-3 items-start">
@@ -275,7 +281,7 @@ function OpenTask({ t, reload }) {
         {t.skills?.length > 0 && <p className="font-sans text-xs text-ink-faint mt-1.5">Skills: {t.skills.join(', ')}</p>}
         {error && <p className="font-sans text-sm text-red-700 mt-1" role="alert">{error}</p>}
       </div>
-      <button className="btn-secondary text-sm" onClick={claim} disabled={busy}>{busy ? 'Adding…' : 'I’ll do this'}</button>
+      <button className="btn-secondary text-sm" onClick={claim} disabled={busy}>{busy ? 'Adding…' : courseUrl ? 'Start the course' : 'I’ll do this'}</button>
     </li>
   );
 }
