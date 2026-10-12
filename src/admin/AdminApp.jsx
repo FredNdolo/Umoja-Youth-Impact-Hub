@@ -7,6 +7,7 @@ import { supabase } from './supabase';
 import { btnPrimary, inputCls, labelCls, ErrorNote } from './ui';
 import People from './People';
 import Events from './Events';
+import Tasks from './Tasks';
 import Messages from './Messages';
 import Metrics from './Metrics';
 import logo from '../assets/logo.jpg';
@@ -102,25 +103,28 @@ function Login() {
 
 const TABS = [
   { to: '/admin',          label: 'People',   end: true },
+  { to: '/admin/tasks',    label: 'Tasks'    },
   { to: '/admin/events',   label: 'Events'   },
   { to: '/admin/messages', label: 'Messages' },
   { to: '/admin/metrics',  label: 'Metrics'  },
 ];
 
-function useInboxCount() {
-  const [n, setN] = useState(0);
+// Badges: messages to answer, and tasks waiting for review
+function useBadgeCounts() {
+  const [n, setN] = useState({ Messages: 0, Tasks: 0 });
   const { pathname } = useLocation();
   useEffect(() => {
     Promise.all([
       supabase.from('document_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('handled', false),
-    ]).then(([a, b]) => setN((a.count || 0) + (b.count || 0)));
+      supabase.from('task_assignments').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
+    ]).then(([a, b, c]) => setN({ Messages: (a.count || 0) + (b.count || 0), Tasks: c.count || 0 }));
   }, [pathname]);
   return n;
 }
 
 function Shell({ email }) {
-  const inbox = useInboxCount();
+  const badges = useBadgeCounts();
   return (
     <div className="min-h-screen bg-cream">
       <header className="bg-forest text-cream sticky top-0 z-30">
@@ -143,8 +147,8 @@ function Shell({ email }) {
                 `px-4 py-2.5 text-sm font-semibold border-b-2 whitespace-nowrap transition-colors ${
                   isActive ? 'border-terracotta text-cream' : 'border-transparent text-cream/60 hover:text-cream'}`}>
               {t.label}
-              {t.label === 'Messages' && inbox > 0 && (
-                <span className="ml-1.5 inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full bg-terracotta px-1.5 text-[11px] text-white">{inbox}</span>
+              {badges[t.label] > 0 && (
+                <span className="ml-1.5 inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full bg-terracotta px-1.5 text-[11px] text-white">{badges[t.label]}</span>
               )}
             </NavLink>
           ))}
@@ -153,6 +157,7 @@ function Shell({ email }) {
       <main className="max-w-6xl mx-auto px-4 py-6">
         <Routes>
           <Route index element={<People />} />
+          <Route path="tasks" element={<Tasks />} />
           <Route path="events" element={<Events />} />
           <Route path="messages" element={<Messages />} />
           <Route path="metrics" element={<Metrics />} />

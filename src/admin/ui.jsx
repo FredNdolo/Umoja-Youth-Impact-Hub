@@ -73,7 +73,7 @@ export function messageTemplate(person) {
   const first = (person.full_name || '').split(/\s+/)[0];
   switch (person.stage) {
     case 'newcomer':
-      return `Hi ${first}, this is Umoja Youth Impact Hub 👋 Thank you for joining! Our next activity is [EVENT] on [DATE] at [PLACE]. Would you like to come as our [ROLE]? Just reply here and we'll share the details.`;
+      return `Hi ${first}, this is Umoja Youth Impact Hub 👋 Thank you for joining! Our next activity is [EVENT] on [DATE] at [PLACE]. Would you like to come as our [ROLE]? Just reply here and we'll share the details.\n\nPlease also tell us about your skills so we can match you with roles you'll enjoy: ${window.location.origin}/me`;
     case 'volunteer':
       return `Hi ${first}, thank you for volunteering with UYIH! How are you finding [PROJECT]? Anything you need from us? Our next meet-up is [DATE].`;
     case 'member':

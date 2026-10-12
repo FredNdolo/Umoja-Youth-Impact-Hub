@@ -101,6 +101,9 @@ export default function Navbar() {
 
             {/* ── Desktop CTAs ── */}
             <div className="hidden md:flex items-center gap-3">
+              <Link to="/me" className={`text-sm font-medium px-2 py-2 transition-colors hover:text-terracotta ${onDark ? 'text-cream/85' : 'text-forest'}`}>
+                Log in
+              </Link>
               <Link 
                 to="/contact" 
                 className="btn-secondary text-sm px-5 py-2.5 border border-terracotta/70 hover:border-terracotta text-terracotta hover:bg-terracotta/5"
@@ -209,6 +212,13 @@ export default function Navbar() {
 
               {/* Drawer CTA */}
               <div className="px-4 pb-8 pt-4 border-t border-sand-dark/50 space-y-3">
+                <Link
+                  to="/me"
+                  className="block w-full text-center text-forest font-medium py-2.5 hover:text-terracotta"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Member log in
+                </Link>
                 <Link
                   to="/contact"
                   className="block w-full text-center border border-terracotta/70 hover:border-terracotta text-terracotta font-medium py-3.5 rounded-md hover:bg-terracotta/5 transition-colors"

@@ -8,6 +8,7 @@ import {
 import { Modal } from './People';
 import { STAGES, AGE_BANDS, HEARD_FROM } from '../lib/config';
 import { prettyPhone } from '../lib/phone';
+import { LoginSection, ProfileSection, ChecklistSection, TasksSection, DeletionBanner } from './PersonMember';
 
 const TRIAL_DAYS = 90;
 
@@ -24,7 +25,7 @@ export default function PersonDrawer({ personId, projects, onClose, onChanged })
   const load = useCallback(async () => {
     try {
       const [person, a, at, f, s] = await Promise.all([
-        q(supabase.from('people').select('*').eq('id', personId).single()),
+        q(supabase.from('people').select('*, member_profiles(*)').eq('id', personId).single()),
         q(supabase.from('assignments').select('*, projects(name)').eq('person_id', personId).order('started_on', { ascending: false })),
         q(supabase.from('attendance').select('role, attended, events(id, title, starts_at)').eq('person_id', personId)),
         q(supabase.from('follow_ups').select('*').eq('person_id', personId).order('done_at', { ascending: false })),
@@ -60,6 +61,7 @@ export default function PersonDrawer({ personId, projects, onClose, onChanged })
     <Modal title={p.full_name} onClose={onClose} wide>
       <div className="space-y-6 text-sm">
         <ErrorNote error={error} />
+        <DeletionBanner person={p} />
 
         {/* Summary */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-ink-muted">
@@ -115,6 +117,14 @@ export default function PersonDrawer({ personId, projects, onClose, onChanged })
               </label>
             )}
           </div>
+        </div>
+
+        {/* Get to know you + membership */}
+        <div className="grid gap-5 border border-sand-dark/60 rounded-md p-4">
+          <ProfileSection profile={p.member_profiles} />
+          <ChecklistSection personId={p.id} refreshKey={p.updated_at + assignments.length + attendance.length} />
+          <TasksSection personId={p.id} onChanged={load} />
+          <LoginSection person={p} onChanged={load} />
         </div>
 
         {/* Message + follow-up */}
