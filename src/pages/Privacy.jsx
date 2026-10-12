@@ -44,6 +44,9 @@ export default function Privacy() {
             safeguarding declaration.</p>
           <p><strong>When you request a document:</strong> your name, email, optional organisation and how you plan to use it.</p>
           <p><strong>When you subscribe to updates:</strong> your email address.</p>
+          <p><strong>When you tell us about a donation or pay the membership fee:</strong> the M-Pesa confirmation code and
+            amount, and, if you give them, your name, phone, email and message. We use these to match your payment to our
+            paybill statement and to thank you. We never ask for your M-Pesa PIN.</p>
           <p>We never ask for ID numbers, dates of birth or health information. Online joining is for people aged 18 and over.</p>
         </Section>
 
@@ -63,7 +66,7 @@ export default function Privacy() {
         <Section title="How long we keep it">
           <p>If you sign up but don’t take part within 12 months, we delete your record. If you volunteer or become a
             member, we keep your record while you are involved and delete it within 12 months after you leave, unless you
-            ask us to delete it sooner. Contact messages and document requests are deleted once they have been dealt with and are no longer needed.</p>
+            ask us to delete it sooner. Contact messages and document requests are deleted once they have been dealt with and are no longer needed. Payment records are kept as long as we need them for our accounts.</p>
         </Section>
 
         <Section title="Your rights">

@@ -105,7 +105,7 @@ export default function Navbar() {
                 Log in
               </Link>
               <Link 
-                to="/contact" 
+                to="/donate" 
                 className="btn-secondary text-sm px-5 py-2.5 border border-terracotta/70 hover:border-terracotta text-terracotta hover:bg-terracotta/5"
               >
                 Donate
@@ -220,7 +220,7 @@ export default function Navbar() {
                   Member log in
                 </Link>
                 <Link
-                  to="/contact"
+                  to="/donate"
                   className="block w-full text-center border border-terracotta/70 hover:border-terracotta text-terracotta font-medium py-3.5 rounded-md hover:bg-terracotta/5 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >

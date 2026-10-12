@@ -9,6 +9,7 @@ import People from './People';
 import Events from './Events';
 import Tasks from './Tasks';
 import Messages from './Messages';
+import Payments from './Payments';
 import Metrics from './Metrics';
 import logo from '../assets/logo.jpg';
 
@@ -106,19 +107,21 @@ const TABS = [
   { to: '/admin/tasks',    label: 'Tasks'    },
   { to: '/admin/events',   label: 'Events'   },
   { to: '/admin/messages', label: 'Messages' },
+  { to: '/admin/payments', label: 'Payments' },
   { to: '/admin/metrics',  label: 'Metrics'  },
 ];
 
 // Badges: messages to answer, and tasks waiting for review
 function useBadgeCounts() {
-  const [n, setN] = useState({ Messages: 0, Tasks: 0 });
+  const [n, setN] = useState({ Messages: 0, Tasks: 0, Payments: 0 });
   const { pathname } = useLocation();
   useEffect(() => {
     Promise.all([
       supabase.from('document_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supabase.from('contact_messages').select('id', { count: 'exact', head: true }).eq('handled', false),
       supabase.from('task_assignments').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
-    ]).then(([a, b, c]) => setN({ Messages: (a.count || 0) + (b.count || 0), Tasks: c.count || 0 }));
+      supabase.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    ]).then(([a, b, c, d]) => setN({ Messages: (a.count || 0) + (b.count || 0), Tasks: c.count || 0, Payments: d.count || 0 }));
   }, [pathname]);
   return n;
 }
@@ -160,6 +163,7 @@ function Shell({ email }) {
           <Route path="tasks" element={<Tasks />} />
           <Route path="events" element={<Events />} />
           <Route path="messages" element={<Messages />} />
+          <Route path="payments" element={<Payments />} />
           <Route path="metrics" element={<Metrics />} />
           <Route path="*" element={<People />} />
         </Routes>

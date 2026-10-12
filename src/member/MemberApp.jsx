@@ -8,6 +8,8 @@ import { UYIH_WHATSAPP_NUMBER } from '../lib/config';
 import Dashboard from './Dashboard';
 import GetToKnowYou from './GetToKnowYou';
 import Course from './Course';
+import TasksPage from './TasksPage';
+import PayFee from './PayFee';
 
 export function MemberHero({ eyebrow, title, children }) {
   return (
@@ -33,6 +35,8 @@ export default function MemberApp() {
       <Route index element={<MemberHome />} />
       <Route path="activate" element={<Activate />} />
       <Route path="course/:code" element={<Course />} />
+      <Route path="tasks" element={<TasksPage />} />
+      <Route path="pay" element={<PayFee />} />
       <Route path="*" element={<MemberHome />} />
     </Routes>
   );

@@ -85,3 +85,15 @@ export async function fetchProjects() {
     return FALLBACK_PROJECTS;
   }
 }
+
+export function submitDonation(form) {
+  return rpc('submit_donation', {
+    p_amount: Number(form.amount),
+    p_mpesa_code: form.code,
+    p_name: form.name || null,
+    p_phone: form.phone || null,
+    p_email: form.email || null,
+    p_message: form.message || null,
+    p_website: form.website || null,
+  });
+}
