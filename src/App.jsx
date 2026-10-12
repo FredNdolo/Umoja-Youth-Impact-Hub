@@ -14,6 +14,7 @@ const Contact  = React.lazy(() => import('./pages/Contacts'));
 const Join     = React.lazy(() => import('./pages/Join'));
 const Privacy  = React.lazy(() => import('./pages/Privacy'));
 const RequestDocument = React.lazy(() => import('./pages/RequestDocument'));
+const GreenFutures = React.lazy(() => import('./pages/GreenFutures'));
 const MemberApp = React.lazy(() => import('./member/MemberApp'));
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
@@ -274,6 +275,17 @@ function App() {
                 </Suspense>
               }
             />
+            {['/green-futures', '/green-features'].map((path) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <Suspense fallback={<PageSkeleton path="/programs" />}>
+                    <PageWrapper><GreenFutures /></PageWrapper>
+                  </Suspense>
+                }
+              />
+            ))}
             <Route
               path="/me/*"
               element={

@@ -38,7 +38,7 @@ const programs = [
     title:    'Green Futures Initiative',
     tagline:  'One seed. Two crises solved.',
     desc:     'School nurseries that simultaneously fund sanitary supplies for girls and restore degraded ecosystems in Narok East. Indigenous seedlings are propagated by students, sold to the community, and proceeds fund menstrual health supplies — keeping girls in school.',
-    bullets:  ['3 pilot schools active', '200+ girls supported with sanitary supplies', 'Indigenous seedling propagation training', 'Community nursery markets established'],
+    bullets:  ['3 pilot schools active', '6 schools reached through sanitary pad donations', 'Indigenous seedling propagation training', 'Community nursery markets established'],
     stat:     'Phase 1 Live',
     image: greenFuturesImg,
     placeholderAlt: 'Students and UYIH members tending to a school tree nursery as part of the Green Futures Initiative',
@@ -52,7 +52,7 @@ const programs = [
     tagline:  'Dignity. Health. Education.',
     desc:     'Delivering sanitary products, health education, and reproductive health awareness to girls across underserved schools in Narok East. We tackle period poverty directly — because no girl should miss school because of her period.',
     bullets:  ['Sanitary towel distribution drives', 'Menstrual health education sessions', 'School health awareness workshops', 'Community health referral networks'],
-    stat:     '200+ Girls Reached',
+    stat:     '6 Schools Reached',
     image: healthImg,
     placeholderAlt: 'UYIH volunteers distributing sanitary towels to female students at a partner school in Narok East',
     placeholderBg:  '#9B3A5A',
@@ -111,10 +111,10 @@ const faqs = [
 ];
 
 const kpis = [
-  { label: 'Youth Reached',     value: '500+',   icon: '👥', detail: 'Across all programs'          },
+  { label: 'Students Reached',  value: '1,200+', icon: '👥', detail: 'Across all programs'          },
   { label: 'Trees Planted',     value: '3,500+', icon: '🌳', detail: 'Native species since 2024'    },
-  { label: 'Girls Supported',   value: '200+',   icon: '🎗️', detail: 'Via health programs'          },
-  { label: 'Partner Schools',   value: '3',      icon: '🏫', detail: 'Active nursery sites'         },
+  { label: 'Schools Reached',   value: '6',      icon: '🎗️', detail: 'Via sanitary pad donations'   },
+  { label: 'Pilot Schools',     value: '3',      icon: '🏫', detail: 'Active nursery sites'         },
 ];
 
 export default function Programs() {
@@ -192,9 +192,9 @@ export default function Programs() {
               </ul>
               <div className="flex gap-4">
                 <Link to="/join" className="btn-primary text-sm">Get Involved →</Link>
-                <a href="/green-features/" target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
+                <Link to="/green-futures" className="btn-secondary text-sm">
                   Project Site →
-                </a>
+                </Link>
               </div>
             </div>
           </div>
