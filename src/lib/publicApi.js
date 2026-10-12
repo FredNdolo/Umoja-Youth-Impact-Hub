@@ -56,6 +56,18 @@ export function submitContact(form) {
   });
 }
 
+export function submitDocumentRequest(form) {
+  return rpc('submit_document_request', {
+    p_document_slug: form.slug,
+    p_document_title: form.title,
+    p_name: form.name,
+    p_email: form.email,
+    p_purpose: form.purpose,
+    p_organisation: form.organisation || null,
+    p_website: form.website || null,
+  });
+}
+
 export function subscribeNewsletter(email, website) {
   return rpc('subscribe_newsletter', { p_email: email, p_website: website || null });
 }

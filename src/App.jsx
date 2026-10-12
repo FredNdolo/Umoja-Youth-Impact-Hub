@@ -13,6 +13,7 @@ const Programs = React.lazy(() => import('./pages/Programs'));
 const Contact  = React.lazy(() => import('./pages/Contacts'));
 const Join     = React.lazy(() => import('./pages/Join'));
 const Privacy  = React.lazy(() => import('./pages/Privacy'));
+const RequestDocument = React.lazy(() => import('./pages/RequestDocument'));
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
 // ── Page transition variants ────────────────────────────────────────
@@ -261,6 +262,14 @@ function App() {
               element={
                 <Suspense fallback={<PageSkeleton path="/privacy" />}>
                   <PageWrapper><Privacy /></PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/request-document"
+              element={
+                <Suspense fallback={<PageSkeleton path="/join" />}>
+                  <PageWrapper><RequestDocument /></PageWrapper>
                 </Suspense>
               }
             />

@@ -1,6 +1,7 @@
 // File: src/pages/Home.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { PUBLICATIONS } from '../lib/publications';
 import { motion } from 'framer-motion';
 import heroImage from '../assets/hero-image.JPG';
 import InstagramFeed from '../components/InstagramFeed';
@@ -36,16 +37,16 @@ function PhotoPlaceholder({ alt, className = '', bg = '#D4C8B0' }) {
 const programFacts = [
   {
     icon: '🌱',
-    stat: '3,000+',
+    stat: '3,500+',
     label: 'Trees Planted',
     desc: 'Indigenous seedlings propagated and planted since 2024.',
     color: '#1A3C2A',
   },
   {
     icon: '🎗️',
-    stat: '200+',
-    label: 'Girls Supported',
-    desc: 'Female students receiving sanitary supplies through the Green Futures Initiative.',
+    stat: '6',
+    label: 'Schools Reached',
+    desc: 'Schools supported through our sanitary pad donations.',
     color: '#9B3A5A',
   },
   {
@@ -57,9 +58,9 @@ const programFacts = [
   },
   {
     icon: '👥',
-    stat: '500+',
-    label: 'Youth Reached',
-    desc: 'Young people engaged across health, environment, and empowerment programs.',
+    stat: '1,200+',
+    label: 'Students Reached',
+    desc: 'Students engaged across health, environment, and empowerment programs.',
     color: '#2C4A7C',
   },
   {
@@ -78,23 +79,7 @@ const programFacts = [
   },
 ];
 
-// ── Publications ─────────────────────────────────────────────────────
-const publications = [
-  {
-    type: 'Event Report',
-    title: 'UYIH — Schools Need Assessment Report',
-    desc: 'A needs assessment report for the schools we are setting up the Green Features Program.',
-    date: 'May 2025',
-    icon: '📄',
-  },
-  {
-    type: 'Concept Note',
-    title: 'Green Futures Initiative — Phase 1 Concept Note',
-    desc: 'Overview of the school nursery model linking seedling sales to menstrual health support for girls in Narok East.',
-    date: 'March 2025',
-    icon: '📋',
-  },
-];
+// Publications live in src/lib/publications.js (shared with the request page)
 
 // ────────────────────────────────────────────────────────────────────
 export default function Home() {
@@ -220,7 +205,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 stagger-children">
-            {publications.map((pub, i) => (
+            {PUBLICATIONS.map((pub, i) => (
               <div key={i} className="card-hover p-6 flex flex-col gap-4">
                 <div className="flex items-start gap-4">
                   <div className="text-3xl flex-shrink-0">{pub.icon}</div>
@@ -234,9 +219,10 @@ export default function Home() {
                 <p className="font-sans text-sm text-ink-muted leading-relaxed">{pub.desc}</p>
                 <div className="mt-auto flex items-center justify-between pt-4 border-t border-sand-dark/60">
                   <span className="font-sans text-xs text-ink-faint">{pub.date}</span>
-                  <button className="font-sans text-xs font-semibold text-terracotta hover:underline transition-all">
+                  <Link to={`/request-document?doc=${pub.slug}`}
+                    className="font-sans text-xs font-semibold text-terracotta hover:underline transition-all">
                     Request Copy →
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -254,7 +240,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 stagger-children">
-            {['Kenya Scouts Association', 'Kenya Girl Guides Association', 'ENSDA'].map((p) => (
+            {['Kenya Girl Guides Association', 'ENSDA'].map((p) => (
               <div key={p} className="px-6 py-3 border border-sand-dark/80 rounded-md bg-cream font-sans font-semibold text-sm text-ink-muted hover:border-terracotta/60 hover:text-forest transition-all duration-200">
                 {p}
               </div>

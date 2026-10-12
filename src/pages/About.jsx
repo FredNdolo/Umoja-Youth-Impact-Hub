@@ -52,7 +52,7 @@ const objectives = [
 
 const impactNumbers = [
   { stat: '500+',  label: 'Youth Reached',       detail: 'Across Narok'                      },
-  { stat: '3,000+',label: 'Trees Planted',        detail: 'Native species since 2024'        },
+  { stat: '3,500+',label: 'Trees Planted',        detail: 'Native species since 2024'        },
   { stat: '200+',  label: 'Girls Supported',      detail: 'Sanitary supplies distributed'    },
   { stat: '3',     label: 'Strategic Partners',   detail: 'Government and civil society'     },
 ];
