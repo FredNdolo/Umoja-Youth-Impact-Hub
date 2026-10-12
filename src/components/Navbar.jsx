@@ -32,6 +32,10 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
+  // Every page opens on a dark hero, so the header uses light text until
+  // the cream background appears on scroll (or the mobile drawer opens).
+  const onDark = !scrolled && !menuOpen;
+
   const isActive = (path) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
@@ -64,7 +68,7 @@ export default function Navbar() {
                 />
               </div>
               <div className="leading-none">
-                <span className="block font-display font-bold text-lg text-forest tracking-tight">
+                <span className={`block font-display font-bold text-lg tracking-tight transition-colors duration-300 ${onDark ? 'text-cream' : 'text-forest'}`}>
                   Umoja Youth
                 </span>
                 <span className="block font-sans font-medium text-[10px] uppercase tracking-[0.12em] text-terracotta">
@@ -79,8 +83,8 @@ export default function Navbar() {
                 <Link
                   key={to}
                   to={to}
-                  className={`nav-link relative px-4 py-2 rounded-md font-medium text-forest hover:text-terracotta transition-colors duration-200 ${
-                    isActive(to) ? 'text-terracotta' : ''
+                  className={`nav-link relative px-4 py-2 rounded-md font-medium hover:text-terracotta transition-colors duration-200 ${
+                    isActive(to) ? 'text-terracotta' : onDark ? 'text-cream' : 'text-forest'
                   }`}
                 >
                   {label}
@@ -98,7 +102,7 @@ export default function Navbar() {
             {/* ── Desktop CTAs ── */}
             <div className="hidden md:flex items-center gap-3">
               <Link 
-                to="/donate" 
+                to="/contact" 
                 className="btn-secondary text-sm px-5 py-2.5 border border-terracotta/70 hover:border-terracotta text-terracotta hover:bg-terracotta/5"
               >
                 Donate
@@ -111,7 +115,7 @@ export default function Navbar() {
             {/* ── Mobile hamburger ── */}
             <button
               className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-[5px] rounded-md
-                         hover:bg-sand/80 transition-colors duration-200"
+                         hover:bg-sand/20 transition-colors duration-200"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
@@ -119,17 +123,17 @@ export default function Navbar() {
               <motion.span
                 animate={menuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.22 }}
-                className="block w-5 h-0.5 bg-forest rounded-full origin-center"
+                className={`block w-5 h-0.5 rounded-full origin-center ${onDark ? 'bg-cream' : 'bg-forest'}`}
               />
               <motion.span
                 animate={menuOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
                 transition={{ duration: 0.22 }}
-                className="block w-3.5 h-0.5 bg-forest rounded-full self-end"
+                className={`block w-3.5 h-0.5 rounded-full self-end ${onDark ? 'bg-cream' : 'bg-forest'}`}
               />
               <motion.span
                 animate={menuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.22 }}
-                className="block w-5 h-0.5 bg-forest rounded-full origin-center"
+                className={`block w-5 h-0.5 rounded-full origin-center ${onDark ? 'bg-cream' : 'bg-forest'}`}
               />
             </button>
           </div>
@@ -206,7 +210,7 @@ export default function Navbar() {
               {/* Drawer CTA */}
               <div className="px-4 pb-8 pt-4 border-t border-sand-dark/50 space-y-3">
                 <Link
-                  to="/donate"
+                  to="/contact"
                   className="block w-full text-center border border-terracotta/70 hover:border-terracotta text-terracotta font-medium py-3.5 rounded-md hover:bg-terracotta/5 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
