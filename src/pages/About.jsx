@@ -290,7 +290,7 @@ export default function About() {
             Whether you want to volunteer, partner, or support — there is a place for you in the UYIH family.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact" className="btn-primary px-8 py-4 text-base">Get Involved →</Link>
+            <Link to="/join" className="btn-primary px-8 py-4 text-base">Join UYIH →</Link>
             <Link to="/programs" className="btn-secondary px-8 py-4 text-base">Explore Programs</Link>
           </div>
         </div>

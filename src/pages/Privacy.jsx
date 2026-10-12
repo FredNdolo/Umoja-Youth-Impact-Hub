@@ -1,0 +1,77 @@
+// File: src/pages/Privacy.jsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { CONTACT_EMAIL, CONSENT_VERSION } from '../lib/config';
+
+const Section = ({ title, children }) => (
+  <section className="space-y-3">
+    <h2 className="font-display font-bold text-display-sm text-forest">{title}</h2>
+    <div className="font-sans text-ink/90 leading-relaxed space-y-3">{children}</div>
+  </section>
+);
+
+export default function Privacy() {
+  return (
+    <div className="bg-cream">
+      <section className="relative pt-32 pb-14 bg-forest overflow-hidden">
+        <div className="container-narrow relative z-10">
+          <span className="eyebrow text-cream/60 mb-5 block">Your data</span>
+          <h1 className="font-display font-bold text-display-xl text-cream">Privacy notice</h1>
+          <p className="font-sans text-cream/70 mt-4">Version {CONSENT_VERSION}. Plain language, kept short.</p>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-terracotta" />
+      </section>
+
+      <div className="container-narrow max-w-3xl py-14 md:py-20 space-y-10">
+        <Section title="Who we are">
+          <p>
+            Umoja Youth Impact Hub (UYIH) is a youth-led community-based organisation in Narok, Kenya. We decide how
+            the information on this website is used, and we follow the Kenya Data Protection Act, 2019.
+            Contact us at <a className="text-terracotta underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> or
+            on WhatsApp at 0783 218 081.
+          </p>
+        </Section>
+
+        <Section title="What we collect">
+          <p><strong>When you join:</strong> your name, WhatsApp number, age group (not your date of birth), and, if you
+            choose to give them, your area, email, the projects you are interested in and how you heard about us.
+            As you take part we also record your stage (newcomer, volunteer, member or lead), events you attend,
+            projects you join, notes from our follow-up messages and whether you have paid the membership fee.</p>
+          <p><strong>When you use the contact form:</strong> your name, email, optional phone number and your message.</p>
+          <p><strong>When you subscribe to updates:</strong> your email address.</p>
+          <p>We never ask for ID numbers, dates of birth or health information. Online joining is for people aged 18 and over.</p>
+        </Section>
+
+        <Section title="Why we use it">
+          <p>To welcome you, contact you on WhatsApp about events and volunteering, place you in a project, keep track of
+            membership, reply to your messages and send the updates you asked for. We also count totals (such as how
+            many people joined each month) to report on our work; those counts do not identify anyone.</p>
+          <p>We rely on your consent, which you give with the checkbox on the form. We do not sell your data or use it for advertising.</p>
+        </Section>
+
+        <Section title="Who can see it">
+          <p>Only UYIH’s designated administrator can see individual records. The data is stored with our database
+            provider, Supabase, which may keep it on servers outside Kenya. By consenting, you agree to this. We do not share
+            your details with partners or funders without asking you first.</p>
+        </Section>
+
+        <Section title="How long we keep it">
+          <p>If you sign up but don’t take part within 12 months, we delete your record. If you volunteer or become a
+            member, we keep your record while you are involved and delete it within 12 months after you leave, unless you
+            ask us to delete it sooner. Contact messages are deleted once they have been dealt with and are no longer needed.</p>
+        </Section>
+
+        <Section title="Your rights">
+          <p>You can ask to see the information we hold about you, correct it, or have it deleted, and you can withdraw your
+            consent at any time by messaging us on WhatsApp or emailing us. To stop receiving updates, just tell us.
+            If you are unhappy with how we handle your data, you can complain to the Office of the Data Protection
+            Commissioner (ODPC) at <a className="text-terracotta underline" href="https://www.odpc.go.ke" target="_blank" rel="noopener noreferrer">odpc.go.ke</a>.</p>
+        </Section>
+
+        <div className="pt-4 border-t border-sand-dark">
+          <Link to="/join" className="btn-primary">Back to joining</Link>
+        </div>
+      </div>
+    </div>
+  );
+}

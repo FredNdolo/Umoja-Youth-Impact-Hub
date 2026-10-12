@@ -136,7 +136,7 @@ export default function Home() {
             </motion.p>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4">
               <Link to="/programs" className="btn-primary text-base px-8 py-4">Explore Our Work →</Link>
-              <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-cream border-2 border-cream/50 hover:border-cream hover:bg-cream/10 transition-all duration-200">Get Involved</Link>
+              <Link to="/join" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-cream border-2 border-cream/50 hover:border-cream hover:bg-cream/10 transition-all duration-200">Get Involved</Link>
             </motion.div>
           </motion.div>
         </div>
@@ -276,8 +276,8 @@ export default function Home() {
             Volunteer, partner with us, or support our programs. Every contribution strengthens our work.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-terracotta bg-cream hover:bg-sand transition-all duration-200 shadow-terra-lg active:scale-[0.98]">
-              Get Involved →
+            <Link to="/join" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-terracotta bg-cream hover:bg-sand transition-all duration-200 shadow-terra-lg active:scale-[0.98]">
+              Join UYIH →
             </Link>
             <Link to="/programs" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-md font-sans font-semibold text-base text-cream border-2 border-cream/50 hover:border-cream hover:bg-cream/10 transition-all duration-200 active:scale-[0.98]">
               See Our Programs

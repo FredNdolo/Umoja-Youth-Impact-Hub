@@ -11,6 +11,9 @@ const Home     = React.lazy(() => import('./pages/Home'));
 const About    = React.lazy(() => import('./pages/About'));
 const Programs = React.lazy(() => import('./pages/Programs'));
 const Contact  = React.lazy(() => import('./pages/Contacts'));
+const Join     = React.lazy(() => import('./pages/Join'));
+const Privacy  = React.lazy(() => import('./pages/Privacy'));
+const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
 // ── Page transition variants ────────────────────────────────────────
 const pageVariants = {
@@ -176,7 +179,7 @@ function PageSkeleton({ path }) {
   if (path === '/')         return <HomeSkeleton />;
   if (path === '/about')    return <AboutSkeleton />;
   if (path === '/programs') return <ProgramsSkeleton />;
-  if (path === '/contact')  return <ContactSkeleton />;
+  if (path === '/contact' || path === '/join') return <ContactSkeleton />;
   return <SkeletonBase />;
 }
 
@@ -193,12 +196,24 @@ function ScrollToTop() {
 function App() {
   const location = useLocation();
 
+  // The admin dashboard has its own layout and loads the Supabase library
+  // only there, so public visitors never download it.
+  if (location.pathname.startsWith('/admin')) {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-cream" />}>
+        <Routes>
+          <Route path="/admin/*" element={<AdminApp />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-cream">
       <ScrollToTop />
       <Navbar />
 
-      <main className="flex-grow">
+      <main className="flex-grow overflow-x-clip">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route
@@ -230,6 +245,22 @@ function App() {
               element={
                 <Suspense fallback={<PageSkeleton path="/contact" />}>
                   <PageWrapper><Contact /></PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/join"
+              element={
+                <Suspense fallback={<PageSkeleton path="/join" />}>
+                  <PageWrapper><Join /></PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/privacy"
+              element={
+                <Suspense fallback={<PageSkeleton path="/privacy" />}>
+                  <PageWrapper><Privacy /></PageWrapper>
                 </Suspense>
               }
             />
