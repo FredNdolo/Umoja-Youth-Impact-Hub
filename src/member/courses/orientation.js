@@ -72,10 +72,10 @@ export const LESSONS = [
     points: [
       'Everyone starts as a volunteer. Our WhatsApp community is where activities, events and news are shared first.',
       'Your member page lists tasks. Some are assigned to you based on the skills in your profile; open tasks can be picked up by anyone. Submit a task when it’s done and a UYIH lead confirms it.',
-      'To become a member within your 90-day trial: attend 2 activities, take a named role at an event, join a project and complete 3 project tasks, complete your profile, Orientation and Safeguarding Basics (with the declaration), create or share content about UYIH, and pay the membership fee (Ksh 1,000).',
+      'To become a member within your 90-day trial: attend 2 activities, take a named role at an event, join a project and complete 3 project tasks, complete your profile, Orientation and Safeguarding Basics (with the declaration), create or share content about UYIH, and pay the annual membership fee (Ksh 1,000).',
       'Anything involving schools or children needs Safeguarding Basics first.',
       'Representing UYIH: be respectful and punctual, never share anyone’s personal details or children’s photos without consent, and ask a lead before speaking to the media or partners on UYIH’s behalf.',
-      'UYIH’s constitution sets out members’ rights and duties. Ask a UYIH lead if you’d like a copy.',
+      'UYIH’s constitution (adopted September 2025) sets out members’ rights and duties. You can download it from the Documents section of your member page.',
     ],
   },
   {

@@ -174,12 +174,12 @@ export default function Home() {
               </p>
             </div>
             <a
-              href="https://www.instagram.com/umojayouthimpacthub/"
+              href="https://www.instagram.com/umojayouth_impacthub/"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-terra-outline self-start md:self-auto"
             >
-              Follow @umojayouthimpacthub →
+              Follow @umojayouth_impacthub →
             </a>
           </div>
 

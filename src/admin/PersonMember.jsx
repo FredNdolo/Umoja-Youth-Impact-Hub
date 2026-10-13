@@ -169,3 +169,78 @@ export function DeletionBanner({ person }) {
 }
 
 export { waLink };
+
+// ── Documents (national ID, police clearance) ─────────────────────────
+const DOC_LABEL = { national_id: 'National ID', police_clearance: 'Police clearance certificate' };
+const DOC_BUCKET = 'member-documents';
+
+// Remove all of a person's files from storage (used before deleting them)
+export async function removePersonFiles(personId) {
+  const { data } = await supabase.storage.from(DOC_BUCKET).list(personId);
+  const paths = (data || []).map((f) => `${personId}/${f.name}`);
+  if (paths.length) await supabase.storage.from(DOC_BUCKET).remove(paths);
+}
+
+export function DocumentsSection({ personId, onChanged }) {
+  const [docs, setDocs] = useState(null);
+  const [error, setError] = useState('');
+  const load = useCallback(async () => {
+    try { setDocs(await q(supabase.from('member_documents').select('*').eq('person_id', personId).order('doc_type'))); }
+    catch (e) { setError(e.message); }
+  }, [personId]);
+  useEffect(() => { load(); }, [load]);
+
+  const view = async (d) => {
+    const w = window.open('', '_blank');
+    const { data, error: err } = await supabase.storage.from(DOC_BUCKET).createSignedUrl(d.file_path, 120);
+    if (err) { if (w) w.close(); setError(err.message); return; }
+    if (w) w.location = data.signedUrl; else window.location.href = data.signedUrl;
+  };
+  const setStatus = async (d, status) => {
+    let admin_note = null;
+    if (status === 'rejected') {
+      admin_note = window.prompt('What should they fix? (They see this.)', 'The photo is unclear. Please upload a clearer copy.');
+      if (admin_note === null) return;
+    }
+    try { await q(supabase.from('member_documents').update({ status, admin_note }).eq('id', d.id)); load(); onChanged?.(); }
+    catch (e) { setError(e.message); }
+  };
+  const remove = async (d) => {
+    if (!window.confirm(`Delete ${DOC_LABEL[d.doc_type]} for good? The file is removed from storage.`)) return;
+    try {
+      await supabase.storage.from(DOC_BUCKET).remove([d.file_path]);
+      await q(supabase.from('member_documents').delete().eq('id', d.id));
+      load(); onChanged?.();
+    } catch (e) { setError(e.message); }
+  };
+
+  return (
+    <section>
+      <h3 className="font-semibold text-forest mb-2">Documents</h3>
+      <ErrorNote error={error} />
+      {docs && docs.length === 0 && <p className="text-ink-muted">None uploaded yet.</p>}
+      {docs && docs.length > 0 && (
+        <ul className="space-y-2">
+          {docs.map((d) => (
+            <li key={d.id} className="flex flex-wrap items-center gap-2 rounded border border-sand-dark/60 px-3 py-2">
+              <span className="font-medium text-forest">{DOC_LABEL[d.doc_type]}</span>
+              <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${d.status === 'verified' ? 'bg-forest/10 text-forest' : d.status === 'rejected' ? 'bg-red-50 text-red-700' : 'bg-terracotta/15 text-terracotta-dark'}`}>{d.status}</span>
+              <span className="text-xs text-ink-muted">
+                uploaded {fmtDate(d.uploaded_at)}{d.issued_on ? ` · issued ${fmtDate(d.issued_on)}` : ''}
+                {d.reviewed_at ? ` · ${d.status} ${fmtDateTime(d.reviewed_at)}` : ''}
+              </span>
+              <span className="ml-auto flex gap-2">
+                <button className={btnGhost} onClick={() => view(d)}>View</button>
+                {d.status !== 'verified' && <button className={btnGhost} onClick={() => setStatus(d, 'verified')}>Verify</button>}
+                {d.status !== 'rejected' && <button className={btnGhost} onClick={() => setStatus(d, 'rejected')}>Ask again</button>}
+                <button className="text-xs text-red-700 underline" onClick={() => remove(d)}>Delete</button>
+              </span>
+              {d.admin_note && <p className="w-full text-xs text-ink-muted">Note: {d.admin_note}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-xs text-ink-faint mt-2">Files open through a 2-minute private link. Don’t download or forward copies.</p>
+    </section>
+  );
+}

@@ -7,6 +7,7 @@ import { CURRENT_STATUS, AVAILABILITY, HOURS, labelFor } from '../lib/profileOpt
 import { prettyPhone } from '../lib/phone';
 import { MemberHero } from './MemberApp';
 import { MyTask, CategoryChip, STATUS, withMatches, categoryOf } from './TaskCards';
+import MyDocuments from './MyDocuments';
 
 const TRIAL_DAYS = 90;
 const TZ = 'Africa/Nairobi';
@@ -206,6 +207,10 @@ export default function Dashboard({ dash, reload, onEditProfile }) {
             </dl>
           </Section>
         )}
+
+        <Section title="Documents">
+          <MyDocuments personId={person.id} />
+        </Section>
 
         <MyDetails person={person} reload={reload} />
       </div>

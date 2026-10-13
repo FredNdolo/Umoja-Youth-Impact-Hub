@@ -57,7 +57,7 @@ function PayBody() {
   return (
     <>
       <MemberHero eyebrow="Becoming a member" title="Membership fee">
-        <p className="font-sans text-cream/75 mt-3 max-w-xl">Ksh {MEMBERSHIP_FEE.toLocaleString('en-KE')}, paid once by M-Pesa at the end of your 90-day volunteer trial.</p>
+        <p className="font-sans text-cream/75 mt-3 max-w-xl">Ksh {MEMBERSHIP_FEE.toLocaleString('en-KE')} a year by M-Pesa, first paid at the end of your 90-day volunteer trial (Constitution, Article 4).</p>
       </MemberHero>
       <div className="container-narrow max-w-2xl py-8 md:py-12 space-y-6">
         <Link to="/me" className="font-sans text-sm text-ink-muted underline">← Back to My UYIH</Link>

@@ -139,3 +139,22 @@ Payments go straight to the UYIH paybill; the website never handles money.
 → Project → Settings → Environment Variables as `VITE_PAYBILL_NUMBER`,
 `VITE_PAYBILL_ACCOUNT` and `VITE_PAYBILL_NAME`, then redeploy. Until they're
 set, the pages ask people to message UYIH on WhatsApp for the details.
+
+## Member documents: ID and police clearance
+
+Members upload a copy of their national ID (or passport) and their police
+clearance certificate (Certificate of Good Conduct) under **Documents** on
+their page. Files go to the **private** storage bucket `member-documents`;
+each member can only see their own, and only the admin can open others'
+(through 2-minute links).
+
+- **/admin → People → Documents to check** lists people with uploads waiting.
+  Open the person, **View** each file, then **Verify** or **Ask again** (with a
+  note the member sees).
+- Deleting a person also deletes their files.
+- Good practice: don't download or forward copies; delete documents when a
+  member leaves.
+
+The same section lets members download the **UYIH Constitution** and the
+**Child Protection and Safeguarding Policy** (`public/docs/`). Files in
+`public/docs` can be opened by anyone with the link.
