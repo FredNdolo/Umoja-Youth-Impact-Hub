@@ -30,7 +30,7 @@ export const MEMBERSHIP_FEE = 1000; // Ksh
 
 // Bump this whenever the wording of the consent text or privacy notice changes,
 // so each person's record shows which version they agreed to.
-export const CONSENT_VERSION = '2026-10';
+export const CONSENT_VERSION = '2026-10b';
 
 export const AGE_BANDS = [
   { value: '18-24', label: '18–24' },

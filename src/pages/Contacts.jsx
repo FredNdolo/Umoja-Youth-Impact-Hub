@@ -66,6 +66,7 @@ export default function Contacts() {
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email';
     if (!form.subject)        e.subject = 'Please select a subject';
     if (!form.message.trim()) e.message = 'Message is required';
+    else if (form.message.trim().length < 2) e.message = 'Please write a little more';
     return e;
   };
 
@@ -288,8 +289,8 @@ export default function Contacts() {
           </h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {[
-              { label: 'Follow on Instagram', href: 'https://www.instagram.com/umojayouthimpacthub/', color: 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]' },
-              { label: 'Connect on LinkedIn', href: 'https://linkedin.com',  color: 'bg-[#0077b5]' },
+              { label: 'Follow on Instagram', href: 'https://www.instagram.com/umojayouth_impacthub/', color: 'bg-gradient-to-br from-[#833ab4] via-[#fd1d1d] to-[#fcb045]' },
+              { label: 'Follow on TikTok', href: 'https://www.tiktok.com/@umojayouth_impacthub', color: 'bg-[#010101]' },
             ].map((s) => (
               <a
                 key={s.label}

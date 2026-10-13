@@ -14,6 +14,7 @@ const FILTERS = [
   { key: 'all', label: 'Everyone' },
   ...STAGES.map((s) => ({ key: s.value, label: s.label })),
   { key: 'review', label: 'Ready for review' },
+  { key: 'docs', label: 'Documents to check' },
   { key: 'deletion', label: 'Deletion requested' },
 ];
 
@@ -35,7 +36,7 @@ export default function People() {
   const load = useCallback(async () => {
     try {
       const [p, pr, ov] = await Promise.all([
-        q(supabase.from('people').select('*, member_profiles(skills, completed_at)').order('created_at', { ascending: false })),
+        q(supabase.from('people').select('*, member_profiles(skills, completed_at), member_documents(doc_type, status)').order('created_at', { ascending: false })),
         q(supabase.from('projects').select('*').order('sort_order')),
         q(supabase.from('membership_overview').select('*')),
       ]);
@@ -50,12 +51,13 @@ export default function People() {
   useEffect(() => { load(); }, [load]);
 
   const counts = useMemo(() => {
-    const c = { all: people.length, due: 0, review: 0, deletion: 0 };
+    const c = { all: people.length, due: 0, review: 0, docs: 0, deletion: 0 };
     STAGES.forEach((s) => { c[s.value] = 0; });
     people.forEach((p) => {
       c[p.stage] += 1;
       if (readyForReview(p, overview)) c.review += 1;
       if (p.deletion_requested_at) c.deletion += 1;
+      if ((p.member_documents || []).some((d) => d.status === 'pending')) c.docs += 1;
       const st = followUpState(p.next_follow_up_at);
       if (st === 'overdue' || st === 'today') c.due += 1;
     });
@@ -70,6 +72,8 @@ export default function People() {
         if (st !== 'overdue' && st !== 'today') return false;
       } else if (filter === 'review') {
         if (!readyForReview(p, overview)) return false;
+      } else if (filter === 'docs') {
+        if (!(p.member_documents || []).some((d) => d.status === 'pending')) return false;
       } else if (filter === 'deletion') {
         if (!p.deletion_requested_at) return false;
       } else if (filter !== 'all' && p.stage !== filter) return false;
