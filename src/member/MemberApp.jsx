@@ -1,114 +1,63 @@
 // File: src/member/MemberApp.jsx
 // Member area at /me: login (email link or WhatsApp link from UYIH),
 // get-to-know-you profile, progress, tasks and history.
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate, Link } from 'react-router-dom';
 import { supabase, loginLink } from '../lib/supabase';
 import { UYIH_WHATSAPP_NUMBER } from '../lib/config';
-import Dashboard from './Dashboard';
-import GetToKnowYou from './GetToKnowYou';
 import Course from './Course';
-import TasksPage from './TasksPage';
 import PayFee from './PayFee';
+import MemberLayout, { PageTitle } from './MemberLayout';
+import Home from './pages/Home';
+import Learning from './pages/Learning';
+import TasksPanel from './TasksPage';
+import Achievements from './pages/Achievements';
+import Profile from './pages/Profile';
+import MyDocuments from './MyDocuments';
+import { useMember } from './MemberLayout';
 
+// Member pages use a clean white layout
 export function MemberHero({ eyebrow, title, children }) {
   return (
-    <section className="relative pt-28 pb-10 md:pb-12 bg-forest overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle at 75% 25%, rgba(196,98,45,0.16) 0%, transparent 55%)',
-      }} />
-      <div className="container-narrow max-w-4xl relative z-10">
-        {eyebrow && <span className="eyebrow text-cream/60 mb-4 block">{eyebrow}</span>}
-        <h1 className="font-display font-bold text-display-lg text-cream">{title}</h1>
+    <section className="relative pt-24 md:pt-28 pb-6 md:pb-8 bg-white border-b border-sand-dark/40">
+      <div className="container-narrow max-w-4xl">
+        {eyebrow && <span className="eyebrow mb-3 block">{eyebrow}</span>}
+        <h1 className="font-display font-bold text-display-md md:text-display-lg text-forest">{title}</h1>
         {children}
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-terracotta" />
     </section>
   );
 }
 
-const Shell = ({ children }) => <div className="bg-cream min-h-screen">{children}</div>;
+const Shell = ({ children }) => <div className="bg-white min-h-screen">{children}</div>;
+
+function Documents() {
+  const { dash } = useMember();
+  return (
+    <>
+      <PageTitle title="Documents">UYIH’s key documents, and your verification documents for safeguarding checks.</PageTitle>
+      <div className="rounded-xl border border-sand-dark/50 bg-white p-5 md:p-6"><MyDocuments personId={dash.person.id} /></div>
+    </>
+  );
+}
 
 export default function MemberApp() {
   return (
     <Routes>
-      <Route index element={<MemberHome />} />
       <Route path="activate" element={<Activate />} />
       <Route path="course/:code" element={<Course />} />
-      <Route path="tasks" element={<TasksPage />} />
       <Route path="pay" element={<PayFee />} />
-      <Route path="*" element={<MemberHome />} />
+      <Route element={<MemberLayout />}>
+        <Route index element={<Home />} />
+        <Route path="learning" element={<Learning />} />
+        <Route path="tasks" element={<TasksPanel />} />
+        <Route path="achievements" element={<Achievements />} />
+        <Route path="documents" element={<Documents />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="*" element={<Home />} />
+      </Route>
     </Routes>
   );
-}
-
-function MemberHome() {
-  const [session, setSession] = useState(undefined);
-  const [dash, setDash] = useState(undefined); // undefined = loading, null = not linked
-  const [error, setError] = useState('');
-  const [editing, setEditing] = useState(false);
-
-  useEffect(() => {
-    document.title = 'My UYIH';
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  const load = useCallback(async () => {
-    const { data, error: err } = await supabase.rpc('get_my_dashboard');
-    if (err) { setError(err.message); setDash(null); return; }
-    setDash(data);
-    setError('');
-  }, []);
-
-  useEffect(() => {
-    if (!session) { setDash(undefined); return; }
-    load();
-    // supabase-js only sends the request once it's awaited/then'd
-    supabase.rpc('touch_my_login').then(() => {});
-  }, [session, load]);
-
-  if (session === undefined || (session && dash === undefined)) {
-    return <Shell><MemberHero eyebrow="My UYIH" title="Loading…" /></Shell>;
-  }
-  if (!session) return <Shell><Login /></Shell>;
-  if (!dash) {
-    return (
-      <Shell>
-        <MemberHero eyebrow="My UYIH" title="We couldn’t find your record" />
-        <div className="container-narrow max-w-xl py-12 space-y-4 font-sans text-ink">
-          <p>You’re signed in as <strong>{session.user.email}</strong>, but this login isn’t linked to anyone who has joined UYIH.</p>
-          <p>If you joined recently, message us on WhatsApp and we’ll send you a login link.</p>
-          {error && <p className="text-sm text-red-700">{error}</p>}
-          <div className="flex flex-wrap gap-3 pt-2">
-            <a className="btn-primary" href={`https://wa.me/${UYIH_WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi UYIH, please send me my member login link.')}`}>Message UYIH</a>
-            <button className="btn-secondary" onClick={() => supabase.auth.signOut()}>Sign out</button>
-          </div>
-        </div>
-      </Shell>
-    );
-  }
-
-  const needsProfile = !dash.profile?.completed_at;
-  if (editing || (needsProfile && !dash.profile)) {
-    return (
-      <Shell>
-        <GetToKnowYou
-          person={dash.person}
-          profile={dash.profile}
-          firstTime={!dash.profile}
-          onDone={async () => { setEditing(false); await load(); window.scrollTo({ top: 0 }); }}
-          onSkip={dash.profile ? () => setEditing(false) : async () => {
-            // Save an empty profile so we don't ask again on every visit
-            await supabase.from('member_profiles').insert({ person_id: dash.person.id });
-            await load();
-          }}
-        />
-      </Shell>
-    );
-  }
-  return <Shell><Dashboard dash={dash} reload={load} onEditProfile={() => { setEditing(true); window.scrollTo({ top: 0 }); }} /></Shell>;
 }
 
 export function Login() {
@@ -130,7 +79,7 @@ export function Login() {
   return (
     <>
       <MemberHero eyebrow="My UYIH" title="Log in">
-        <p className="font-sans text-cream/75 mt-3 max-w-lg">See your progress, tasks and events, and tell us about your skills.</p>
+        <p className="font-sans text-ink-muted mt-2 max-w-lg">See your progress, tasks and events, and tell us about your skills.</p>
       </MemberHero>
       <div className="container-narrow max-w-4xl py-12 md:py-16 grid md:grid-cols-2 gap-6">
         <div className="card p-6 md:p-7">

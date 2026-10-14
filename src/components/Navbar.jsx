@@ -34,7 +34,9 @@ export default function Navbar() {
 
   // Every page opens on a dark hero, so the header uses light text until
   // the cream background appears on scroll (or the mobile drawer opens).
-  const onDark = !scrolled && !menuOpen;
+  // Member pages and certificates sit on white, so they need dark text.
+  const lightPage = /^\/(me|certificates)(\/|$)/.test(location.pathname);
+  const onDark = !scrolled && !menuOpen && !lightPage;
 
   const isActive = (path) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
@@ -45,8 +47,8 @@ export default function Navbar() {
         initial={{ y: -70, opacity: 0 }}
         animate={{ y: 0,   opacity: 1 }}
         transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
-          scrolled
+        className={`print:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
+          scrolled || lightPage
             ? 'bg-cream/95 backdrop-blur-xl border-b border-sand-dark/30 shadow-sm'
             : 'bg-transparent backdrop-blur-sm'
         }`}

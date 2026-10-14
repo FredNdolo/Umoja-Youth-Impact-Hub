@@ -8,7 +8,7 @@ import { MEMBERSHIP_FEE, PAYBILL } from '../lib/config';
 import PaybillCard from '../components/PaybillCard';
 import { MemberHero, Login } from './MemberApp';
 
-const Shell = ({ children }) => <div className="bg-cream min-h-screen">{children}</div>;
+const Shell = ({ children }) => <div className="bg-white min-h-screen">{children}</div>;
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Nairobi' });
 
 export default function PayFee() {
@@ -57,7 +57,7 @@ function PayBody() {
   return (
     <>
       <MemberHero eyebrow="Becoming a member" title="Membership fee">
-        <p className="font-sans text-cream/75 mt-3 max-w-xl">Ksh {MEMBERSHIP_FEE.toLocaleString('en-KE')} a year by M-Pesa, first paid at the end of your 90-day volunteer trial (Constitution, Article 4).</p>
+        <p className="font-sans text-ink-muted mt-2 max-w-xl">Ksh {MEMBERSHIP_FEE.toLocaleString('en-KE')} a year by M-Pesa, first paid at the end of your 90-day volunteer trial (Constitution, Article 4).</p>
       </MemberHero>
       <div className="container-narrow max-w-2xl py-8 md:py-12 space-y-6">
         <Link to="/me" className="font-sans text-sm text-ink-muted underline">← Back to My UYIH</Link>

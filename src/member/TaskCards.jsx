@@ -72,28 +72,116 @@ function Skills({ skills, match }) {
   );
 }
 
-export function MyTask({ t, reload }) {
-  const [open, setOpen] = useState(false);
+const SUB_BUCKET = 'task-submissions';
+const SUB_MAX = 20 * 1024 * 1024;
+const SUB_TYPES = {
+  'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'video/mp4': 'mp4', 'text/plain': 'txt',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+  'application/msword': 'doc', 'application/vnd.ms-excel': 'xls', 'application/vnd.ms-powerpoint': 'ppt',
+};
+
+async function openOwnFile(path) {
+  const w = window.open('', '_blank');
+  const { data, error } = await supabase.storage.from(SUB_BUCKET).createSignedUrl(path, 120);
+  if (error) { if (w) w.close(); return; }
+  if (w) w.location = data.signedUrl; else window.location.href = data.signedUrl;
+}
+
+// What the member sent in (link, file, note)
+function Submitted({ t }) {
+  if (!t.submission_url && !t.submission_file && !t.member_note) return null;
+  return (
+    <div className="mt-3 rounded-md bg-sand-light/70 border border-sand-dark/40 px-3 py-2.5 font-sans text-xs space-y-1">
+      <p className="font-semibold text-ink-muted uppercase tracking-wide text-[10px]">Your submission</p>
+      {t.submission_url && <p>🔗 <a href={t.submission_url} target="_blank" rel="noopener noreferrer" className="text-terracotta underline break-all">{t.submission_url}</a></p>}
+      {t.submission_file && <p>📎 <button className="text-terracotta underline" onClick={() => openOwnFile(t.submission_file)}>{t.submission_file_name || 'Your file'}</button></p>}
+      {t.member_note && <p className="text-ink whitespace-pre-wrap">“{t.member_note}”</p>}
+    </div>
+  );
+}
+
+// Submission box: a link, a file, or both, plus an optional note
+function SubmissionBox({ t, personId, onCancel, onDone }) {
+  const [link, setLink] = useState(t.submission_url || '');
+  const [file, setFile] = useState(null);
   const [note, setNote] = useState('');
-  const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const needsSomething = t.kind === 'content';
+
+  const pick = (e) => {
+    const f = e.target.files?.[0];
+    setError('');
+    if (!f) { setFile(null); return; }
+    if (!SUB_TYPES[f.type]) { setError('Please choose a PDF, photo, Word, Excel, PowerPoint, text or MP4 file.'); e.target.value = ''; return; }
+    if (f.size > SUB_MAX) { setError('That file is over 20 MB. For bigger files, share a Google Drive link instead.'); e.target.value = ''; return; }
+    setFile(f);
+  };
+
+  const send = async () => {
+    const l = link.trim();
+    if (l && !/^https?:\/\/\S+$/i.test(l)) { setError('The link should start with http:// or https://'); return; }
+    if (needsSomething && !l && !file && !t.submission_file) { setError('Add a link to your post or upload the file.'); return; }
+    setBusy(true); setError('');
+    let path = null;
+    if (file) {
+      path = `${personId}/${t.assignment_id}-${Date.now()}.${SUB_TYPES[file.type]}`;
+      const up = await supabase.storage.from(SUB_BUCKET).upload(path, file, { contentType: file.type, upsert: false });
+      if (up.error) { setBusy(false); setError('The upload failed. Check your connection and try again.'); return; }
+    }
+    const { data: oldPath, error: err } = await supabase.rpc('submit_task', {
+      p_assignment_id: t.assignment_id, p_note: note || null, p_link: l || null,
+      p_file_path: path, p_file_name: file ? file.name : null,
+    });
+    if (err) {
+      if (path) await supabase.storage.from(SUB_BUCKET).remove([path]);
+      setBusy(false); setError(err.message); return;
+    }
+    if (oldPath) await supabase.storage.from(SUB_BUCKET).remove([oldPath]);
+    setBusy(false); onDone();
+  };
+
+  return (
+    <div className="mt-4 rounded-lg border border-sand-dark/60 bg-sand-light/50 p-4 space-y-3">
+      <p className="font-sans text-sm font-semibold text-forest">Submit your work</p>
+      <label className="block">
+        <span className="input-label">Link (Google Drive, Instagram, TikTok, a document…)</span>
+        <input className="input-field" type="url" inputMode="url" placeholder="https://" value={link} maxLength={500}
+          onChange={(e) => { setLink(e.target.value); setError(''); }} />
+      </label>
+      <label className="block">
+        <span className="input-label">Or upload a file (up to 20 MB)</span>
+        <input type="file" onChange={pick} accept={Object.keys(SUB_TYPES).join(',')}
+          className="block w-full font-sans text-sm file:mr-3 file:rounded-md file:border-0 file:bg-forest file:px-3 file:py-2 file:text-cream file:font-semibold" />
+        {t.submission_file && !file && <span className="block font-sans text-xs text-ink-muted mt-1">Already uploaded: {t.submission_file_name || 'a file'} (choose a new file to replace it)</span>}
+      </label>
+      <label className="block">
+        <span className="input-label">Note for UYIH (optional)</span>
+        <textarea className="input-field resize-none" rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} />
+      </label>
+      {error && <p className="font-sans text-sm text-red-700" role="alert">{error}</p>}
+      <div className="flex gap-2">
+        <button className="btn-primary text-sm" disabled={busy} onClick={send}>{busy ? (file ? 'Uploading…' : 'Sending…') : 'Send to UYIH'}</button>
+        <button className="btn-secondary text-sm" onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+export function MyTask({ t, reload, personId }) {
+  const [open, setOpen] = useState(false);
   const st = STATUS[t.status];
   const canSubmit = t.status === 'todo' || t.status === 'returned';
   const courseUrl = COURSE_TASKS[t.code];
   const cat = categoryOf(t);
 
-  const submit = async () => {
-    setBusy(true);
-    const { error: err } = await supabase.rpc('submit_task', { p_assignment_id: t.assignment_id, p_note: note || null });
-    setBusy(false);
-    if (err) { setError(err.message); return; }
-    setOpen(false); reload();
-  };
-
   return (
     <li className={`rounded-lg border bg-white p-4 md:p-5 ${t.status === 'returned' ? 'border-red-200' : 'border-sand-dark/60'}`}>
       <div className="flex flex-wrap items-center gap-2">
         <CategoryChip cat={cat} />
+        {t.points > 0 && <span className="font-sans text-[11px] text-ink-faint">{t.points} pt{t.points > 1 ? 's' : ''}</span>}
         <span className={`ml-auto rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${st.cls}`}>{st.label}</span>
       </div>
       <p className="font-sans font-semibold text-forest mt-2.5 leading-snug">{t.title}</p>
@@ -103,26 +191,15 @@ export function MyTask({ t, reload }) {
       {t.status === 'returned' && t.admin_note && (
         <p className="font-sans text-sm bg-red-50 text-red-800 rounded px-3 py-2 mt-3">UYIH: {t.admin_note}</p>
       )}
+      {!courseUrl && !open && <Submitted t={t} />}
       {canSubmit && courseUrl && (
         <Link to={courseUrl} className="btn-primary text-sm mt-4">Open the course →</Link>
       )}
       {canSubmit && !courseUrl && !open && (
-        <button className="btn-primary text-sm mt-4" onClick={() => setOpen(true)}>Mark as done</button>
+        <button className="btn-primary text-sm mt-4" onClick={() => setOpen(true)}>{t.status === 'returned' ? 'Submit again' : 'Submit'}</button>
       )}
       {canSubmit && !courseUrl && open && (
-        <div className="mt-4 space-y-3">
-          <label className="block">
-            <span className="input-label">{t.kind === 'content' ? 'Link to your post *' : 'Anything we should know? (optional)'}</span>
-            <textarea className="input-field resize-none" rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} />
-          </label>
-          {error && <p className="font-sans text-sm text-red-700" role="alert">{error}</p>}
-          <div className="flex gap-2">
-            <button className="btn-primary text-sm" disabled={busy || (t.kind === 'content' && !note.trim())} onClick={submit}>
-              {busy ? 'Sending…' : 'Send to UYIH'}
-            </button>
-            <button className="btn-secondary text-sm" onClick={() => setOpen(false)}>Cancel</button>
-          </div>
-        </div>
+        <SubmissionBox t={t} personId={personId} onCancel={() => setOpen(false)} onDone={() => { setOpen(false); reload(); }} />
       )}
     </li>
   );

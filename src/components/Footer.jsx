@@ -64,7 +64,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-forest-dark text-cream/80 relative overflow-hidden">
+    <footer className="print:hidden bg-forest-dark text-cream/80 relative overflow-hidden">
 
       {/* Terracotta top rule */}
       <div className="h-1 w-full bg-terracotta" />

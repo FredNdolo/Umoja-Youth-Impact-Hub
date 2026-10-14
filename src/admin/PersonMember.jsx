@@ -175,10 +175,10 @@ const DOC_LABEL = { national_id: 'National ID', police_clearance: 'Police cleara
 const DOC_BUCKET = 'member-documents';
 
 // Remove all of a person's files from storage (used before deleting them)
-export async function removePersonFiles(personId) {
-  const { data } = await supabase.storage.from(DOC_BUCKET).list(personId);
+export async function removePersonFiles(personId, bucket = DOC_BUCKET) {
+  const { data } = await supabase.storage.from(bucket).list(personId);
   const paths = (data || []).map((f) => `${personId}/${f.name}`);
-  if (paths.length) await supabase.storage.from(DOC_BUCKET).remove(paths);
+  if (paths.length) await supabase.storage.from(bucket).remove(paths);
 }
 
 export function DocumentsSection({ personId, onChanged }) {
@@ -241,6 +241,33 @@ export function DocumentsSection({ personId, onChanged }) {
         </ul>
       )}
       <p className="text-xs text-ink-faint mt-2">Files open through a 2-minute private link. Don’t download or forward copies.</p>
+    </section>
+  );
+}
+
+// Points, medal, certificates and safeguarding countersignature
+export function AchievementsSection({ personId, refreshKey }) {
+  const [a, setA] = useState(null);
+  useEffect(() => {
+    supabase.rpc('member_achievements', { p_person: personId }).then(({ data }) => setA(data || null));
+  }, [personId, refreshKey]);
+  if (!a) return null;
+  const medal = [...(a.medals || [])].reverse().find((m) => m.earned);
+  return (
+    <section>
+      <h3 className="font-semibold text-forest mb-2">Achievements</h3>
+      <p className="text-sm">
+        <strong className="text-forest">{a.points}</strong> points · {medal ? `${medal.icon} ${medal.name}` : 'no medal yet'}
+        {a.certificates.length > 0 && <> · certificates: {a.certificates.map((c) => (
+          <a key={c.code} href={`/certificates/${c.code}`} target="_blank" rel="noopener noreferrer" className="underline text-terracotta mr-2">{c.title}</a>
+        ))}</>}
+      </p>
+      {a.safeguarding?.declared_at && (
+        <p className="text-xs text-ink-muted mt-1">
+          Safeguarding declaration signed {fmtDate(a.safeguarding.declared_at)}
+          {a.safeguarding.countersigned_at ? ` · countersigned ${fmtDate(a.safeguarding.countersigned_at)}` : ' · not countersigned yet (Tasks page)'}
+        </p>
+      )}
     </section>
   );
 }

@@ -1,6 +1,6 @@
 // File: src/pages/Join.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { submitJoin, fetchProjects } from '../lib/publicApi';
 import { normalisePhone } from '../lib/phone';
@@ -36,6 +36,8 @@ const empty = {
 export default function Join() {
   const [form, setForm]         = useState(empty);
   const [errors, setErrors]     = useState({});
+  const navigate = useNavigate();
+  const [existing, setExisting] = useState(false);
   const [status, setStatus]     = useState('idle'); // idle | loading | success | error
   const [serverMsg, setServerMsg] = useState('');
   const [projects, setProjects] = useState(FALLBACK_PROJECTS);
@@ -77,9 +79,25 @@ export default function Join() {
     setStatus('loading');
     setServerMsg('');
     try {
-      await submitJoin({ ...form, phone: normalisePhone(form.phone), consentVersion: CONSENT_VERSION });
+      const r = await submitJoin({ ...form, phone: normalisePhone(form.phone), consentVersion: CONSENT_VERSION });
       setFirstName(form.fullName.trim().split(/\s+/)[0]);
       setForm(empty);
+      setExisting(r?.status === 'existing');
+      if (r?.status === 'new' && r.join_token) {
+        // Sign them straight in and take them to their member page
+        setStatus('signing');
+        try {
+          const { supabase, loginLink } = await import('../lib/supabase');
+          const link = await loginLink({ mode: 'join', person_id: r.person_id, token: r.join_token });
+          let res = await supabase.auth.verifyOtp({ token_hash: link.token_hash, type: 'magiclink' });
+          if (res.error) res = await supabase.auth.verifyOtp({ token_hash: link.token_hash, type: 'email' });
+          if (res.error) throw res.error;
+          navigate('/me?welcome=1');
+          return;
+        } catch {
+          // Couldn't sign in automatically: show the welcome with a login link
+        }
+      }
       setStatus('success');
       topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
@@ -158,8 +176,14 @@ export default function Join() {
           {/* Form / success */}
           <div className="order-1 lg:order-2 card p-6 md:p-8 lg:sticky lg:top-24">
             <AnimatePresence mode="wait">
-              {status === 'success' ? (
-                <Welcome key="ok" firstName={firstName} onAgain={() => setStatus('idle')} />
+              {status === 'signing' ? (
+                <motion.div key="signing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-10" role="status">
+                  <div className="w-14 h-14 mx-auto rounded-full border-4 border-sand border-t-terracotta animate-spin mb-5" aria-hidden="true" />
+                  <h2 className="font-display font-bold text-display-sm text-forest">Karibu{firstName ? `, ${firstName}` : ''}!</h2>
+                  <p className="font-sans text-ink-muted mt-2">Setting up your member page…</p>
+                </motion.div>
+              ) : status === 'success' ? (
+                <Welcome key="ok" firstName={firstName} existing={existing} onAgain={() => setStatus('idle')} />
               ) : (
                 <motion.form
                   key="form"
@@ -296,34 +320,21 @@ export default function Join() {
   );
 }
 
-const REDIRECT_SECONDS = 5;
-
-// After joining, people go straight into the WhatsApp community, where
-// upcoming activities are shared. A short pause lets them read the welcome
-// and save the follow-up number first; they can also go now or stay.
-function Welcome({ firstName, onAgain }) {
-  const [left, setLeft] = useState(REDIRECT_SECONDS);
-  const [cancelled, setCancelled] = useState(false);
-
-  useEffect(() => {
-    if (cancelled) return undefined;
-    if (left <= 0) {
-      window.location.assign(WHATSAPP_COMMUNITY_URL);
-      return undefined;
-    }
-    const t = setTimeout(() => setLeft((n) => n - 1), 1000);
-    return () => clearTimeout(t);
-  }, [left, cancelled]);
-
+// Shown when we couldn't sign the new joiner in automatically, or when the
+// number was already registered. Joining WhatsApp is their choice.
+function Welcome({ firstName, existing, onAgain }) {
   return (
     <motion.div key="welcome" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
       className="text-center py-2" role="status">
-      <div className="w-16 h-16 mx-auto rounded-full bg-terracotta/10 flex items-center justify-center text-3xl mb-5" aria-hidden="true">🎉</div>
-      <h2 className="font-display font-bold text-display-md text-forest">Karibu{firstName ? `, ${firstName}` : ''}!</h2>
-      <p className="font-sans text-ink-muted mt-2">You’re in. Upcoming activities are shared in our WhatsApp community.</p>
+      <div className="w-16 h-16 mx-auto rounded-full bg-terracotta/10 flex items-center justify-center text-3xl mb-5" aria-hidden="true">{existing ? '👋' : '🎉'}</div>
+      <h2 className="font-display font-bold text-display-md text-forest">{existing ? 'Welcome back' : 'Karibu'}{firstName ? `, ${firstName}` : ''}!</h2>
+      <p className="font-sans text-ink-muted mt-2">
+        {existing ? 'You’re already registered with this number. Log in to see your member page.' : 'You’re in. Log in to your member page to get started.'}
+      </p>
+      <Link to="/me" className="btn-primary w-full py-4 mt-6">Go to my member page →</Link>
 
-      <p className="font-sans text-sm text-ink mt-5 mb-6 bg-sand-light rounded-md px-4 py-3">
-        Save <strong>0783 218 081</strong> as “UYIH”. We’ll also message you personally within 48 hours.
+      <p className="font-sans text-sm text-ink mt-6 mb-4 bg-sand-light rounded-md px-4 py-3">
+        Save <strong>0783 218 081</strong> as “UYIH”. Upcoming activities are shared in our WhatsApp community.
       </p>
 
       <a href={WHATSAPP_COMMUNITY_URL}
@@ -333,17 +344,8 @@ function Welcome({ firstName, onAgain }) {
         Join our WhatsApp community
       </a>
 
-      <p className="font-sans text-xs text-ink-muted mt-3 min-h-[1rem]" aria-live="polite">
-        {cancelled ? 'Tap the button whenever you’re ready.' : `Opening WhatsApp in ${left}…`}
-      </p>
-
       <div className="flex flex-col items-center gap-2 mt-6">
-        {!cancelled && (
-          <button type="button" onClick={() => setCancelled(true)} className="font-sans text-xs text-ink-faint underline">
-            Stay on this page
-          </button>
-        )}
-        <button type="button" onClick={() => { setCancelled(true); onAgain(); }} className="font-sans text-xs text-ink-faint underline">
+        <button type="button" onClick={onAgain} className="font-sans text-xs text-ink-faint underline">
           Signing up someone else? Use the form again
         </button>
       </div>
