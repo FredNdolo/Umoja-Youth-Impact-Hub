@@ -11,6 +11,12 @@
 //   send on WhatsApp. The link goes to our own page with a "Log me in" button,
 //   so WhatsApp's link preview can't use it up.
 //
+// POST { mode: "join", person_id, token }
+//   Public. Right after someone joins on the website, the join form gets a
+//   one-time token (valid 30 minutes, usable once). This turns it into a login
+//   so the new joiner lands on their member page without logging in again.
+//   Returns { ok, token_hash } for the page to sign in with.
+//
 // Uses the service role key, which Supabase provides to Edge Functions
 // automatically. It never leaves this function.
 
@@ -138,6 +144,28 @@ async function handleWhatsApp(body: Record<string, unknown>, req: Request, origi
   return json({ ok: true, url: `${site}/me/activate#t=${data.properties.hashed_token}` }, 200, origin);
 }
 
+async function handleJoin(body: Record<string, unknown>, origin: string | null) {
+  const personId = String(body.person_id ?? "");
+  const token = String(body.token ?? "");
+  if (!/^[0-9a-f-]{36}$/.test(personId) || token.length < 32) {
+    return json({ ok: false, message: "This sign-in has expired. Please log in instead." }, 400, origin);
+  }
+  const { data: valid, error: tokErr } = await admin.rpc("consume_join_token", { p_person: personId, p_token: token });
+  if (tokErr || valid !== true) {
+    return json({ ok: false, message: "This sign-in has expired. Please log in instead." }, 403, origin);
+  }
+  const { data: person } = await admin
+    .from("people").select("id, full_name, email, user_id").eq("id", personId).maybeSingle();
+  if (!person) return json({ ok: false, message: "Person not found." }, 404, origin);
+
+  const loginEmail = await ensureLogin(person as Person);
+  const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: loginEmail });
+  if (error || !data.properties?.hashed_token) {
+    return json({ ok: false, message: "We couldn't sign you in automatically. Please log in instead." }, 502, origin);
+  }
+  return json({ ok: true, token_hash: data.properties.hashed_token }, 200, origin);
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get("Origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors(origin) });
@@ -149,6 +177,7 @@ Deno.serve(async (req) => {
   try {
     if (body.mode === "email") return await handleEmail(body, origin);
     if (body.mode === "whatsapp") return await handleWhatsApp(body, req, origin);
+    if (body.mode === "join") return await handleJoin(body, origin);
     return json({ ok: false, message: "Unknown request." }, 400, origin);
   } catch (e) {
     console.error(e);

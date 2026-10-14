@@ -66,6 +66,8 @@ export default function Tasks() {
         )}
       </Panel>
 
+      <Countersign setError={setError} />
+
       <Panel title={`All tasks · ${shown.length}`} action={
         <div className="flex flex-wrap items-center gap-3">
           <input className={`${inputCls} w-44 py-1.5`} type="search" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search tasks" />
@@ -119,6 +121,8 @@ export default function Tasks() {
         )}
       </Panel>
 
+      <Recognition setError={setError} />
+
       {editing && <TaskForm task={editing} projects={projects} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} />}
       {assigning && <AssignTask task={assigning} onClose={() => { setAssigning(null); load(); }} />}
     </div>
@@ -134,7 +138,13 @@ function ReviewItem({ a, onDone, setError }) {
       onDone();
     } catch (e) { setError(e.message); }
   };
-  const link = (a.member_note || '').match(/https?:\/\/\S+/)?.[0];
+  const link = a.submission_url || (a.member_note || '').match(/https?:\/\/\S+/)?.[0];
+  const openFile = async () => {
+    const w = window.open('', '_blank');
+    const { data, error: err } = await supabase.storage.from('task-submissions').createSignedUrl(a.submission_file, 300);
+    if (err) { if (w) w.close(); setError(err.message); return; }
+    if (w) w.location = data.signedUrl; else window.location.href = data.signedUrl;
+  };
   return (
     <li className="rounded-md border border-sand-dark p-4 text-sm">
       <div className="flex flex-wrap justify-between gap-2">
@@ -142,7 +152,10 @@ function ReviewItem({ a, onDone, setError }) {
         <span className="text-xs text-ink-muted">{fmtDateTime(a.submitted_at)}</span>
       </div>
       {a.member_note && <p className="mt-2 whitespace-pre-wrap">{a.member_note}</p>}
-      {link && <a href={link} target="_blank" rel="noopener noreferrer" className="text-xs text-terracotta underline">Open link</a>}
+      <div className="flex flex-wrap gap-4 mt-1">
+        {link && <a href={link} target="_blank" rel="noopener noreferrer" className="text-xs text-terracotta underline break-all">🔗 {link.length > 60 ? `${link.slice(0, 60)}…` : link}</a>}
+        {a.submission_file && <button className="text-xs text-terracotta underline" onClick={openFile}>📎 {a.submission_file_name || 'Open file'}</button>}
+      </div>
       {a.tasks?.code === 'safeguarding' && <p className="text-xs text-forest mt-1">✓ Signed the safeguarding declaration</p>}
       {returning ? (
         <div className="mt-3 flex flex-wrap gap-2 items-center">
@@ -308,5 +321,110 @@ function AssignTask({ task, onClose }) {
         </div>
       </div>
     </Modal>
+  );
+}
+
+// Safeguarding declarations signed by members, waiting for the DSL
+function Countersign({ setError }) {
+  const [rows, setRows] = useState([]);
+  const load = useCallback(async () => {
+    try {
+      setRows(await q(supabase.from('member_profiles')
+        .select('person_id, safeguarding_declared_at, people(full_name)')
+        .not('safeguarding_declared_at', 'is', null).is('safeguarding_countersigned_at', null)
+        .order('safeguarding_declared_at')));
+    } catch (e) { setError(e.message); }
+  }, [setError]);
+  useEffect(() => { load(); }, [load]);
+  if (rows.length === 0) return null;
+  const sign = async (r) => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      await q(supabase.from('member_profiles').update({
+        safeguarding_countersigned_at: new Date().toISOString(),
+        safeguarding_countersigned_by: data.user?.email || null,
+      }).eq('person_id', r.person_id));
+      load();
+    } catch (e) { setError(e.message); }
+  };
+  return (
+    <Panel title={`Safeguarding declarations to countersign · ${rows.length}`}>
+      <p className="text-xs text-ink-muted mb-3">These members passed Safeguarding Basics and signed the declaration (the course is already complete). As Designated Safeguarding Lead, countersign once you’ve reviewed them.</p>
+      <ul className="divide-y divide-sand-dark/40">
+        {rows.map((r) => (
+          <li key={r.person_id} className="py-2.5 flex flex-wrap items-center gap-3 text-sm">
+            <span className="font-medium text-forest">{r.people?.full_name}</span>
+            <span className="text-xs text-ink-muted">signed {fmtDateTime(r.safeguarding_declared_at)}</span>
+            <button className={`${btnGhost} ml-auto`} onClick={() => sign(r)}>Countersign</button>
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  );
+}
+
+// Points and medal thresholds (editable)
+function Recognition({ setError }) {
+  const [medals, setMedals] = useState([]);
+  const [rules, setRules] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState('');
+  const load = useCallback(async () => {
+    try {
+      const [m, r] = await Promise.all([
+        q(supabase.from('medal_levels').select('*').order('sort_order')),
+        q(supabase.from('point_rules').select('*').order('key')),
+      ]);
+      setMedals(m); setRules(r);
+    } catch (e) { setError(e.message); }
+  }, [setError]);
+  useEffect(() => { load(); }, [load]);
+  const setM = (code, k, v) => setMedals((all) => all.map((m) => (m.code === code ? { ...m, [k]: v } : m)));
+  const setR = (key, v) => setRules((all) => all.map((r) => (r.key === key ? { ...r, points: v } : r)));
+  const save = async () => {
+    try {
+      for (const m of medals) {
+        await q(supabase.from('medal_levels').update({
+          name: m.name, min_points: Number(m.min_points) || 0, requires_member: m.requires_member, description: m.description,
+        }).eq('code', m.code));
+      }
+      for (const r of rules) await q(supabase.from('point_rules').update({ points: Number(r.points) || 0 }).eq('key', r.key));
+      setSaved('Saved ✓'); setTimeout(() => setSaved(''), 2000); load();
+    } catch (e) { setError(e.message); }
+  };
+  return (
+    <Panel title="Points & medals" action={<button className="text-xs underline text-ink-muted" onClick={() => setOpen(!open)}>{open ? 'Hide' : 'Adjust thresholds'}</button>}>
+      <p className="text-xs text-ink-muted">
+        Members earn each task’s points when it’s done, plus points for activities. Medals unlock at these totals:{' '}
+        {medals.map((m) => `${m.icon} ${m.name} ${m.min_points}${m.requires_member ? ' + member' : ''}`).join(' · ')}.
+      </p>
+      {open && (
+        <div className="mt-4 space-y-4 text-sm">
+          <table className="w-full">
+            <thead><tr className="text-left text-xs text-ink-muted"><th className="py-1">Medal</th><th>Points needed</th><th>Must be a full member</th><th className="hidden md:table-cell">Description</th></tr></thead>
+            <tbody>
+              {medals.map((m) => (
+                <tr key={m.code} className="border-t border-sand-dark/40">
+                  <td className="py-2 pr-2"><span className="mr-1">{m.icon}</span><input className={`${inputCls} inline-block w-28`} value={m.name} onChange={(e) => setM(m.code, 'name', e.target.value)} /></td>
+                  <td className="pr-2"><input type="number" min="0" className={`${inputCls} w-24`} value={m.min_points} onChange={(e) => setM(m.code, 'min_points', e.target.value)} /></td>
+                  <td><input type="checkbox" className="w-4 h-4 accent-[#1A3C2A]" checked={m.requires_member} onChange={(e) => setM(m.code, 'requires_member', e.target.checked)} /></td>
+                  <td className="hidden md:table-cell"><input className={inputCls} value={m.description || ''} onChange={(e) => setM(m.code, 'description', e.target.value)} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {rules.map((r) => (
+              <label key={r.key} className="flex items-center justify-between gap-3 rounded border border-sand-dark/50 px-3 py-2">
+                <span>{r.label}</span>
+                <input type="number" min="0" max="100" className={`${inputCls} w-20`} value={r.points} onChange={(e) => setR(r.key, e.target.value)} />
+              </label>
+            ))}
+          </div>
+          <p className="text-xs text-ink-muted">Each task’s own points are set when you create or edit the task.</p>
+          <div className="flex items-center gap-3"><button className={btnPrimary} onClick={save}>Save</button><span className="text-xs text-forest">{saved}</span></div>
+        </div>
+      )}
+    </Panel>
   );
 }

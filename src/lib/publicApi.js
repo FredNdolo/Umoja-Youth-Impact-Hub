@@ -28,6 +28,7 @@ async function rpc(name, args) {
     // written for visitors; anything else gets a generic message.
     throw new Error(body.code === 'P0001' && body.message ? body.message : GENERIC_ERROR);
   }
+  try { return await res.json(); } catch { return null; }
 }
 
 export function submitJoin(form) {
@@ -96,4 +97,8 @@ export function submitDonation(form) {
     p_message: form.message || null,
     p_website: form.website || null,
   });
+}
+
+export function verifyCertificate(code) {
+  return rpc('verify_certificate', { p_code: code });
 }

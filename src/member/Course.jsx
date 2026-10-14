@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import { MemberHero, Login } from './MemberApp';
 import { COURSES } from './courses';
 
-const Shell = ({ children }) => <div className="bg-cream min-h-screen">{children}</div>;
+const Shell = ({ children }) => <div className="bg-white min-h-screen">{children}</div>;
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 export default function Course() {
@@ -43,14 +43,32 @@ function CourseBody({ cfg }) {
   const [view, setView] = useState('intro'); // intro | lesson | quiz | result | declare | sent
   const [lesson, setLesson] = useState(0);
   const [result, setResult] = useState(null);
+  const [cert, setCert] = useState(null);
+  const [finishing, setFinishing] = useState('');
 
   const load = useCallback(async () => {
-    const [c, d] = await Promise.all([supabase.rpc('get_course', { p_code: CODE }), supabase.rpc('get_my_dashboard')]);
+    const [c, d, l] = await Promise.all([supabase.rpc('get_course', { p_code: CODE }), supabase.rpc('get_my_dashboard'), supabase.rpc('get_my_learning')]);
     if (c.error || d.error) { setError((c.error || d.error).message); return null; }
     setCourse(c.data); setDash(d.data); setError('');
+    setCert((l.data || []).find((x) => x.code === CODE)?.certificate || null);
     return c.data;
   }, [CODE]);
   useEffect(() => { load(); }, [load]);
+
+  // Remember how far through the lessons they got (for My learning)
+  useEffect(() => {
+    if (view === 'lesson') supabase.rpc('mark_lesson_seen', { p_code: CODE, p_lesson: lesson + 1 }).then(() => {});
+  }, [view, lesson, CODE]);
+
+  // Passing a course without a declaration completes it straight away
+  const complete = async (t) => {
+    setFinishing('');
+    const assignmentId = await findAssignment(CODE, t);
+    const { error: err } = await supabase.rpc('submit_task', { p_assignment_id: assignmentId, p_note: 'Online course passed' });
+    if (err) setFinishing(err.message);
+    await load();
+    go('sent');
+  };
 
   const task = useMemo(() => dash?.my_tasks.find((t) => t.code === CODE), [dash]);
   const go = (v) => { setView(v); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -64,11 +82,11 @@ function CourseBody({ cfg }) {
   return (
     <>
       <MemberHero eyebrow={cfg.eyebrow} title={cfg.title}>
-        <p className="font-sans text-cream/75 mt-3 max-w-xl">{cfg.quote}</p>
+        <p className="font-sans text-ink-muted mt-2 max-w-xl">{cfg.quote}</p>
       </MemberHero>
 
       <div className="container-narrow max-w-2xl py-8 md:py-12">
-        <Link to="/me" className="font-sans text-sm text-ink-muted underline">← Back to My UYIH</Link>
+        <Link to="/me/learning" className="font-sans text-sm text-ink-muted underline">← My learning</Link>
 
         <AnimatePresence mode="wait">
           <motion.div key={view + lesson} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="mt-5">
@@ -76,7 +94,7 @@ function CourseBody({ cfg }) {
               <Intro cfg={cfg} course={course} task={task} passed={passed} answeredCount={answeredCount}
                 onStart={() => { setLesson(0); go('lesson'); }}
                 onQuiz={() => go('quiz')}
-                onDeclare={() => go('declare')} />
+                onDeclare={() => (cfg.declaration ? go('declare') : complete(task))} />
             )}
             {view === 'lesson' && (
               <Lesson cfg={cfg} index={lesson}
@@ -84,7 +102,11 @@ function CourseBody({ cfg }) {
                 onNext={() => (lesson === cfg.lessons.length - 1 ? go('quiz') : (setLesson(lesson + 1), window.scrollTo({ top: 0 })))} />
             )}
             {view === 'quiz' && (
-              <Quiz code={CODE} course={course} onFinished={async (r) => { setResult(r); await load(); go('result'); }} />
+              <Quiz code={CODE} course={course} onFinished={async (r) => {
+                setResult(r);
+                if (r.passed && !cfg.declaration) { await complete(task); return; }
+                await load(); go('result');
+              }} />
             )}
             {view === 'result' && result && (
               <Result cfg={cfg} result={result}
@@ -97,15 +119,20 @@ function CourseBody({ cfg }) {
                 onSent={async () => { await load(); go('sent'); }} />
             )}
             {view === 'sent' && (
-              <div className="card p-6 md:p-8 text-center">
-                <div className="text-5xl mb-4" aria-hidden="true">{cfg.doneIcon}</div>
-                <h2 className="font-display font-bold text-display-sm text-forest">{cfg.declaration ? 'Signed and sent' : 'Sent to UYIH'}</h2>
+              <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8 text-center">
+                <div className="text-6xl mb-3" aria-hidden="true">🎉</div>
+                <h2 className="font-display font-bold text-display-sm text-forest">Course complete!</h2>
+                {(result?.score ?? course.best?.score) != null && (
+                  <p className="font-sans text-ink mt-1">You scored <strong className="text-forest">{result?.score ?? course.best?.score}/{result?.total ?? course.best?.total}</strong>.</p>
+                )}
                 <p className="font-sans text-ink-muted mt-2 max-w-md mx-auto">
-                  {cfg.declaration
-                    ? 'The Designated Safeguarding Lead will countersign your declaration. You’ll see it as done on your page once confirmed.'
-                    : 'A UYIH lead will confirm it. You’ll see it as done on your page and in your membership checklist.'}
+                  {cfg.title} is ticked off on your membership checklist{cfg.declaration ? ', and the Designated Safeguarding Lead will countersign your declaration' : ''}.
                 </p>
-                <Link to="/me" className="btn-primary mt-6">Back to My UYIH</Link>
+                {finishing && <p className="font-sans text-sm text-red-700 mt-3" role="alert">{finishing}</p>}
+                <div className="flex flex-wrap justify-center gap-3 mt-6">
+                  {cert && <Link to={`/certificates/${cert}`} className="btn-primary">🎓 View your certificate</Link>}
+                  <Link to="/me/learning" className="btn-secondary">Back to My learning</Link>
+                </div>
               </div>
             )}
           </motion.div>
@@ -118,9 +145,9 @@ function CourseBody({ cfg }) {
 function Intro({ cfg, course, task, passed, answeredCount, onStart, onQuiz, onDeclare }) {
   const status = task?.status;
   return (
-    <div className="card p-6 md:p-8 space-y-5">
-      {status === 'done' && <p className="font-sans text-sm bg-forest/10 text-forest rounded-md px-4 py-3">✓ Completed{cfg.declaration ? ' and countersigned' : ''}. You can review the lessons any time.</p>}
-      {status === 'submitted' && <p className="font-sans text-sm bg-terracotta/10 text-terracotta-dark rounded-md px-4 py-3">{cfg.declaration ? 'Your declaration is waiting for the Safeguarding Lead’s countersignature.' : 'Passed and sent. Waiting for a UYIH lead to confirm.'}</p>}
+    <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8 space-y-5">
+      {status === 'done' && <p className="font-sans text-sm bg-forest/10 text-forest rounded-md px-4 py-3">✓ Completed. You can review the lessons any time.</p>}
+      {status === 'submitted' && <p className="font-sans text-sm bg-terracotta/10 text-terracotta-dark rounded-md px-4 py-3">Passed and waiting for UYIH to confirm.</p>}
       <div className="grid grid-cols-3 gap-3 text-center">
         <div className="bg-sand-light rounded-md p-3"><p className="font-display font-bold text-3xl text-forest">{cfg.lessons.length}</p><p className="font-sans text-xs text-ink-muted">short lessons</p></div>
         <div className="bg-sand-light rounded-md p-3"><p className="font-display font-bold text-3xl text-forest">{course.questions.length}</p><p className="font-sans text-xs text-ink-muted">quiz questions</p></div>
@@ -131,7 +158,7 @@ function Intro({ cfg, course, task, passed, answeredCount, onStart, onQuiz, onDe
       <div className="flex flex-wrap gap-3">
         <button className="btn-primary" onClick={onStart}>{course.attempts ? 'Review the lessons' : 'Start the course'}</button>
         {(course.attempts > 0 || answeredCount > 0) && !passed && <button className="btn-secondary" onClick={onQuiz}>{answeredCount ? 'Continue the quiz' : 'Go to the quiz'}</button>}
-        {passed && task && (status === 'todo' || status === 'returned') && <button className="btn-secondary" onClick={onDeclare}>{cfg.declaration ? 'Sign the declaration' : 'Send for confirmation'}</button>}
+        {passed && task && (status === 'todo' || status === 'returned') && <button className="btn-secondary" onClick={onDeclare}>{cfg.declaration ? 'Sign the declaration' : 'Finish the course'}</button>}
       </div>
       {cfg.pdf && <a className="block font-sans text-sm text-terracotta underline" href={cfg.pdf} target="_blank" rel="noopener noreferrer">Read the full policy (PDF)</a>}
     </div>
@@ -147,7 +174,7 @@ function Lesson({ cfg, index, onBack, onNext }) {
       <div className="flex gap-1.5 mb-4" aria-label={`Lesson ${index + 1} of ${LESSONS.length}`}>
         {LESSONS.map((_, i) => <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= index ? 'bg-terracotta' : 'bg-sand-dark/50'}`} />)}
       </div>
-      <div className="card p-6 md:p-8">
+      <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8">
         <p className="font-sans text-xs uppercase tracking-wide text-ink-faint">Lesson {index + 1} of {LESSONS.length} · {cfg.refLabel}{l.ref}</p>
         <h2 className="font-display font-bold text-display-sm text-forest mt-1 flex items-center gap-3">
           <span aria-hidden="true" className="text-3xl">{l.icon}</span>{l.title}
@@ -206,7 +233,7 @@ function Quiz({ code: CODE, course, onFinished }) {
       <div className="h-1.5 rounded-full bg-sand-dark/50 overflow-hidden mb-4">
         <div className="h-full bg-terracotta transition-all" style={{ width: `${(answered / qs.length) * 100}%` }} />
       </div>
-      <div className="card p-6 md:p-8">
+      <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8">
         <h2 className="font-sans font-semibold text-lg text-forest leading-snug">{q.question}</h2>
         <div className="mt-5 space-y-2.5" role="group" aria-label="Answers">
           {q.options.map((opt, k) => {
@@ -254,18 +281,18 @@ function Quiz({ code: CODE, course, onFinished }) {
 
 function Result({ cfg, result, onRetry, onRetryQuiz, onDeclare }) {
   return (
-    <div className="card p-6 md:p-8 text-center" role="status">
+    <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8 text-center" role="status">
       <div className="text-6xl mb-3" aria-hidden="true">{result.passed ? '🏅' : '📚'}</div>
       <p className="font-display font-bold text-6xl text-forest tabular-nums">{result.score}<span className="text-3xl text-ink-muted">/{result.total}</span></p>
       <h2 className="font-display font-bold text-display-sm text-forest mt-2">{result.passed ? 'You passed!' : 'Almost there'}</h2>
       <p className="font-sans text-ink-muted mt-2 max-w-md mx-auto">
         {result.passed
-          ? (cfg.declaration ? 'Great work. One last step: sign UYIH’s safeguarding declaration.' : 'Great work. One last step: send it to UYIH so it counts towards your membership.')
+          ? 'Great work. One last step: sign UYIH’s safeguarding declaration.'
           : `You need ${result.pass_mark} to pass. Have another look at the lessons, then try the quiz again. You can retake it as many times as you need.`}
       </p>
       <div className="flex flex-wrap justify-center gap-3 mt-6">
         {result.passed
-          ? <button className="btn-primary" onClick={onDeclare}>{cfg.declaration ? 'Sign the declaration' : 'Send for confirmation'}</button>
+          ? <button className="btn-primary" onClick={onDeclare}>Sign the declaration</button>
           : <>
               <button className="btn-primary" onClick={onRetry}>Review the lessons</button>
               <button className="btn-secondary" onClick={onRetryQuiz}>Retake the quiz</button>
@@ -292,9 +319,8 @@ function Declare({ cfg, person, task, best, onSent }) {
   const [error, setError] = useState('');
 
   const status = task?.status;
-  if (!cfg.declaration) return <SendCourse cfg={cfg} task={task} best={best} onSent={onSent} />;
   if (status === 'submitted' || status === 'done') {
-    return <p className="card p-6 font-sans text-ink">Your declaration has already been signed{status === 'done' ? ' and countersigned' : ' and is waiting for countersignature'}.</p>;
+    return <p className="rounded-xl border border-sand-dark/50 bg-white p-6 font-sans text-ink">Your declaration has already been signed{status === 'done' ? ' and the course is complete' : ''}.</p>;
   }
 
   const sign = async () => {
@@ -310,7 +336,7 @@ function Declare({ cfg, person, task, best, onSent }) {
   };
 
   return (
-    <div className="card p-6 md:p-8 space-y-5">
+    <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8 space-y-5">
       <div>
         <p className="font-sans text-xs uppercase tracking-wide text-ink-faint">Policy Annex 1</p>
         <h2 className="font-display font-bold text-display-sm text-forest">Code of Conduct Declaration</h2>
@@ -326,36 +352,9 @@ function Declare({ cfg, person, task, best, onSent }) {
         <input className="input-field" value={name} placeholder={person.full_name} maxLength={80} onChange={(e) => { setName(e.target.value); setError(''); }} />
       </label>
       {error && <p className="font-sans text-sm text-red-700" role="alert">{error}</p>}
-      <button className="btn-primary w-full py-3.5" onClick={sign} disabled={busy}>{busy ? 'Signing…' : 'Sign and send to the Safeguarding Lead'}</button>
-      <p className="font-sans text-xs text-ink-faint">The Designated Safeguarding Lead countersigns your declaration after reviewing it.</p>
+      <button className="btn-primary w-full py-3.5" onClick={sign} disabled={busy}>{busy ? 'Signing…' : 'Sign and complete the course'}</button>
+      <p className="font-sans text-xs text-ink-faint">The Designated Safeguarding Lead countersigns your declaration afterwards.</p>
     </div>
   );
 }
 
-function SendCourse({ cfg, task, best, onSent }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const status = task?.status;
-  if (status === 'submitted' || status === 'done') {
-    return <p className="card p-6 font-sans text-ink">{status === 'done' ? 'This course is complete and confirmed.' : 'Already sent. Waiting for a UYIH lead to confirm.'}</p>;
-  }
-  const send = async () => {
-    setBusy(true); setError('');
-    const assignmentId = await findAssignment(cfg.code, task);
-    const { error: err } = await supabase.rpc('submit_task', { p_assignment_id: assignmentId, p_note: `Online course passed ${best?.score}/${best?.total}` });
-    setBusy(false);
-    if (err) { setError(err.message); return; }
-    onSent();
-  };
-  return (
-    <div className="card p-6 md:p-8 space-y-4 text-center">
-      <div className="text-5xl" aria-hidden="true">{cfg.doneIcon}</div>
-      <h2 className="font-display font-bold text-display-sm text-forest">Send your result to UYIH</h2>
-      <p className="font-sans text-ink-muted max-w-md mx-auto">
-        You passed with {best?.score}/{best?.total}. Send it so a UYIH lead can confirm it and tick {cfg.title} off your membership checklist.
-      </p>
-      {error && <p className="font-sans text-sm text-red-700" role="alert">{error}</p>}
-      <button className="btn-primary w-full py-3.5" onClick={send} disabled={busy}>{busy ? 'Sending…' : 'Send for confirmation'}</button>
-    </div>
-  );
-}

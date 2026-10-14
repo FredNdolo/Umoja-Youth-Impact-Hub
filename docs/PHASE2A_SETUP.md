@@ -158,3 +158,38 @@ each member can only see their own, and only the admin can open others'
 The same section lets members download the **UYIH Constitution** and the
 **Child Protection and Safeguarding Policy** (`public/docs/`). Files in
 `public/docs` can be opened by anyone with the link.
+
+## Member area v2 (October 2026)
+
+### Redeploy the login-link service (needed for "join → signed in")
+The `member-login-link` function has a new `join` mode. In Supabase →
+**Edge Functions → member-login-link → Code**, replace everything with the
+current `supabase/functions/member-login-link/index.ts` and **Deploy**. Until
+then, new joiners see a welcome card with a "Go to my member page" button and
+log in the usual way.
+
+### What changed
+- **Joining**: new joiners are signed in straight away and land on `/me`,
+  where a welcome card offers the WhatsApp community (their choice). They get
+  Orientation, Safeguarding Basics and the social-content task on their list
+  automatically. Re-joining with an existing number never signs anyone in or
+  changes that person's name or email.
+- **Submitting tasks**: members add a link and/or upload a file (up to 20 MB:
+  PDF, photos, Word, Excel, PowerPoint, text or MP4) with an optional note.
+  Files go to the private `task-submissions` bucket. In **/admin → Tasks → To
+  review** you see the link and can open the file.
+- **Courses clear themselves**: pass the quiz and the course is done, with a
+  certificate. For Safeguarding Basics the member also signs the declaration;
+  **/admin → Tasks → Safeguarding declarations to countersign** is where the
+  DSL countersigns afterwards.
+- **Points**: each task's own points when done, plus points for attending an
+  activity (2) and taking a named role (3).
+- **Medals** (adjust in **/admin → Tasks → Points & medals**):
+  Seedling 10 points · Sapling 30 · Tree 60 + full member · Forest 120 + full member.
+- **Certificates**: issued automatically when a course is completed, signed by
+  the Executive Director and the Designated Safeguarding Lead. Each has a code
+  and a public page (`/certificates/<code>`) anyone can use to check it;
+  members download it as a PDF. Add the DSL's name in
+  `CERTIFICATE_SIGNATORIES` in `src/lib/config.js` when confirmed.
+- **Member page**: a white, course-site layout with Home, My learning, Tasks,
+  Achievements, Documents and Profile.

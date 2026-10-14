@@ -8,7 +8,7 @@ import {
 import { Modal } from './People';
 import { STAGES, AGE_BANDS, HEARD_FROM } from '../lib/config';
 import { prettyPhone } from '../lib/phone';
-import { LoginSection, ProfileSection, ChecklistSection, TasksSection, DeletionBanner, DocumentsSection, removePersonFiles } from './PersonMember';
+import { LoginSection, ProfileSection, ChecklistSection, TasksSection, DeletionBanner, DocumentsSection, removePersonFiles, AchievementsSection } from './PersonMember';
 
 const TRIAL_DAYS = 90;
 
@@ -123,6 +123,7 @@ export default function PersonDrawer({ personId, projects, onClose, onChanged })
         <div className="grid gap-5 border border-sand-dark/60 rounded-md p-4">
           <ProfileSection profile={p.member_profiles} />
           <ChecklistSection personId={p.id} refreshKey={p.updated_at + assignments.length + attendance.length} />
+          <AchievementsSection personId={p.id} refreshKey={p.updated_at + assignments.length + attendance.length} />
           <TasksSection personId={p.id} onChanged={load} />
           <DocumentsSection personId={p.id} onChanged={onChanged} />
           <LoginSection person={p} onChanged={load} />
@@ -179,7 +180,7 @@ export default function PersonDrawer({ personId, projects, onClose, onChanged })
           <p className="text-xs text-ink-muted">Consent: version {p.consent_version}, {fmtDate(p.consented_at)}</p>
           <button className="text-xs text-red-700 underline" onClick={async () => {
             if (!window.confirm(`Permanently delete ${p.full_name} and all their history? Use this when someone asks to be removed.`)) return;
-            try { await removePersonFiles(p.id); await q(supabase.from('people').delete().eq('id', p.id)); onChanged(); onClose(); }
+            try { await removePersonFiles(p.id); await removePersonFiles(p.id, 'task-submissions'); await q(supabase.from('people').delete().eq('id', p.id)); onChanged(); onClose(); }
             catch (e) { setError(e.message); }
           }}>Delete this person</button>
         </div>

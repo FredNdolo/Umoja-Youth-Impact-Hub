@@ -28,6 +28,12 @@ export const PAYBILL = {
 };
 export const MEMBERSHIP_FEE = 1000; // Ksh
 
+// Who signs course certificates. Add the DSL's name when confirmed.
+export const CERTIFICATE_SIGNATORIES = [
+  { name: 'Fred Ndolo', title: 'Executive Director' },
+  { name: '',           title: 'Designated Safeguarding Lead' },
+];
+
 // Bump this whenever the wording of the consent text or privacy notice changes,
 // so each person's record shows which version they agreed to.
 export const CONSENT_VERSION = '2026-10b';

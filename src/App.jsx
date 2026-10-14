@@ -16,6 +16,7 @@ const Privacy  = React.lazy(() => import('./pages/Privacy'));
 const RequestDocument = React.lazy(() => import('./pages/RequestDocument'));
 const GreenFutures = React.lazy(() => import('./pages/GreenFutures'));
 const Donate = React.lazy(() => import('./pages/Donate'));
+const Certificate = React.lazy(() => import('./pages/Certificate'));
 const MemberApp = React.lazy(() => import('./member/MemberApp'));
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
@@ -265,6 +266,14 @@ function App() {
               element={
                 <Suspense fallback={<PageSkeleton path="/privacy" />}>
                   <PageWrapper><Privacy /></PageWrapper>
+                </Suspense>
+              }
+            />
+            <Route
+              path="/certificates/:code"
+              element={
+                <Suspense fallback={<div className="min-h-screen bg-white" />}>
+                  <PageWrapper><Certificate /></PageWrapper>
                 </Suspense>
               }
             />

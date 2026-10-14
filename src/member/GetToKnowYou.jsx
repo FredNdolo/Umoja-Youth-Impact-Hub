@@ -103,7 +103,7 @@ export default function GetToKnowYou({ person, profile, firstTime, onDone, onSki
   return (
     <>
       <MemberHero eyebrow="Get to know you" title={firstTime ? `Karibu, ${first}!` : 'Your profile'}>
-        <p className="font-sans text-cream/75 mt-3 max-w-xl">
+        <p className="font-sans text-ink-muted mt-2 max-w-xl">
           {firstTime
             ? 'Tell us a little about yourself so we can match you with roles and tasks you’ll enjoy. About 3 minutes.'
             : 'Keep this up to date so we can match you with the right roles and tasks.'}
