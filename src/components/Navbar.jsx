@@ -6,6 +6,7 @@ const navLinks = [
   { to: '/',         label: 'Home'     },
   { to: '/about',    label: 'About'    },
   { to: '/programs', label: 'Programs' },
+  { to: '/treemonitoringapp', label: 'Tree Monitor' },
   { to: '/contact',  label: 'Contact'  },
 ];
 
@@ -35,7 +36,7 @@ export default function Navbar() {
   // Every page opens on a dark hero, so the header uses light text until
   // the cream background appears on scroll (or the mobile drawer opens).
   // Member pages and certificates sit on white, so they need dark text.
-  const lightPage = /^\/(me|certificates)(\/|$)/.test(location.pathname);
+  const lightPage = /^\/(me|certificates|treemonitoringapp|tree-monitor|trees|t)(\/|$)/.test(location.pathname);
   const onDark = !scrolled && !menuOpen && !lightPage;
 
   const isActive = (path) =>

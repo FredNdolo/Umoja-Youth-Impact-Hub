@@ -102,3 +102,9 @@ export function submitDonation(form) {
 export function verifyCertificate(code) {
   return rpc('verify_certificate', { p_code: code });
 }
+
+// Tree Monitor public numbers, map and tree pages
+export const publicTreeSummary = () => rpc('tm_public_summary', {});
+export const publicTreeSites = () => rpc('tm_public_sites', {});
+export const publicTrees = () => rpc('tm_public_trees', {});
+export const publicTree = (code) => rpc('tm_public_tree', { p_code: code });

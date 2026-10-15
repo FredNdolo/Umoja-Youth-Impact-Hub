@@ -1,7 +1,7 @@
 // File: src/member/MemberApp.jsx
 // Member area at /me: login (email link or WhatsApp link from UYIH),
 // get-to-know-you profile, progress, tasks and history.
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useNavigate, Link } from 'react-router-dom';
 import { supabase, loginLink } from '../lib/supabase';
 import { UYIH_WHATSAPP_NUMBER } from '../lib/config';
@@ -15,6 +15,9 @@ import Achievements from './pages/Achievements';
 import Profile from './pages/Profile';
 import MyDocuments from './MyDocuments';
 import { useMember } from './MemberLayout';
+
+// The Tree Monitor brings in maps and the camera, so it loads on demand
+const TreeApp = React.lazy(() => import('../trees/TreeApp'));
 
 // Member pages use a clean white layout
 export function MemberHero({ eyebrow, title, children }) {
@@ -52,6 +55,7 @@ export default function MemberApp() {
         <Route path="learning" element={<Learning />} />
         <Route path="tasks" element={<TasksPanel />} />
         <Route path="achievements" element={<Achievements />} />
+        <Route path="trees/*" element={<Suspense fallback={<p className="font-sans text-ink-muted">Loading the Tree Monitor…</p>}><TreeApp /></Suspense>} />
         <Route path="documents" element={<Documents />} />
         <Route path="profile" element={<Profile />} />
         <Route path="*" element={<Home />} />

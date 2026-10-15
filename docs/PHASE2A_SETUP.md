@@ -193,3 +193,44 @@ log in the usual way.
   `CERTIFICATE_SIGNATORIES` in `src/lib/config.js` when confirmed.
 - **Member page**: a white, course-site layout with Home, My learning, Tasks,
   Achievements, Documents and Profile.
+
+## Tree Monitor (October 2026)
+
+The Tree Monitor now runs on the website. Its old standalone app (uyih-tree-monitor.vercel.app) redirects here.
+
+- **Public page:** `/treemonitoringapp`, also linked from the menu and the Green Futures page. It shows live numbers, the map and how the app works, and is the page to send to partners such as KFS.
+- **Field app:** `/me/trees`, inside the member area. Only field team members and admins can open it.
+- **Tree pages:** `/t/UYIH-XXXXXX`, which is what each QR label opens. They show species, school, status and growth, with locations rounded to about 10 m. They never show photos, names or notes.
+
+### 1. Run the database migration (once)
+Run `supabase/migrations/20261016000000_tree_monitor.sql` in the Supabase SQL Editor. It creates the `tm_*` tables and the private `tree-photos` storage bucket. It also adds the three pilot schools and a starter list of 13 species.
+
+### 2. Add the field team
+1. A member must be signed up and, for school work, should have completed Safeguarding Basics.
+2. Open **Member area → Tree Monitor → Team** and click **Add**. Admins and coordinators can add field members. Only admins can make someone a coordinator or remove access.
+3. Children and Girl Guides never get accounts. The member they work with records their trees.
+
+Admins (`umojayouthhub@gmail.com`) always have full access.
+
+### 3. Before planting at each school
+1. **Sites & plots:** stand at the school gate and tap **Use my location** to save the school's GPS point. Add the head teacher as the contact, and the MOU reference if there is one.
+2. Add each planting **plot**. Then tap **Walk boundary** and walk the corners; the app works out the area in hectares.
+3. Open **Baseline**, describe the land before planting, add landscape photos (land only, no people), then **Save & lock**. A locked baseline can't be changed by anyone. Carbon and restoration verifiers rely on that.
+
+### 4. On planting days
+- **Register tree:** choose site, plot, species and nursery batch, then record GPS standing at the tree. The app shows the tree's code and QR label.
+- You can pre-print labels: **Reports → Labels → Blank codes to pre-print**. When registering, type the code from the label.
+- No signal? Keep working. Registrations and check-ins save on the phone and sync when the network returns. On Android, use **Add to Home screen** to install the app.
+
+### 5. Monthly check-ins
+Scan the tree's QR code, choose its health, measure its height and photograph the tree. **Overview** lists trees that haven't been checked for 30 days or more.
+
+### 6. Nursery and sales
+**Nursery & sales** records seed batches (source, sown, germinated, ready), seedling sales (with the M-Pesa reference) and pad distributions. Pad distributions are recorded as counts only, never girls' names.
+
+### 7. Reports for partners
+**Reports** gives a quarterly report you can print or save as a PDF, plus exports: trees CSV, check-ins CSV, GeoJSON (for QGIS/ArcGIS) and KML (for Google Earth).
+
+### Please review
+- **Local species names:** only the names we were sure of were filled in. Please check the Kiswahili and Maa names with KFS or a local forester, and edit them under **Species**.
+- **Plot photos and check-in photos:** these are private. Only the field team and admins can see them.

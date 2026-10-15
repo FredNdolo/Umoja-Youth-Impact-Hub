@@ -17,6 +17,8 @@ const RequestDocument = React.lazy(() => import('./pages/RequestDocument'));
 const GreenFutures = React.lazy(() => import('./pages/GreenFutures'));
 const Donate = React.lazy(() => import('./pages/Donate'));
 const Certificate = React.lazy(() => import('./pages/Certificate'));
+const TreeMonitoring = React.lazy(() => import('./pages/TreeMonitoring'));
+const PublicTree = React.lazy(() => import('./pages/PublicTree'));
 const MemberApp = React.lazy(() => import('./member/MemberApp'));
 const AdminApp = React.lazy(() => import('./admin/AdminApp'));
 
@@ -274,6 +276,25 @@ function App() {
               element={
                 <Suspense fallback={<div className="min-h-screen bg-white" />}>
                   <PageWrapper><Certificate /></PageWrapper>
+                </Suspense>
+              }
+            />
+            {['/treemonitoringapp', '/tree-monitor', '/trees'].map((path) => (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  <Suspense fallback={<div className="min-h-screen bg-cream" />}>
+                    <PageWrapper><TreeMonitoring /></PageWrapper>
+                  </Suspense>
+                }
+              />
+            ))}
+            <Route
+              path="/t/:code"
+              element={
+                <Suspense fallback={<div className="min-h-screen bg-cream" />}>
+                  <PageWrapper><PublicTree /></PageWrapper>
                 </Suspense>
               }
             />

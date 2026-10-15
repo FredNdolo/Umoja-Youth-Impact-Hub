@@ -153,6 +153,17 @@ export default function GreenFutures() {
         </div>
       </section>
 
+      {/* ══ TREE MONITOR ══════════════════════════════════════════ */}
+      <section className="bg-forest">
+        <div className="container-wide py-6 flex flex-wrap items-center justify-between gap-4">
+          <p className="font-sans text-cream">
+            <span className="font-semibold">🌳 Track every tree.</span>{' '}
+            <span className="text-cream/80">Live survival, growth and a map of every seedling planted, in our Tree Monitor.</span>
+          </p>
+          <Link to="/treemonitoringapp" className="btn-primary text-sm">Open the Tree Monitor →</Link>
+        </div>
+      </section>
+
       {/* ══ WHY IT MATTERS ════════════════════════════════════════ */}
       <section className="section-cream">
         <div className="container-wide">
