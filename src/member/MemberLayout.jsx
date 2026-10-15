@@ -18,6 +18,7 @@ export const NAV = [
   { to: '/me/learning',     label: 'My learning',   icon: '🎓' },
   { to: '/me/tasks',        label: 'Tasks',         icon: '✅' },
   { to: '/me/achievements', label: 'Achievements',  icon: '🏅' },
+  { to: '/me/trees',        label: 'Tree Monitor',  icon: '🌳' },
   { to: '/me/documents',    label: 'Documents',     icon: '📁' },
   { to: '/me/profile',      label: 'Profile',       icon: '👤' },
 ];
