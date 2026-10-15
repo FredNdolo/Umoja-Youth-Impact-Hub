@@ -76,7 +76,7 @@ export default function TreeApp() {
   }), [ref, trees, reload, role, queue, online]);
 
   if (error && !ref) return <Notice kind="error">{error}</Notice>;
-  if (!ref) return <p className="font-sans text-ink-muted">Loading the Tree Monitor…</p>;
+  if (!ref) return <SlowLoading />;
   if (!role) return <NotOnTeam />;
 
   return (
@@ -126,6 +126,22 @@ export default function TreeApp() {
         <Route path="*" element={<Overview />} />
       </Routes>
     </Ctx.Provider>
+  );
+}
+
+function SlowLoading() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setSlow(true), 15000); return () => clearTimeout(t); }, []);
+  return (
+    <div className="font-sans text-ink-muted space-y-3">
+      <p>Loading the Tree Monitor…</p>
+      {slow && (
+        <>
+          <p className="text-sm">This is taking longer than usual. Your connection may be slow, or your network may be blocking the site.</p>
+          <button className="btn-secondary text-sm" onClick={() => window.location.reload()}>Try again</button>
+        </>
+      )}
+    </div>
   );
 }
 

@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { verifyCertificate } from '../lib/publicApi';
-import { CERTIFICATE_SIGNATORIES } from '../lib/config';
+import { certificateSignatories } from '../lib/config';
 import logo from '../assets/logo.jpg';
 
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Nairobi' });
@@ -31,9 +31,9 @@ function useScriptFont() {
 
 function Signature({ name, title }) {
   return (
-    <div className="text-center w-48 sm:w-56">
+    <div className="text-center w-56 sm:w-64">
       <div className="h-12 flex items-end justify-center">
-        {name && <span style={{ fontFamily: "'Great Vibes', cursive" }} className="text-3xl sm:text-4xl text-forest leading-none">{name}</span>}
+        {name && <span style={{ fontFamily: "'Great Vibes', cursive" }} className="text-3xl sm:text-4xl text-forest leading-none whitespace-nowrap">{name}</span>}
       </div>
       <div className="border-t border-forest/50 mt-1 pt-1.5">
         {name && <p className="font-sans text-xs font-semibold text-forest">{name}</p>}
@@ -56,6 +56,7 @@ export default function Certificate() {
   }, [code]);
 
   const url = `${window.location.origin}/certificates/${code}`;
+  const signers = certificateSignatories(cert?.course_code);
 
   if (cert === undefined) return <div className="min-h-screen bg-white pt-32 text-center font-sans text-ink-muted">Checking certificate…</div>;
   if (!cert) {
@@ -106,13 +107,13 @@ export default function Certificate() {
           </div>
 
           <div className="w-full flex flex-col sm:flex-row items-center sm:items-end justify-between gap-5 sm:gap-4">
-            <Signature {...CERTIFICATE_SIGNATORIES[0]} />
-            <div className="text-center font-sans text-[9px] sm:text-xs text-ink-muted order-first sm:order-none w-full sm:w-auto">
+            {signers.length > 1 && <Signature {...signers[0]} />}
+            <div className={`font-sans text-[9px] sm:text-xs text-ink-muted order-first sm:order-none w-full sm:w-auto ${signers.length > 1 ? 'text-center' : 'text-center sm:text-left'}`}>
               <p>Issued {fmtDate(cert.issued_at)}</p>
               <p className="mt-0.5">Certificate {cert.code}</p>
               <p className="mt-0.5 hidden sm:block">Verify at {window.location.host}/certificates/{cert.code}</p>
             </div>
-            <Signature {...CERTIFICATE_SIGNATORIES[1]} />
+            <Signature {...signers[signers.length - 1]} />
           </div>
         </div>
       </article>

@@ -78,6 +78,7 @@ export const LESSONS = [
     title: 'Who to tell, and when',
     ref: 'Section 12',
     points: [
+      'UYIH’s Designated Safeguarding Lead (DSL) is Emmanuella Aya.',
       'Report every concern the same day to the Designated Safeguarding Lead, using the Concern/Incident Report Form (Annex 2). Your duty is to report, not to judge whether it is “serious enough” or to sort it out yourself.',
       'If the concern is about the DSL, report to the Executive Director. If it is about the Executive Director, report to the Management Committee Chairperson (or the Secretary, if the Chairperson is involved).',
       'If a child is in immediate danger, call the Kenya Police on 999 or 112 (or the nearest Gender & Children Protection Desk) without delay, then tell the DSL when it is safe.',

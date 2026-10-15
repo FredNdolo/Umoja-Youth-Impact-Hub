@@ -155,6 +155,9 @@ function Shell({ email }) {
               )}
             </NavLink>
           ))}
+          <Link to="/me/trees" className="px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent whitespace-nowrap text-cream/60 hover:text-cream">
+            🌳 Tree Monitor
+          </Link>
         </nav>
       </header>
       <main className="max-w-6xl mx-auto px-4 py-6">
