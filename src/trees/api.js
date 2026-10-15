@@ -2,8 +2,14 @@
 // Tree Monitor data layer: Supabase queries, photo handling and an offline
 // queue (IndexedDB) so field teams can register trees and check in without
 // signal. Queued items sync automatically when the phone is back online.
-import { get, set } from 'idb-keyval';
+import { get as idbGet, set as idbSet } from 'idb-keyval';
 import { supabase } from '../lib/supabase';
+
+// Phone storage can be blocked or hang (private browsing, low storage), so
+// never wait on it for more than a few seconds.
+const within = (p, ms, fallback) => Promise.race([p, new Promise((r) => setTimeout(() => r(fallback), ms))]);
+const get = (k) => within(Promise.resolve().then(() => idbGet(k)), 3000, undefined);
+const set = (k, v) => within(Promise.resolve().then(() => idbSet(k, v)), 3000, undefined);
 
 export const PHOTO_BUCKET = 'tree-photos';
 const QUEUE_KEY = 'tm-queue-v1';
@@ -57,7 +63,7 @@ export async function loadReference() {
       q(supabase.rpc('tm_me')),
     ]);
     const ref = { sites, plots, species, nurseries, batches, me, cachedAt: new Date().toISOString() };
-    try { await set(CACHE_KEY, ref); } catch { /* storage full or blocked */ }
+    set(CACHE_KEY, ref).catch(() => {}); // storage full or blocked: carry on
     return ref;
   } catch (e) {
     const cached = await get(CACHE_KEY).catch(() => null);

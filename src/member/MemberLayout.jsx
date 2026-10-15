@@ -40,11 +40,23 @@ export default function MemberLayout() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  const [slow, setSlow] = useState(false);
   const reload = useCallback(async () => {
-    const [d, l] = await Promise.all([supabase.rpc('get_my_dashboard'), supabase.rpc('get_my_learning')]);
-    if (d.error) { setError(d.error.message); setDash(null); return; }
-    setDash(d.data); setLearning(l.data || []); setError('');
+    try {
+      const [d, l] = await Promise.all([supabase.rpc('get_my_dashboard'), supabase.rpc('get_my_learning')]);
+      if (d.error) { setError(d.error.message); setDash(null); return; }
+      setDash(d.data ?? null); setLearning(l.data || []); setError('');
+    } catch (e) {
+      setError(e.message || 'Couldn’t reach UYIH. Check your connection.'); setDash(null);
+    }
   }, []);
+
+  // Never leave people staring at "Loading…": after 15 s offer a retry
+  useEffect(() => {
+    if (!(session === undefined || (session && dash === undefined))) { setSlow(false); return undefined; }
+    const t = setTimeout(() => setSlow(true), 15000);
+    return () => clearTimeout(t);
+  }, [session, dash]);
 
   useEffect(() => {
     if (!session) { setDash(undefined); return; }
@@ -59,9 +71,33 @@ export default function MemberLayout() {
   }, [pathname]);
 
   if (session === undefined || (session && dash === undefined)) {
-    return <Shell><MemberHero eyebrow="My UYIH" title="Loading…" /></Shell>;
+    return (
+      <Shell>
+        <MemberHero eyebrow="My UYIH" title="Loading…">
+          {slow && (
+            <div className="mt-4 font-sans text-sm text-ink-muted space-y-3">
+              <p>This is taking longer than usual. Your connection may be slow, or your network may be blocking the site.</p>
+              <button className="btn-secondary text-sm" onClick={() => window.location.reload()}>Try again</button>
+            </div>
+          )}
+        </MemberHero>
+      </Shell>
+    );
   }
   if (!session) return <Shell><Login /></Shell>;
+  // Admins don't need a member record to run the Tree Monitor
+  if (!dash && pathname.startsWith('/me/trees')) {
+    return (
+      <MemberCtx.Provider value={null}>
+        <Shell>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 md:pt-28 pb-16">
+            <p className="font-sans text-xs text-ink-muted mb-3">Signed in as {session.user.email} · <a href="/admin" className="underline">Admin dashboard</a></p>
+            <Outlet />
+          </div>
+        </Shell>
+      </MemberCtx.Provider>
+    );
+  }
   if (!dash) {
     return (
       <Shell>

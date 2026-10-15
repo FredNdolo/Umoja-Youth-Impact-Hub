@@ -28,11 +28,14 @@ export const PAYBILL = {
 };
 export const MEMBERSHIP_FEE = 1000; // Ksh
 
-// Who signs course certificates. Add the DSL's name when confirmed.
-export const CERTIFICATE_SIGNATORIES = [
-  { name: 'Fred Ndolo', title: 'Executive Director' },
-  { name: '',           title: 'Designated Safeguarding Lead' },
-];
+// Who signs course certificates. Every certificate carries the Executive
+// Director; only the Child Protection and Safeguarding Policy course
+// (Safeguarding Basics) also carries the Designated Safeguarding Lead.
+export const EXECUTIVE_DIRECTOR = { name: 'Fred Ndolo', title: 'Executive Director' };
+export const SAFEGUARDING_LEAD = { name: 'Emmanuella Aya', title: 'Designated Safeguarding Lead' };
+export const DSL_SIGNED_COURSES = ['safeguarding'];
+export const certificateSignatories = (courseCode) =>
+  (DSL_SIGNED_COURSES.includes(courseCode) ? [EXECUTIVE_DIRECTOR, SAFEGUARDING_LEAD] : [EXECUTIVE_DIRECTOR]);
 
 // Bump this whenever the wording of the consent text or privacy notice changes,
 // so each person's record shows which version they agreed to.
