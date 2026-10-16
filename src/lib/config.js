@@ -39,7 +39,7 @@ export const certificateSignatories = (courseCode) =>
 
 // Bump this whenever the wording of the consent text or privacy notice changes,
 // so each person's record shows which version they agreed to.
-export const CONSENT_VERSION = '2026-10b';
+export const CONSENT_VERSION = '2026-10c';
 
 export const AGE_BANDS = [
   { value: '18-24', label: '18–24' },

@@ -25,9 +25,4 @@ export const GOALS = [
   'Make a difference in my community', 'Leadership experience', 'Job or internship leads', 'Have fun',
 ];
 
-export const RESOURCES = [
-  'Smartphone', 'Laptop or computer', 'Camera', 'Own transport (car)', 'Motorbike',
-  'Space for meetings or storage', 'Contacts in schools', 'Contacts with local leaders',
-];
-
 export const labelFor = (list, value) => list.find((x) => x.value === value)?.label || value;

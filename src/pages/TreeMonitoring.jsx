@@ -6,7 +6,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { publicTreeSummary, publicTreeSites, publicTrees } from '../lib/publicApi';
 import { UYIH_WHATSAPP_NUMBER } from '../lib/config';
-import fieldImg from '../assets/environment.jpg';
+import fieldImg from '../assets/environment.webp';
 
 const TreeMap = React.lazy(() => import('../trees/ui').then((m) => ({ default: m.TreeMap })));
 

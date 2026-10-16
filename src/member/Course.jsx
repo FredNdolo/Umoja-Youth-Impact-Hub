@@ -70,7 +70,7 @@ function CourseBody({ cfg }) {
     go('sent');
   };
 
-  const task = useMemo(() => dash?.my_tasks.find((t) => t.code === CODE), [dash]);
+  const task = useMemo(() => dash?.my_tasks.find((t) => t.code === CODE), [dash, CODE]);
   const go = (v) => { setView(v); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   // A fresh quiz: reload so earlier answers are cleared, then open it
   const [quizRun, setQuizRun] = useState(0);
@@ -116,7 +116,7 @@ function CourseBody({ cfg }) {
               }} />
             )}
             {view === 'result' && result && (
-              <Result cfg={cfg} result={result} done={task?.status === 'done' || task?.status === 'submitted'}
+              <Result result={result} done={task?.status === 'done' || task?.status === 'submitted'}
                 onRetry={() => { setLesson(0); go('lesson'); }}
                 onRetryQuiz={retake}
                 onDeclare={() => go('declare')} />
@@ -315,7 +315,7 @@ function Quiz({ code: CODE, course, onFinished }) {
   );
 }
 
-function Result({ cfg, result, done, onRetry, onRetryQuiz, onDeclare }) {
+function Result({ result, done, onRetry, onRetryQuiz, onDeclare }) {
   return (
     <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8 text-center" role="status">
       <div className="text-6xl mb-3" aria-hidden="true">{result.passed ? '🏅' : '📚'}</div>

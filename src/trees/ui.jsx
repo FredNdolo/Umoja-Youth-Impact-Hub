@@ -73,65 +73,180 @@ const TILES = {
   satellite: { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attribution: 'Imagery © Esri, Maxar, Earthstar Geographics' },
   streets: { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap contributors' },
 };
+const LAYERS = [['trees', 'Trees'], ['plots', 'Plots'], ['sites', 'Sites'], ['fences', 'Geofences']];
 
-// Map of trees (points), plots (polygons) and sites. Markers are coloured by status.
-export function TreeMap({ trees = [], plots = [], sites = [], height = 420, onTree, focus, className = '' }) {
+// Map of trees (points), plots (polygons) and sites with their geofences.
+// Markers are coloured by status. Extras: layer switches, fit-to-data,
+// full screen, scale bar and "my location" (live GPS dot with accuracy).
+// Optional: onMapClick (pick a point / draw a plot) and draft (points being drawn).
+export function TreeMap({ trees = [], plots = [], sites = [], height = 420, onTree, focus, className = '', onMapClick, draft, highlight }) {
   const el = useRef(null);
+  const wrap = useRef(null);
   const map = useRef(null);
-  const layers = useRef({});
+  const groups = useRef({});
+  const clickRef = useRef(onMapClick);
+  const fitted = useRef(false);
+  const lastFocus = useRef('');
   const [base, setBase] = useState('satellite');
+  const [show, setShow] = useState({ trees: true, plots: true, sites: true, fences: true });
+  const [full, setFull] = useState(false);
+  const [me, setMe] = useState(null); // { lat, lng, acc } while tracking
+  const [tracking, setTracking] = useState(false);
+  const [menu, setMenu] = useState(false);
+  clickRef.current = onMapClick;
+  const focusKey = focus ? focus.map((v) => Number(v).toFixed(6)).join(',') : '';
 
   useEffect(() => {
     if (!el.current || map.current) return undefined;
     map.current = L.map(el.current, { zoomControl: true, attributionControl: true }).setView([-1.09, 35.87], 9);
-    layers.current.group = L.featureGroup().addTo(map.current);
+    L.control.scale({ imperial: false, position: 'bottomright' }).addTo(map.current);
+    ['fences', 'plots', 'sites', 'trees', 'draft', 'me'].forEach((k) => { groups.current[k] = L.featureGroup().addTo(map.current); });
+    map.current.on('click', (e) => clickRef.current?.({ lat: e.latlng.lat, lng: e.latlng.lng }));
     return () => { map.current?.remove(); map.current = null; };
   }, []);
 
   useEffect(() => {
     if (!map.current) return;
-    layers.current.tiles?.remove();
-    layers.current.tiles = L.tileLayer(TILES[base].url, { attribution: TILES[base].attribution, maxZoom: 20, maxNativeZoom: 19 }).addTo(map.current);
-    layers.current.tiles.bringToBack();
+    groups.current.tiles?.remove();
+    groups.current.tiles = L.tileLayer(TILES[base].url, { attribution: TILES[base].attribution, maxZoom: 20, maxNativeZoom: 19 }).addTo(map.current);
+    groups.current.tiles.bringToBack();
   }, [base]);
 
+  // Show / hide layers
   useEffect(() => {
-    const g = layers.current.group;
-    if (!g) return;
-    g.clearLayers();
+    if (!map.current) return;
+    LAYERS.forEach(([k]) => {
+      const g = groups.current[k];
+      if (show[k] && !map.current.hasLayer(g)) g.addTo(map.current);
+      if (!show[k] && map.current.hasLayer(g)) g.remove();
+    });
+  }, [show]);
+
+  const fit = (force) => {
+    const all = L.featureGroup(['plots', 'sites', 'trees'].flatMap((k) => groups.current[k].getLayers()));
+    const b = all.getBounds();
+    if (focus && !force) map.current.setView(focus, 18);
+    else if (b.isValid()) map.current.fitBounds(b.pad(0.2), { maxZoom: 18 });
+  };
+
+  useEffect(() => {
+    const G = groups.current;
+    if (!G.trees) return;
+    ['fences', 'plots', 'sites', 'trees'].forEach((k) => G[k].clearLayers());
     plots.filter((p) => p.boundary?.coordinates?.[0]?.length > 2).forEach((p) => {
       L.geoJSON(p.boundary, { style: { color: '#C4622D', weight: 2, fillOpacity: 0.08 } })
-        .bindTooltip(p.name, { sticky: true }).addTo(g);
+        .bindTooltip(`${p.name}${p.area_ha != null ? ` · ${Number(p.area_ha).toFixed(2)} ha` : ''}`, { sticky: true }).addTo(G.plots);
     });
     sites.filter((s) => s.latitude != null && s.longitude != null).forEach((s) => {
-      L.circleMarker([s.latitude, s.longitude], { radius: 9, color: '#fff', weight: 2, fillColor: '#C4622D', fillOpacity: 1 })
-        .bindTooltip(`${s.name}${s.trees != null ? ` · ${s.trees} trees` : ''}`).addTo(g);
+      L.circle([s.latitude, s.longitude], { radius: Number(s.geofence_m) || 250, color: '#C4622D', weight: 1.5, dashArray: '6 6', fillOpacity: 0.04, interactive: false }).addTo(G.fences);
+      L.circleMarker([s.latitude, s.longitude], { radius: 9, color: '#fff', weight: 2, fillColor: s.active === false ? '#9CA3AF' : '#C4622D', fillOpacity: 1 })
+        .bindTooltip(`${s.name}${s.trees != null ? ` · ${s.trees} trees` : ''}${s.active === false ? ' (archived)' : ''}`).addTo(G.sites);
     });
     trees.forEach((t) => {
       const lat = t.latitude ?? t.lat; const lng = t.longitude ?? t.lng;
       if (lat == null || lng == null) return;
-      const m = L.circleMarker([lat, lng], { radius: 6, color: '#fff', weight: 1.5, fillColor: (STATUS[t.status] || STATUS.planted).color, fillOpacity: 0.95 });
-      m.bindTooltip(`${t.code || ''} ${t.species ? `· ${t.species}` : ''}`.trim());
-      if (onTree) m.on('click', () => onTree(t));
-      m.addTo(g);
+      const hi = highlight && t.code === highlight;
+      const m = L.circleMarker([lat, lng], { radius: hi ? 10 : 6, color: hi ? '#1A3C2A' : '#fff', weight: hi ? 3 : 1.5, fillColor: (STATUS[t.status] || STATUS.planted).color, fillOpacity: 0.95 });
+      m.bindTooltip(`${t.code || ''}${t.species ? ` · ${t.species}` : ''}${t.status ? ` · ${(STATUS[t.status] || {}).label || ''}` : ''}`.trim());
+      if (onTree) m.on('click', (e) => { L.DomEvent.stopPropagation(e); onTree(t); });
+      m.addTo(G.trees);
     });
-    const b = g.getBounds();
-    if (focus) map.current.setView(focus, 18);
-    else if (b.isValid()) map.current.fitBounds(b.pad(0.2), { maxZoom: 18 });
-  }, [trees, plots, sites, onTree, focus]);
+    if (focusKey && focusKey !== lastFocus.current) {
+      lastFocus.current = focusKey;
+      map.current.setView(focus, Math.max(map.current.getZoom(), 17));
+    } else if (!focusKey && !fitted.current) {
+      fit(true);
+      fitted.current = ['plots', 'sites', 'trees'].some((k) => G[k].getLayers().length > 0);
+    }
+  }, [trees, plots, sites, onTree, focusKey, highlight]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Points being drawn (plot boundary or a picked site centre)
+  useEffect(() => {
+    const g = groups.current.draft;
+    if (!g) return;
+    g.clearLayers();
+    if (!draft?.length) return;
+    const latlngs = draft.map(([lng, lat]) => [lat, lng]);
+    if (latlngs.length > 1) L.polygon(latlngs, { color: '#1A3C2A', weight: 2, dashArray: '4 4', fillOpacity: 0.12 }).addTo(g);
+    latlngs.forEach((ll, i) => L.circleMarker(ll, { radius: 5, color: '#fff', weight: 2, fillColor: '#1A3C2A', fillOpacity: 1 }).bindTooltip(String(i + 1), { permanent: latlngs.length > 1, direction: 'top', className: 'text-[10px]' }).addTo(g));
+  }, [draft]);
+
+  // Live position
+  useEffect(() => {
+    if (!tracking || !navigator.geolocation) return undefined;
+    const id = navigator.geolocation.watchPosition(
+      (p) => setMe({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }),
+      () => setTracking(false), { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+    return () => navigator.geolocation.clearWatch(id);
+  }, [tracking]);
+  useEffect(() => {
+    const g = groups.current.me;
+    if (!g) return;
+    g.clearLayers();
+    if (!tracking || !me) return;
+    L.circle([me.lat, me.lng], { radius: me.acc, color: '#2563EB', weight: 1, fillOpacity: 0.12, interactive: false }).addTo(g);
+    L.circleMarker([me.lat, me.lng], { radius: 7, color: '#fff', weight: 2, fillColor: '#2563EB', fillOpacity: 1 }).bindTooltip('You are here').addTo(g);
+  }, [me, tracking]);
+  const locateMe = () => {
+    if (tracking && me) { map.current.setView([me.lat, me.lng], 18); return; }
+    setTracking(true);
+    navigator.geolocation?.getCurrentPosition((p) => map.current?.setView([p.coords.latitude, p.coords.longitude], 18), () => {}, { enableHighAccuracy: true, timeout: 15000 });
+  };
+
+  // Real full screen where the browser allows it (Android, desktop); a
+  // full-window overlay otherwise (iPhone)
+  const toggleFull = () => {
+    if (!full) {
+      setFull(true);
+      wrap.current?.requestFullscreen?.().catch(() => {});
+    } else {
+      setFull(false);
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    }
+  };
+  useEffect(() => {
+    const onChange = () => { if (!document.fullscreenElement) setFull(false); };
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+  useEffect(() => { setTimeout(() => map.current?.invalidateSize(), 80); }, [full]);
+  useEffect(() => {
+    if (!full) return undefined;
+    const esc = (e) => { if (e.key === 'Escape') setFull(false); };
+    window.addEventListener('keydown', esc);
+    return () => window.removeEventListener('keydown', esc);
+  }, [full]);
+
+  const btn = 'w-9 h-9 flex items-center justify-center bg-white text-forest border-b border-sand-dark/60 last:border-0 hover:bg-sand-light text-base';
   return (
-    <div className={`relative rounded-xl overflow-hidden border border-sand-dark/50 ${className}`}>
-      <div ref={el} style={{ height }} className="w-full z-0" />
-      <div className="absolute top-2 right-2 z-[400] flex rounded-md overflow-hidden shadow border border-sand-dark/60 bg-white font-sans text-xs">
-        {['satellite', 'streets'].map((k) => (
-          <button key={k} onClick={() => setBase(k)} className={`px-2.5 py-1.5 capitalize ${base === k ? 'bg-forest text-cream' : 'text-forest'}`}>{k}</button>
-        ))}
+    <div ref={wrap} className={`${full ? 'fixed inset-0 z-[1000] bg-white' : `relative rounded-xl overflow-hidden border border-sand-dark/50 ${className}`}`}>
+      <div ref={el} style={{ height: full ? '100%' : height }} className={`w-full z-0 ${onMapClick ? 'cursor-crosshair' : ''}`} />
+      <div className="absolute top-2 right-2 z-[400] flex flex-col items-end gap-2 pointer-events-none [&>*]:pointer-events-auto">
+        <div className="flex rounded-md overflow-hidden shadow border border-sand-dark/60 bg-white font-sans text-xs">
+          {['satellite', 'streets'].map((k) => (
+            <button key={k} type="button" onClick={() => setBase(k)} className={`px-2.5 py-1.5 capitalize ${base === k ? 'bg-forest text-cream' : 'text-forest'}`}>{k}</button>
+          ))}
+        </div>
+        <div className="flex flex-col rounded-md overflow-hidden shadow border border-sand-dark/60">
+          <button type="button" className={btn} onClick={locateMe} title="My location" aria-label="Show my location">{tracking ? '🎯' : '📍'}</button>
+          <button type="button" className={btn} onClick={() => fit(true)} title="Show everything" aria-label="Zoom to all">⤢</button>
+          <button type="button" className={btn} onClick={() => setMenu(!menu)} title="Layers" aria-label="Layers" aria-expanded={menu}>☰</button>
+          <button type="button" className={btn} onClick={toggleFull} title={full ? 'Exit full screen' : 'Full screen'} aria-label={full ? 'Exit full screen' : 'Full screen'}>{full ? '✕' : '⛶'}</button>
+        </div>
+        {menu && (
+          <div className="rounded-md bg-white shadow border border-sand-dark/60 p-2.5 font-sans text-xs space-y-1.5">
+            {LAYERS.map(([k, l]) => (
+              <label key={k} className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={show[k]} onChange={() => setShow({ ...show, [k]: !show[k] })} />{l}</label>
+            ))}
+          </div>
+        )}
       </div>
-      <div className="absolute bottom-6 left-2 z-[400] flex flex-wrap gap-x-3 gap-y-1 rounded-md bg-white/90 px-2.5 py-1.5 font-sans text-[11px] shadow">
+      <div className="absolute bottom-6 left-2 z-[400] pointer-events-none flex flex-wrap gap-x-3 gap-y-1 rounded-md bg-white/90 px-2.5 py-1.5 font-sans text-[11px] shadow max-w-[calc(100%-6rem)]">
         {['planted', 'alive', 'stressed', 'dead', 'missing'].map((k) => (
           <span key={k} className="inline-flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: STATUS[k].color }} />{STATUS[k].label}</span>
         ))}
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full border border-dashed border-terracotta" />Geofence</span>
+        {tracking && <span className="inline-flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-600" />You{me ? ` ±${Math.round(me.acc)} m` : '…'}</span>}
       </div>
     </div>
   );

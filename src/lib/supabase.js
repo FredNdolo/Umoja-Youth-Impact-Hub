@@ -14,6 +14,11 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
 });
 
+// Let the navbar know when someone signs in or out in this tab
+supabase.auth.onAuthStateChange(() => {
+  setTimeout(() => window.dispatchEvent(new Event('uyih-auth-change')), 0);
+});
+
 // Throw on Supabase errors so callers can use try/catch
 export async function q(promise) {
   const { data, error } = await promise;

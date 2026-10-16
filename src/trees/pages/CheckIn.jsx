@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTrees } from '../TreeApp';
 import { Card, Field, Notice, StatusPill, Accuracy } from '../ui';
 import { HEALTH, checkIn, compressPhoto, getPosition, getQueue, fmtDate } from '../api';
+import { distanceM, checkinTooFar, fmtDistance } from '../geo';
 
 export default function CheckIn() {
   const { code } = useParams();
@@ -74,6 +75,8 @@ export default function CheckIn() {
     return <Notice kind="warn">No tree with code <strong>{code}</strong> on this phone. <Link to="/me/trees/scan" className="underline">Scan again</Link> or <button className="underline" onClick={() => navigate(-1)}>go back</button>.</Notice>;
   }
   const plot = lookups.plot[tree.plot_id];
+  const away = gps ? distanceM(gps.latitude, gps.longitude, tree.latitude, tree.longitude) : null;
+  const tooFar = checkinTooFar(away, tree.accuracy_m, gps?.accuracy_m);
   const prevH = tree.height_cm != null ? Number(tree.height_cm) : null;
 
   return (
@@ -132,8 +135,13 @@ export default function CheckIn() {
           <textarea className="input-field" rows={2} maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </Field>
         <p className="font-sans text-xs text-ink-muted mt-3">
-          {gps ? <>Location recorded <Accuracy m={gps.accuracy_m} /></> : gpsErr ? `No location: ${gpsErr}` : 'Getting your location…'}
+          {gps ? <>Location recorded <Accuracy m={gps.accuracy_m} />{away != null && !tooFar && <> · {fmtDistance(away)} from the tree ✓</>}</> : gpsErr ? `No location: ${gpsErr}` : 'Getting your location…'}
         </p>
+        {tooFar && (
+          <p className="font-sans text-sm text-amber-800 mt-2" role="status">
+            ⚠ You’re {fmtDistance(away)} from where {tree.code} was registered. Check the label is on the right tree. The check-in will be flagged for review.
+          </p>
+        )}
       </Card>
 
       {err && <Notice kind="error">{err}</Notice>}

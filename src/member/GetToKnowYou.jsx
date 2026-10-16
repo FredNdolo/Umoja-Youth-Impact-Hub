@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import SkillPicker from '../components/SkillPicker';
 import { LANGUAGES } from '../lib/skills';
-import { CURRENT_STATUS, AVAILABILITY, HOURS, GOALS, RESOURCES } from '../lib/profileOptions';
+import { CURRENT_STATUS, AVAILABILITY, HOURS, GOALS } from '../lib/profileOptions';
 import { MemberHero } from './MemberApp';
 
 const STEPS = ['About you', 'Skills', 'Time & goals', 'Finish'];
@@ -145,7 +145,8 @@ export default function GetToKnowYou({ person, profile, firstTime, onDone, onSki
               {step === 1 && (
                 <>
                   <Q title="What are you good at? *" hint="Add at least 3: work skills, hobbies and everyday talents all count.">
-                    <SkillPicker label="" value={f.skills} onChange={(v) => set('skills', v)} />
+                    <SkillPicker label="" value={f.skills} onChange={(v) => set('skills', v)}
+                      context={[f.field, f.bio, f.current_status].filter(Boolean).join(' ')} />
                   </Q>
                   <Q title="Which languages do you speak?">
                     <Chips options={LANGUAGES} value={f.languages} onChange={(v) => set('languages', v)} />
@@ -165,9 +166,6 @@ export default function GetToKnowYou({ person, profile, firstTime, onDone, onSki
                   </Q>
                   <Q title="What would you like to get out of UYIH?">
                     <Chips options={GOALS} value={f.goals} onChange={(v) => set('goals', v)} />
-                  </Q>
-                  <Q title="Anything you could bring or use?" hint="Helps us plan, never required.">
-                    <Chips options={RESOURCES} value={f.resources} onChange={(v) => set('resources', v)} />
                   </Q>
                 </>
               )}
