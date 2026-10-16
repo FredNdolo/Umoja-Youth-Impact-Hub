@@ -21,6 +21,7 @@ import Reports from './pages/Reports';
 import Labels from './pages/Labels';
 import Team from './pages/Team';
 import Species from './pages/Species';
+import Nearby from './pages/Nearby';
 
 const Ctx = createContext(null);
 export const useTrees = () => useContext(Ctx);
@@ -86,7 +87,8 @@ export default function TreeApp() {
           <h1 className="font-display font-bold text-display-sm md:text-display-md text-forest">Tree Monitor</h1>
           <p className="font-sans text-sm text-ink-muted">Green Futures · {role === 'admin' ? 'Admin' : role === 'coordinator' ? 'Coordinator' : 'Field team'}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Link to="/me/trees/nearby" className="btn-secondary text-sm">📍 Near me</Link>
           <Link to="/me/trees/scan" className="btn-secondary text-sm">📷 Scan</Link>
           <Link to="/me/trees/register" className="btn-primary text-sm">+ Register tree</Link>
         </div>
@@ -117,6 +119,7 @@ export default function TreeApp() {
         <Route path="register" element={<Register />} />
         <Route path="check-in/:code" element={<CheckIn />} />
         <Route path="scan" element={<Scan />} />
+        <Route path="nearby" element={<Nearby />} />
         <Route path="nursery" element={<Nursery />} />
         <Route path="sites" element={<Sites />} />
         <Route path="reports" element={<Reports />} />

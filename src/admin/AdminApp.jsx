@@ -13,6 +13,7 @@ import Payments from './Payments';
 import Metrics from './Metrics';
 import Certificates from './Certificates';
 import logo from '../assets/logo.jpg';
+import { rememberAdmin } from '../lib/authState';
 
 export default function AdminApp() {
   const [session, setSession] = useState(undefined); // undefined = still checking
@@ -27,7 +28,10 @@ export default function AdminApp() {
 
   useEffect(() => {
     if (!session) { setIsAdmin(null); return; }
-    supabase.rpc('is_admin').then(({ data, error }) => setIsAdmin(!error && data === true));
+    supabase.rpc('is_admin').then(({ data, error }) => {
+      const ok = !error && data === true;
+      setIsAdmin(ok); rememberAdmin(session.user?.email, ok);
+    });
   }, [session]);
 
   if (session === undefined || (session && isAdmin === null)) {

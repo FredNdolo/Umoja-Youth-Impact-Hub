@@ -28,4 +28,3 @@ export const COURSES = {
   },
 };
 
-export const courseUrl = (code) => (COURSES[code] ? `/me/course/${code}` : null);

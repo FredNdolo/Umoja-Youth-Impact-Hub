@@ -11,11 +11,14 @@ const navLinks = [
 ];
 
 import logo from '../assets/logo.jpg';
+import { useSignedIn, signOut } from '../lib/authState';
 
 export default function Navbar() {
   const [menuOpen,  setMenuOpen]  = useState(false);
   const [scrolled,  setScrolled]  = useState(false);
   const location = useLocation();
+  const session = useSignedIn();
+  const account = session ? (session.admin ? { to: '/admin', label: 'Admin' } : { to: '/me', label: 'My UYIH' }) : null;
 
   // Detect scroll
   useEffect(() => {
@@ -104,18 +107,29 @@ export default function Navbar() {
 
             {/* ── Desktop CTAs ── */}
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/me" className={`text-sm font-medium px-2 py-2 transition-colors hover:text-terracotta ${onDark ? 'text-cream/85' : 'text-forest'}`}>
-                Log in
-              </Link>
+              {account ? (
+                <Link to={account.to} className={`inline-flex items-center gap-2 text-sm font-medium px-2 py-2 transition-colors hover:text-terracotta ${onDark ? 'text-cream/85' : 'text-forest'}`}>
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${onDark ? 'bg-cream/20 text-cream' : 'bg-forest text-cream'}`} aria-hidden="true">
+                    {(session.email || '?').charAt(0).toUpperCase()}
+                  </span>
+                  {account.label}
+                </Link>
+              ) : (
+                <Link to="/me" className={`text-sm font-medium px-2 py-2 transition-colors hover:text-terracotta ${onDark ? 'text-cream/85' : 'text-forest'}`}>
+                  Log in
+                </Link>
+              )}
               <Link 
                 to="/donate" 
                 className="btn-secondary text-sm px-5 py-2.5 border border-terracotta/70 hover:border-terracotta text-terracotta hover:bg-terracotta/5"
               >
                 Donate
               </Link>
-              <Link to="/join" className="btn-primary text-sm px-5 py-2.5">
-                Join Us
-              </Link>
+              {!account && (
+                <Link to="/join" className="btn-primary text-sm px-5 py-2.5">
+                  Join Us
+                </Link>
+              )}
             </div>
 
             {/* ── Mobile hamburger ── */}
@@ -216,12 +230,18 @@ export default function Navbar() {
               {/* Drawer CTA */}
               <div className="px-4 pb-8 pt-4 border-t border-sand-dark/50 space-y-3">
                 <Link
-                  to="/me"
+                  to={account ? account.to : '/me'}
                   className="block w-full text-center text-forest font-medium py-2.5 hover:text-terracotta"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Member log in
+                  {account ? account.label : 'Member log in'}
                 </Link>
+                {account && (
+                  <button type="button" className="block w-full text-center text-ink-muted text-sm py-1.5 underline"
+                    onClick={async () => { setMenuOpen(false); await signOut(); }}>
+                    Log out{session.email ? ` (${session.email})` : ''}
+                  </button>
+                )}
                 <Link
                   to="/donate"
                   className="block w-full text-center border border-terracotta/70 hover:border-terracotta text-terracotta font-medium py-3.5 rounded-md hover:bg-terracotta/5 transition-colors"
@@ -229,13 +249,15 @@ export default function Navbar() {
                 >
                   Donate
                 </Link>
-                <Link
-                  to="/join"
-                  className="btn-primary w-full text-base py-3.5 justify-center"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Join Us →
-                </Link>
+                {!account && (
+                  <Link
+                    to="/join"
+                    className="btn-primary w-full text-base py-3.5 justify-center"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Join Us →
+                  </Link>
+                )}
                 <p className="text-center font-sans text-xs text-ink-faint mt-4">
                   Narok, Kenya
                 </p>

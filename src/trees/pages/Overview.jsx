@@ -49,7 +49,7 @@ export default function Overview() {
     return { total: trees.length, living, surv: survival(trees), due, checked30 };
   }, [trees]);
 
-  const bySite = useMemo(() => ref.sites.map((s) => {
+  const bySite = useMemo(() => ref.sites.filter((s) => s.active !== false).map((s) => {
     const list = trees.filter((t) => lookups.plot[t.plot_id]?.site_id === s.id);
     return { site: s, total: list.length, living: list.filter((t) => isLiving(t.status)).length, surv: survival(list) };
   }), [ref, trees, lookups]);
@@ -74,7 +74,7 @@ export default function Overview() {
 
       <div className="grid lg:grid-cols-[1.5fr_1fr] gap-5 items-start">
         <div className="space-y-5 min-w-0">
-          <TreeMap height={320} trees={trees.map((t) => ({ ...t, species: lookups.species[t.species_id]?.common_name }))} plots={ref.plots} sites={ref.sites} />
+          <TreeMap height={320} trees={trees.map((t) => ({ ...t, species: lookups.species[t.species_id]?.common_name }))} plots={ref.plots} sites={ref.sites.filter((s) => s.active !== false)} />
           <Card title="Sites" action={<Link to="/me/trees/sites" className="font-sans text-sm text-terracotta font-semibold">Manage →</Link>}>
             <ul className="divide-y divide-sand-dark/40">
               {bySite.map(({ site, total, living, surv }) => (

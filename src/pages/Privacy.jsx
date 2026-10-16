@@ -39,7 +39,7 @@ export default function Privacy() {
             projects you join, notes from our follow-up messages and whether you have paid the membership fee.</p>
           <p><strong>When you use the contact form:</strong> your name, email, optional phone number and your message.</p>
           <p><strong>If you complete your member profile:</strong> what you do at the moment, your skills, languages,
-            when you're free, what you hope to gain and anything you can bring, plus a short bio if you choose. We also
+            when you're free and what you hope to gain, plus a short bio if you choose. We also
             record the tasks you take on, when you complete them, when you log in, and whether you signed the
             safeguarding declaration.</p>
           <p><strong>When you request a document:</strong> your name, email, optional organisation and how you plan to use it.</p>

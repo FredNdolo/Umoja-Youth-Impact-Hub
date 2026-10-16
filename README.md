@@ -7,7 +7,9 @@ Live site: https://umoja-youth-impact-hub.vercel.app/
 ## Tech stack
 
 - [React 18](https://react.dev/) + [Vite](https://vitejs.dev/)
-- [React Router](https://reactrouter.com/)
+- [React Router 7](https://reactrouter.com/)
+- [Supabase](https://supabase.com/) (database, logins, file storage)
+- [Leaflet](https://leafletjs.com/) maps for the Tree Monitor
 - [Tailwind CSS 3](https://tailwindcss.com/) (theme colours and fonts live in `tailwind.config.js`)
 - [Framer Motion](https://www.framer.com/motion/)
 - Hosted on [Vercel](https://vercel.com/), which builds the site itself on every push to `main`
@@ -22,27 +24,30 @@ cd Umoja-Youth-Impact-Hub
 npm install
 npm run dev       # local development server
 npm run build     # production build into dist/ (do not commit dist/)
+npm run lint      # check the code for mistakes before opening a pull request
 ```
 
 ## Project layout
 
 ```
 src/
-  pages/         Home, About, Programs, Contacts, Join, Privacy, RequestDocument (Community.jsx is unused)
-  member/        Member area at /me (login, get-to-know-you profile, progress, tasks)
-  components/    Navbar, Footer, InstagramFeed
-  admin/         Admin dashboard at /admin (People, Tasks, Events, Messages, Metrics)
-  lib/           Site settings (config.js), public form client, phone helpers
-  assets/        Photos and logo, imported by the pages
+  pages/         Public pages: Home, About, Programs, Green Futures, Tree Monitor (/treemonitoringapp),
+                 public tree pages (/t/:code), Contacts, Join, Donate, Privacy, RequestDocument, Certificate
+  member/        Member area at /me: login, profile, learning (online courses), tasks, achievements, documents
+  trees/         Tree Monitor field app at /me/trees (maps, geofences, offline queue, reports, QR labels)
+  components/    Navbar, Footer, SkillPicker, PaybillCard, InstagramFeed
+  admin/         Admin dashboard at /admin: People, Tasks, Events, Messages, Payments, Certificates, Metrics
+  lib/           Site settings (config.js), Supabase client, public form client, skills, phone helpers
+  assets/        Photos (WebP) and logo, imported by the pages
 public/
-  green-features/   Static Green Futures Initiative page (served at /green-features/)
-  favicon.png, apple-touch-icon.png, og-image.jpg
+  docs/          Constitution and safeguarding policy PDFs (members download these)
+  favicon.png, apple-touch-icon.png, og-image.jpg, tree-app-*.png (app icons)
 supabase/
   migrations/    Database scripts (run in order)
   functions/     Edge Functions (member-login-link)
 docs/
   PHASE1_SETUP.md   One-time Supabase setup and day-to-day admin guide
-  PHASE2A_SETUP.md  Member logins, profiles and tasks: setup and how it works
+  PHASE2A_SETUP.md  Member logins, profiles, tasks, payments, certificates and the Tree Monitor
 ```
 
 ## Membership pipeline
@@ -59,5 +64,6 @@ wording or privacy notice changes.
 
 - Work on a branch and open a pull request instead of pushing straight to `main`. Vercel gives every pull request its own preview link to check before merging.
 - Never commit `dist/`, `node_modules/` or `.env` files; `.gitignore` already excludes them.
-- Keep photos small. Resize to at most 1600 px wide (2400 px for full-screen heroes) before adding them to `src/assets/`; camera originals are 7 to 8 MB each and make pages very slow on mobile data.
+- This repository is public. Don't commit internal documents (proposals, budgets, member lists) or anything with personal data.
+- Keep photos small. Resize to at most 1600 px wide and save as WebP before adding them to `src/assets/`; camera originals are 7 to 8 MB each and make pages very slow on mobile data.
 - Only use photos of identifiable children where consent has been given, in line with UYIH's safeguarding policy.

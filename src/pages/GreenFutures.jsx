@@ -6,8 +6,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import seedlingImg from '../assets/environment.jpg';
-import padsImg from '../assets/gallery-71.JPG';
+import seedlingImg from '../assets/environment.webp';
+import padsImg from '../assets/gallery-71.webp';
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 24 },

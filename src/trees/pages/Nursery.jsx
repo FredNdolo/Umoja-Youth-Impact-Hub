@@ -47,11 +47,11 @@ export default function Nursery() {
         ))}
       </div>
 
-      {!ref.nurseries.length && <NewNursery canManage={canManage} sites={ref.sites} onDone={reload} />}
+      {!ref.nurseries.length && <NewNursery canManage={canManage} sites={ref.sites.filter((s) => s.active !== false)} onDone={reload} />}
       {tab === 'batches' && ref.nurseries.length > 0 && <Batches ref_={ref} lookups={lookups} reload={reload} canManage={canManage} />}
       {tab === 'sales' && ref.nurseries.length > 0 && <Sales rows={sales} ref_={ref} lookups={lookups} reload={loadLedgers} />}
       {tab === 'dist' && <Distributions rows={dist} ref_={ref} lookups={lookups} reload={loadLedgers} />}
-      {ref.nurseries.length > 0 && canManage && <details className="font-sans text-sm"><summary className="cursor-pointer text-ink-muted underline">Add another nursery</summary><div className="mt-3"><NewNursery canManage sites={ref.sites} onDone={reload} /></div></details>}
+      {ref.nurseries.length > 0 && canManage && <details className="font-sans text-sm"><summary className="cursor-pointer text-ink-muted underline">Add another nursery</summary><div className="mt-3"><NewNursery canManage sites={ref.sites.filter((s) => s.active !== false)} onDone={reload} /></div></details>}
     </div>
   );
 }
@@ -184,7 +184,7 @@ function Sales({ rows, ref_: ref, lookups, reload }) {
 }
 
 function Distributions({ rows, ref_: ref, lookups, reload }) {
-  const blank = { site_id: ref.sites[0]?.id || '', distributed_on: today(), product: 'reusable_pads', packs: '', girls_reached: '', cost_kes: '', funded_from_sales: true, notes: '' };
+  const blank = { site_id: ref.sites.find((s) => s.active !== false)?.id || '', distributed_on: today(), product: 'reusable_pads', packs: '', girls_reached: '', cost_kes: '', funded_from_sales: true, notes: '' };
   const [f, setF] = useState(blank);
   const [err, setErr] = useState('');
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -199,7 +199,7 @@ function Distributions({ rows, ref_: ref, lookups, reload }) {
       <Notice kind="info">Record numbers only. Never write girls’ names, classes or photos here.</Notice>
       <Card title="Record a distribution">
         <form onSubmit={add} className="grid sm:grid-cols-3 gap-3">
-          <Field label="School"><select className="input-field" value={f.site_id} onChange={set('site_id')}>{ref.sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></Field>
+          <Field label="School"><select className="input-field" value={f.site_id} onChange={set('site_id')}>{ref.sites.filter((s) => s.active !== false).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></Field>
           <Field label="Date"><input type="date" className="input-field" max={today()} value={f.distributed_on} onChange={set('distributed_on')} /></Field>
           <Field label="Product"><select className="input-field" value={f.product} onChange={set('product')}>{Object.entries(label).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
           <Field label="Packs"><input type="number" min="1" required className="input-field" value={f.packs} onChange={set('packs')} /></Field>
