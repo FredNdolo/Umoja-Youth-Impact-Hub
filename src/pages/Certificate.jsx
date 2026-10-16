@@ -56,7 +56,8 @@ export default function Certificate() {
   }, [code]);
 
   const url = `${window.location.origin}/certificates/${code}`;
-  const signers = certificateSignatories(cert?.course_code);
+  // Signatures saved on the certificate when it was issued (older ones fall back to today's list)
+  const signers = cert?.signatories?.length ? cert.signatories : certificateSignatories(cert?.course_code);
 
   if (cert === undefined) return <div className="min-h-screen bg-white pt-32 text-center font-sans text-ink-muted">Checking certificate…</div>;
   if (!cert) {
@@ -74,17 +75,24 @@ export default function Certificate() {
     <div className="cert-page min-h-screen bg-sand-light/60 pt-24 md:pt-28 pb-16 px-3 sm:px-6">
       <style>{PRINT_CSS}</style>
       <div className="cert-actions max-w-5xl mx-auto mb-5 flex flex-wrap items-center gap-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-forest/10 text-forest font-sans text-sm font-semibold px-3 py-1">✓ Genuine UYIH certificate</span>
+        {cert.revoked
+          ? <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 text-red-800 font-sans text-sm font-semibold px-3 py-1">✗ This certificate has been revoked</span>
+          : <span className="inline-flex items-center gap-1.5 rounded-full bg-forest/10 text-forest font-sans text-sm font-semibold px-3 py-1">✓ Genuine UYIH certificate</span>}
         <span className="font-sans text-xs text-ink-muted">Code {cert.code}</span>
         <div className="ml-auto flex gap-2">
           <button className="btn-secondary text-sm" onClick={async () => {
             try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* ignore */ }
           }}>{copied ? 'Link copied ✓' : 'Copy link'}</button>
-          <button className="btn-primary text-sm" onClick={() => window.print()}>Download PDF</button>
+          {!cert.revoked && <button className="btn-primary text-sm" onClick={() => window.print()}>Download PDF</button>}
         </div>
       </div>
 
       <article className="cert-sheet relative max-w-5xl mx-auto bg-[#FFFDF8] rounded-md shadow-card-lg overflow-hidden sm:[aspect-ratio:297/210]">
+        {cert.revoked && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none" aria-hidden="true">
+            <span className="font-display font-bold text-5xl sm:text-8xl text-red-700/25 -rotate-12 tracking-widest">REVOKED</span>
+          </div>
+        )}
         {/* Borders */}
         <div className="absolute inset-3 sm:inset-5 border-2 border-forest" />
         <div className="absolute inset-5 sm:inset-8 border border-terracotta/60" />
@@ -103,7 +111,6 @@ export default function Certificate() {
             <p className="font-display font-bold text-2xl sm:text-5xl text-forest mt-1 sm:mt-3 border-b border-sand-dark inline-block px-4 sm:px-10 pb-1">{cert.full_name}</p>
             <p className="font-sans text-[10px] sm:text-sm text-ink-muted mt-2 sm:mt-4">has successfully completed the UYIH online course</p>
             <p className="font-display font-bold text-lg sm:text-3xl text-terracotta mt-1 sm:mt-2">{cert.title}</p>
-            {cert.score != null && <p className="font-sans text-[9px] sm:text-xs text-ink-muted mt-1 sm:mt-2">Final quiz score {cert.score}/{cert.total}</p>}
           </div>
 
           <div className="w-full flex flex-col sm:flex-row items-center sm:items-end justify-between gap-5 sm:gap-4">
