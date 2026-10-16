@@ -72,6 +72,12 @@ function CourseBody({ cfg }) {
 
   const task = useMemo(() => dash?.my_tasks.find((t) => t.code === CODE), [dash]);
   const go = (v) => { setView(v); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  // A fresh quiz: reload so earlier answers are cleared, then open it
+  const [quizRun, setQuizRun] = useState(0);
+  const retake = async () => {
+    await supabase.rpc('restart_course_quiz', { p_code: CODE });
+    await load(); setQuizRun((n) => n + 1); go('quiz');
+  };
 
   if (error) return <><MemberHero eyebrow="Course" title={cfg.title} /><p className="container-narrow max-w-2xl py-10 font-sans text-red-700">{error}</p></>;
   if (!course || !dash) return <MemberHero eyebrow="Course" title={cfg.title} />;
@@ -93,7 +99,7 @@ function CourseBody({ cfg }) {
             {view === 'intro' && (
               <Intro cfg={cfg} course={course} task={task} passed={passed} answeredCount={answeredCount}
                 onStart={() => { setLesson(0); go('lesson'); }}
-                onQuiz={() => go('quiz')}
+                onQuiz={() => go('quiz')} onRetake={retake}
                 onDeclare={() => (cfg.declaration ? go('declare') : complete(task))} />
             )}
             {view === 'lesson' && (
@@ -102,16 +108,17 @@ function CourseBody({ cfg }) {
                 onNext={() => (lesson === cfg.lessons.length - 1 ? go('quiz') : (setLesson(lesson + 1), window.scrollTo({ top: 0 })))} />
             )}
             {view === 'quiz' && (
-              <Quiz code={CODE} course={course} onFinished={async (r) => {
+              <Quiz key={quizRun} code={CODE} course={course} onFinished={async (r) => {
                 setResult(r);
-                if (r.passed && !cfg.declaration) { await complete(task); return; }
+                const finished = task?.status === 'done' || task?.status === 'submitted';
+                if (r.passed && !cfg.declaration && !finished) { await complete(task); return; }
                 await load(); go('result');
               }} />
             )}
             {view === 'result' && result && (
-              <Result cfg={cfg} result={result}
+              <Result cfg={cfg} result={result} done={task?.status === 'done' || task?.status === 'submitted'}
                 onRetry={() => { setLesson(0); go('lesson'); }}
-                onRetryQuiz={() => go('quiz')}
+                onRetryQuiz={retake}
                 onDeclare={() => go('declare')} />
             )}
             {view === 'declare' && (
@@ -131,6 +138,7 @@ function CourseBody({ cfg }) {
                 {finishing && <p className="font-sans text-sm text-red-700 mt-3" role="alert">{finishing}</p>}
                 <div className="flex flex-wrap justify-center gap-3 mt-6">
                   {cert && <Link to={`/certificates/${cert}`} className="btn-primary">🎓 View your certificate</Link>}
+                  <button className="btn-secondary" onClick={retake}>Retake the quiz</button>
                   <Link to="/me/learning" className="btn-secondary">Back to My learning</Link>
                 </div>
               </div>
@@ -142,7 +150,7 @@ function CourseBody({ cfg }) {
   );
 }
 
-function Intro({ cfg, course, task, passed, answeredCount, onStart, onQuiz, onDeclare }) {
+function Intro({ cfg, course, task, passed, answeredCount, onStart, onQuiz, onRetake, onDeclare }) {
   const status = task?.status;
   return (
     <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8 space-y-5">
@@ -157,7 +165,8 @@ function Intro({ cfg, course, task, passed, answeredCount, onStart, onQuiz, onDe
       {course.best && <p className="font-sans text-sm text-ink-muted">Best score so far: <strong className="text-forest">{course.best.score}/{course.best.total}</strong>{course.best.passed ? ' ✓ passed' : ''}</p>}
       <div className="flex flex-wrap gap-3">
         <button className="btn-primary" onClick={onStart}>{course.attempts ? 'Review the lessons' : 'Start the course'}</button>
-        {(course.attempts > 0 || answeredCount > 0) && !passed && <button className="btn-secondary" onClick={onQuiz}>{answeredCount ? 'Continue the quiz' : 'Go to the quiz'}</button>}
+        {answeredCount > 0 && <button className="btn-secondary" onClick={onQuiz}>Continue the quiz</button>}
+        {answeredCount === 0 && (course.attempts > 0 || status === 'done' || status === 'submitted') && <button className="btn-secondary" onClick={onRetake}>Retake the quiz</button>}
         {passed && task && (status === 'todo' || status === 'returned') && <button className="btn-secondary" onClick={onDeclare}>{cfg.declaration ? 'Sign the declaration' : 'Finish the course'}</button>}
       </div>
       {cfg.pdf && <a className="block font-sans text-sm text-terracotta underline" href={cfg.pdf} target="_blank" rel="noopener noreferrer">Read the full policy (PDF)</a>}
@@ -200,19 +209,32 @@ function Quiz({ code: CODE, course, onFinished }) {
   const [qs, setQs] = useState(course.questions);
   const firstOpen = qs.findIndex((q) => !q.answered);
   const [i, setI] = useState(firstOpen === -1 ? qs.length - 1 : firstOpen);
+  // Tapping an answer only selects it; nothing is saved until "Confirm answer"
+  const [selected, setSelected] = useState({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const q = qs[i];
+  const pick = selected[q.position];
   const correctSoFar = qs.filter((x) => x.answered?.correct).length;
   const answered = qs.filter((x) => x.answered).length;
 
-  const choose = async (choice) => {
-    if (q.answered || busy) return;
+  const confirm = async () => {
+    if (q.answered || busy || pick == null) return;
     setBusy(true); setError('');
-    const { data, error: err } = await supabase.rpc('answer_course_question', { p_code: CODE, p_position: q.position, p_choice: choice });
+    const { data, error: err } = await supabase.rpc('answer_course_question', { p_code: CODE, p_position: q.position, p_choice: pick });
     setBusy(false);
     if (err) { setError(err.message); return; }
     setQs((all) => all.map((x) => (x.position === q.position ? { ...x, answered: data } : x)));
+  };
+
+  const startOver = async () => {
+    if (!window.confirm('Start the quiz again from question 1? Your answers so far in this attempt will be cleared.')) return;
+    setBusy(true); setError('');
+    const { error: err } = await supabase.rpc('restart_course_quiz', { p_code: CODE });
+    setBusy(false);
+    if (err) { setError(err.message); return; }
+    setQs((all) => all.map((x) => ({ ...x, answered: null })));
+    setSelected({}); setI(0); window.scrollTo({ top: 0 });
   };
 
   const finish = async () => {
@@ -235,21 +257,24 @@ function Quiz({ code: CODE, course, onFinished }) {
       </div>
       <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8">
         <h2 className="font-sans font-semibold text-lg text-forest leading-snug">{q.question}</h2>
-        <div className="mt-5 space-y-2.5" role="group" aria-label="Answers">
+        {!q.answered && <p className="font-sans text-xs text-ink-muted mt-2">Tap an answer to select it. You can change your mind before you confirm.</p>}
+        <div className="mt-5 space-y-2.5" role="radiogroup" aria-label="Answers">
           {q.options.map((opt, k) => {
             const a = q.answered;
             const isChosen = a && a.choice === k;
             const isRight = a && a.correct_choice === k;
+            const isPicked = !a && pick === k;
             const cls = !a
-              ? 'border-sand-dark bg-white hover:border-forest/60 hover:bg-sand-light'
+              ? (isPicked ? 'border-forest bg-forest/5 ring-2 ring-forest/30' : 'border-sand-dark bg-white hover:border-forest/60 hover:bg-sand-light')
               : isRight ? 'border-forest bg-forest/10'
               : isChosen ? 'border-red-400 bg-red-50'
               : 'border-sand-dark/60 bg-white opacity-60';
             return (
-              <button key={k} type="button" disabled={Boolean(a) || busy} onClick={() => choose(k)}
+              <button key={k} type="button" role="radio" aria-checked={a ? isChosen : isPicked} disabled={Boolean(a) || busy}
+                onClick={() => setSelected((sel) => ({ ...sel, [q.position]: k }))}
                 className={`w-full text-left flex gap-3 items-start rounded-md border-2 px-4 py-3 font-sans text-sm transition-colors ${cls}`}>
                 <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  a && isRight ? 'bg-forest text-cream' : a && isChosen ? 'bg-red-500 text-white' : 'bg-sand text-forest'}`}>
+                  a && isRight ? 'bg-forest text-cream' : a && isChosen ? 'bg-red-500 text-white' : isPicked ? 'bg-forest text-cream' : 'bg-sand text-forest'}`}>
                   {a && isRight ? '✓' : a && isChosen ? '✗' : LETTERS[k]}
                 </span>
                 <span className="text-ink">{opt}</span>
@@ -257,6 +282,12 @@ function Quiz({ code: CODE, course, onFinished }) {
             );
           })}
         </div>
+
+        {!q.answered && (
+          <button type="button" className="btn-primary w-full mt-5 py-3.5" disabled={pick == null || busy} onClick={confirm}>
+            {busy ? 'Checking…' : pick == null ? 'Select an answer' : `Confirm answer ${LETTERS[pick]}`}
+          </button>
+        )}
 
         {q.answered && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} role="status"
@@ -275,11 +306,16 @@ function Quiz({ code: CODE, course, onFinished }) {
             : <button className="btn-primary" disabled={answered < qs.length || busy} onClick={finish}>{busy ? 'Scoring…' : 'See my score'}</button>}
         </div>
       </div>
+      {answered > 0 && (
+        <p className="text-center mt-4">
+          <button type="button" className="font-sans text-sm text-ink-muted underline" onClick={startOver} disabled={busy}>Start the quiz over</button>
+        </p>
+      )}
     </div>
   );
 }
 
-function Result({ cfg, result, onRetry, onRetryQuiz, onDeclare }) {
+function Result({ cfg, result, done, onRetry, onRetryQuiz, onDeclare }) {
   return (
     <div className="rounded-xl border border-sand-dark/50 bg-white p-6 md:p-8 text-center" role="status">
       <div className="text-6xl mb-3" aria-hidden="true">{result.passed ? '🏅' : '📚'}</div>
@@ -287,16 +323,14 @@ function Result({ cfg, result, onRetry, onRetryQuiz, onDeclare }) {
       <h2 className="font-display font-bold text-display-sm text-forest mt-2">{result.passed ? 'You passed!' : 'Almost there'}</h2>
       <p className="font-sans text-ink-muted mt-2 max-w-md mx-auto">
         {result.passed
-          ? 'Great work. One last step: sign UYIH’s safeguarding declaration.'
+          ? (done ? 'Great work. Your course was already complete, so your certificate stays as it is.' : 'Great work. One last step: sign UYIH’s safeguarding declaration.')
           : `You need ${result.pass_mark} to pass. Have another look at the lessons, then try the quiz again. You can retake it as many times as you need.`}
       </p>
       <div className="flex flex-wrap justify-center gap-3 mt-6">
-        {result.passed
-          ? <button className="btn-primary" onClick={onDeclare}>Sign the declaration</button>
-          : <>
-              <button className="btn-primary" onClick={onRetry}>Review the lessons</button>
-              <button className="btn-secondary" onClick={onRetryQuiz}>Retake the quiz</button>
-            </>}
+        {result.passed && !done && <button className="btn-primary" onClick={onDeclare}>Sign the declaration</button>}
+        {!result.passed && <button className="btn-primary" onClick={onRetry}>Review the lessons</button>}
+        <button className="btn-secondary" onClick={onRetryQuiz}>Retake the quiz</button>
+        {done && <Link to="/me/learning" className="btn-secondary">Back to My learning</Link>}
       </div>
     </div>
   );

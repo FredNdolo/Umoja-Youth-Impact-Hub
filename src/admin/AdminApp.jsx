@@ -11,6 +11,7 @@ import Tasks from './Tasks';
 import Messages from './Messages';
 import Payments from './Payments';
 import Metrics from './Metrics';
+import Certificates from './Certificates';
 import logo from '../assets/logo.jpg';
 
 export default function AdminApp() {
@@ -108,6 +109,7 @@ const TABS = [
   { to: '/admin/events',   label: 'Events'   },
   { to: '/admin/messages', label: 'Messages' },
   { to: '/admin/payments', label: 'Payments' },
+  { to: '/admin/certificates', label: 'Certificates' },
   { to: '/admin/metrics',  label: 'Metrics'  },
 ];
 
@@ -167,6 +169,7 @@ function Shell({ email }) {
           <Route path="events" element={<Events />} />
           <Route path="messages" element={<Messages />} />
           <Route path="payments" element={<Payments />} />
+          <Route path="certificates" element={<Certificates />} />
           <Route path="metrics" element={<Metrics />} />
           <Route path="*" element={<People />} />
         </Routes>
