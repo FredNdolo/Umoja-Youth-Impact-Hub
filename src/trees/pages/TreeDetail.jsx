@@ -72,7 +72,7 @@ export default function TreeDetail() {
                       <span className="absolute -left-[9px] top-0.5 w-4 h-4 rounded-full bg-white border-2 border-forest" aria-hidden="true" />
                       <div className="flex-1 min-w-0 font-sans text-sm">
                         <p><strong className="text-forest">{h?.icon} {h?.label}</strong>{c.height_cm != null && ` · ${Number(c.height_cm)} cm`}{c.dbh_cm != null && ` · ⌀ ${Number(c.dbh_cm)} cm`}</p>
-                        <p className="text-xs text-ink-muted">{new Date(c.checked_at).toLocaleString('en-KE', { timeZone: 'Africa/Nairobi', dateStyle: 'medium', timeStyle: 'short' })}{c.people?.full_name ? ` · ${c.people.full_name}` : ''}{c.offline ? ' · synced later' : ''}</p>
+                        <p className="text-xs text-ink-muted">{new Date(c.checked_at).toLocaleString('en-KE', { timeZone: 'Africa/Nairobi', dateStyle: 'medium', timeStyle: 'short' })}{c.people?.full_name ? ` · ${c.people.full_name}` : ''}{c.offline ? ' · synced later' : ''}{c.distance_m != null && Number(c.distance_m) > 50 ? <span className="text-amber-800"> · ⚠ {Math.round(c.distance_m)} m from the tree</span> : ''}</p>
                         {c.notes && <p className="text-ink mt-1 whitespace-pre-wrap">{c.notes}</p>}
                       </div>
                       {c.photo_path && <Photo path={c.photo_path} />}

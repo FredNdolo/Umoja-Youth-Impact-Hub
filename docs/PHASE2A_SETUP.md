@@ -234,3 +234,19 @@ Scan the tree's QR code, choose its health, measure its height and photograph th
 ### Please review
 - **Local species names:** only the names we were sure of were filled in. Please check the Kiswahili and Maa names with KFS or a local forester, and edit them under **Species**.
 - **Plot photos and check-in photos:** these are private. Only the field team and admins can see them.
+
+### Geofences (how the app knows where you are)
+Each site has a **centre point** and a **geofence**, a circle around it (250 m by default, adjustable from 50 to 1,000 m under **Sites & plots → Edit site**). Each plot can also have a **boundary**, either walked with GPS or tapped out on the satellite map.
+
+Once these are set:
+- **Register tree** starts with the GPS point. The app fills in the school (from the geofence) and the plot (from its boundary). If the point falls outside the school or the plot, it asks the field member to double-check before saving.
+- **Near me** lists the trees around the phone, nearest first, with the ones due for a check-in marked, so a monthly round needs no searching.
+- **Check-in** shows how far the phone is from the tree's registered point. The database saves this distance with every check-in, and anything over 50 m is flagged.
+- **Reports → Data quality** lists trees with weak GPS, trees outside their plot or school, and check-ins made far from the tree.
+
+To set a school up: open **Sites & plots → Edit site**, stand in the middle of the compound and tap **Use my location** (or tap the centre on the satellite map), set the radius so the circle covers the compound, and save. Then add the plots and walk or draw their boundaries.
+
+### Adding, archiving and deleting sites
+- **Add a site:** Sites & plots → + Add a site.
+- **Archive** (coordinators and admins): use this when work at a site ends. It disappears from the field app and the public page, but all its records are kept. Archived sites are listed at the bottom of the page with a **Restore** button.
+- **Delete** (admins only): available only while nothing has been recorded at the site (no plots, nursery or trees). Plots can be deleted the same way while they have no trees and no locked baseline.

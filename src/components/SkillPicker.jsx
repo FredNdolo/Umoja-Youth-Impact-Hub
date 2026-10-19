@@ -1,9 +1,11 @@
 // LinkedIn-style skill picker: type to get suggestions, pick with mouse or
 // keyboard (↑ ↓ Enter), or add your own. Chosen skills show as chips.
 import React, { useId, useMemo, useRef, useState } from 'react';
-import { suggestSkills, cleanSkill, sameSkill } from '../lib/skills';
+import { suggestSkills, cleanSkill, sameSkill, skillsFromKeywords } from '../lib/skills';
 
-export default function SkillPicker({ value, onChange, max = 40, placeholder = 'Type a skill, e.g. photography', label = 'Skills', compact }) {
+// context: free text about the person (work, studies, bio). Skills that go
+// with it are offered as one-tap suggestions.
+export default function SkillPicker({ value, onChange, max = 40, placeholder = 'Type a skill, e.g. photography', label = 'Skills', compact, context = '' }) {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -11,18 +13,19 @@ export default function SkillPicker({ value, onChange, max = 40, placeholder = '
   const listId = useId();
 
   const suggestions = useMemo(() => suggestSkills(q, value, 8), [q, value]);
+  const forYou = useMemo(() => skillsFromKeywords(context, value, 10), [context, value]);
   const custom = cleanSkill(q);
   const showCustom = custom && !suggestions.some((s) => sameSkill(s, custom)) && !value.some((s) => sameSkill(s, custom));
   const options = showCustom ? [...suggestions, { custom }] : suggestions;
   const full = value.length >= max;
 
-  const add = (skill) => {
+  const add = (skill, refocus = true) => {
     const s = cleanSkill(skill);
     if (!s || full || value.some((v) => sameSkill(v, s))) return;
     onChange([...value, s]);
     setQ(''); setActive(0);
     setOpen(false); // reopens as soon as they type again
-    inputRef.current?.focus();
+    if (refocus) inputRef.current?.focus();
   };
   const remove = (skill) => onChange(value.filter((v) => v !== skill));
 
@@ -53,6 +56,20 @@ export default function SkillPicker({ value, onChange, max = 40, placeholder = '
             </li>
           ))}
         </ul>
+      )}
+
+      {forYou.length > 0 && !full && (
+        <div className="mb-3 rounded-md bg-sand-light/70 p-3">
+          <p className="font-sans text-xs font-semibold text-forest mb-2">Suggested for you <span className="font-normal text-ink-muted">· based on what you told us. Tap to add.</span></p>
+          <ul className="flex flex-wrap gap-2" aria-label="Suggested skills">
+            {forYou.map((s) => (
+              <li key={s}>
+                <button type="button" onClick={() => add(s, false)}
+                  className="rounded-full border border-forest/40 bg-white px-3 py-1 font-sans text-sm text-forest hover:bg-forest hover:text-cream transition-colors">+ {s}</button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="relative">

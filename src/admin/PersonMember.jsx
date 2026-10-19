@@ -73,7 +73,6 @@ export function ProfileSection({ profile }) {
         {profile.availability?.length > 0 && <><dt className="text-ink-muted">Free</dt>
           <dd>{profile.availability.map((a) => labelFor(AVAILABILITY, a)).join(', ')}{profile.hours_per_month ? ` · ${labelFor(HOURS, profile.hours_per_month)}` : ''}</dd></>}
         {profile.goals?.length > 0 && <><dt className="text-ink-muted">Wants</dt><dd>{profile.goals.join(', ')}</dd></>}
-        {profile.resources?.length > 0 && <><dt className="text-ink-muted">Can bring</dt><dd>{profile.resources.join(', ')}</dd></>}
         {profile.bio && <><dt className="text-ink-muted">About</dt><dd className="whitespace-pre-wrap">{profile.bio}</dd></>}
       </dl>
     </section>

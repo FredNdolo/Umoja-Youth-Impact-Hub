@@ -9,6 +9,7 @@ import { Card, Stat, Bar, Notice } from '../ui';
 import { download, toCsv, today, fmtDate } from '../api';
 import { survival, isLiving } from './Overview';
 import { PRINT_CSS } from './Labels';
+import { inRing, inSite, CHECKIN_FLAG_M } from '../geo';
 
 function quarterOf(d = new Date()) {
   const q = Math.floor(d.getMonth() / 3);
@@ -30,7 +31,7 @@ export default function Reports() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('tm_checkins').select('id, tree_id, checked_at, health, height_cm, dbh_cm, latitude, longitude, accuracy_m, photo_path, offline, people:checked_by(full_name)').order('checked_at').limit(20000),
+      supabase.from('tm_checkins').select('id, tree_id, checked_at, health, height_cm, dbh_cm, latitude, longitude, accuracy_m, photo_path, offline, distance_m, people:checked_by(full_name)').order('checked_at').limit(20000),
       supabase.from('tm_sales').select('*'),
       supabase.from('tm_distributions').select('*'),
     ]).then(([c, s, d]) => {
@@ -76,7 +77,7 @@ export default function Reports() {
       { label: 'tree_code', get: (c) => code[c.tree_id] }, { label: 'checked_at', get: (c) => c.checked_at }, { label: 'health', get: (c) => c.health },
       { label: 'height_cm', get: (c) => c.height_cm }, { label: 'dbh_cm', get: (c) => c.dbh_cm }, { label: 'latitude', get: (c) => c.latitude },
       { label: 'longitude', get: (c) => c.longitude }, { label: 'gps_accuracy_m', get: (c) => c.accuracy_m }, { label: 'has_photo', get: (c) => !!c.photo_path },
-      { label: 'synced_later', get: (c) => !!c.offline }, { label: 'recorded_by', get: (c) => c.people?.full_name },
+      { label: 'synced_later', get: (c) => !!c.offline }, { label: 'distance_from_tree_m', get: (c) => c.distance_m }, { label: 'recorded_by', get: (c) => c.people?.full_name },
     ]), 'text/csv');
   };
   const exportGeoJSON = () => {
@@ -148,6 +149,8 @@ export default function Reports() {
           <p className="font-sans text-xs text-ink-muted mt-3">Seedlings currently ready in nurseries: {k.raised}. Spent on products: {kes(k.spent)}.</p>
         </Card>
 
+        <Quality trees={trees} checkins={checkins || []} lookups={lookups} />
+
         <Card title="Method">
           <p className="font-sans text-xs text-ink-muted leading-relaxed">
             Each tree has a unique QR-labelled code and a phone GPS point (accuracy recorded per point). Trained UYIH members check trees roughly monthly,
@@ -172,5 +175,37 @@ function Breakdown({ rows }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+// Records that may need a second look, found with the GPS geofences
+function Quality({ trees, checkins, lookups }) {
+  const weak = trees.filter((t) => Number(t.accuracy_m) > 25);
+  const offPlot = trees.filter((t) => { const r = lookups.plot[t.plot_id]?.boundary?.coordinates?.[0]; return r && !inRing(t.longitude, t.latitude, r); });
+  const offSite = trees.filter((t) => inSite(lookups.site[lookups.plot[t.plot_id]?.site_id], t.latitude, t.longitude, t.accuracy_m) === false);
+  const far = checkins.filter((c) => c.distance_m != null && Number(c.distance_m) > CHECKIN_FLAG_M);
+  const code = Object.fromEntries(trees.map((t) => [t.id, t.code]));
+  const rows = [
+    ['Trees with weak GPS (over ±25 m)', weak.map((t) => t.code)],
+    ['Trees outside their plot boundary', offPlot.map((t) => t.code)],
+    ['Trees outside their school’s geofence', offSite.map((t) => t.code)],
+    [`Check-ins made over ${CHECKIN_FLAG_M} m from the tree`, far.map((c) => code[c.tree_id]).filter(Boolean)],
+  ];
+  const total = rows.reduce((a, [, l]) => a + l.length, 0);
+  return (
+    <Card title="Data quality">
+      {total === 0 ? <p className="font-sans text-sm text-forest">✓ No location issues found.</p> : (
+        <ul className="space-y-2 font-sans text-sm">
+          {rows.map(([label, list]) => (
+            <li key={label} className="flex flex-wrap gap-x-2">
+              <span className={list.length ? 'text-amber-800 font-semibold' : 'text-ink-muted'}>{list.length}</span>
+              <span className="text-ink">{label}</span>
+              {list.length > 0 && <span className="w-full text-xs font-mono text-ink-muted break-words">{[...new Set(list)].slice(0, 20).join(', ')}{list.length > 20 ? ' …' : ''}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="font-sans text-xs text-ink-faint mt-3">Checked against each school’s geofence and each plot’s boundary. Distances are worked out by the database and can’t be edited.</p>
+    </Card>
   );
 }
