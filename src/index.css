@@ -374,3 +374,11 @@
   letter-spacing: -0.03em;
   color: #C4622D;
 }
+/* Gallery carousel: arrows nudge to show they can be used */
+@keyframes carousel-nudge-right { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+@keyframes carousel-nudge-left  { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+.carousel-nudge-right { display: inline-block; animation: carousel-nudge-right 1.6s ease-in-out infinite; }
+.carousel-nudge-left  { display: inline-block; animation: carousel-nudge-left 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .carousel-nudge-right, .carousel-nudge-left { animation: none; }
+}

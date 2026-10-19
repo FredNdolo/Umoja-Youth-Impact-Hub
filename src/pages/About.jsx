@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import storyImage from '../assets/story-image.webp';
 import aboutHero from '../assets/about-hero.jpg';
+import PhotoCarousel from '../components/PhotoCarousel';
 import gallery1 from '../assets/gallery-1.webp';
 import gallery2 from '../assets/gallery-2.webp';
 import gallery3 from '../assets/gallery-3.webp';
@@ -244,21 +245,12 @@ export default function About() {
       </section>
 
 
-      {/* ══ IMPACT GALLERY STRIP ════════════════════════════════ */}
-<section className="bg-sand border-t border-sand-dark/60 py-0 overflow-hidden">
-  <div className="flex gap-1">
-    {[gallery1, gallery2, gallery3, gallery4, gallery6, gallery7].map((img, i) => (
-      <div key={i} className="flex-1 h-44 md:h-60 overflow-hidden">
-        <img
-          src={img}
-          alt={`UYIH community impact photo ${i + 1} — youth programs and events in Narok East`}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-        />
-      </div>
-    ))}
-  </div>
-</section>
+      {/* ══ IMPACT GALLERY ═══════════════════════════════════════ */}
+      <section className="bg-sand border-t border-sand-dark/60 py-2">
+        <PhotoCarousel label="UYIH in action" photos={[gallery1, gallery2, gallery3, gallery4, gallery6, gallery7].map((src, i) => ({
+          src, alt: `UYIH community impact photo ${i + 1}: youth programmes and events in Narok East`,
+        }))} />
+      </section>
 
 
       {/* ══ CTA ═════════════════════════════════════════════════ */}
