@@ -33,8 +33,9 @@ export default function Privacy() {
         </Section>
 
         <Section title="What we collect">
-          <p><strong>When you join:</strong> your name, WhatsApp number, age group (not your date of birth), and, if you
-            choose to give them, your area, email, the projects you are interested in and how you heard about us.
+          <p><strong>When you join:</strong> your name, WhatsApp number, email (we send your member login link there), age
+            group (not your date of birth), and, if you choose to give them, your area, the projects you are interested in
+            and how you heard about us.
             As you take part we also record your stage (newcomer, volunteer, member or lead), events you attend,
             projects you join, notes from our follow-up messages and whether you have paid the membership fee.</p>
           <p><strong>When you use the contact form:</strong> your name, email, optional phone number and your message.</p>

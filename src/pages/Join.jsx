@@ -61,7 +61,8 @@ export default function Join() {
     if (form.fullName.trim().length < 2) e.fullName = 'Please enter your name';
     if (!normalisePhone(form.phone))     e.phone    = 'Enter a WhatsApp number like 0712 345 678';
     if (!form.ageBand)                   e.ageBand  = 'Please choose your age group';
-    if (form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) e.email = 'Check this email address';
+    if (!form.email.trim())              e.email    = 'Please enter your email: we send your login link there';
+    else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) e.email = 'Check this email address';
     if (!form.isAdult)                   e.isAdult  = 'Online joining is for people aged 18 and over';
     if (!form.consent)                   e.consent  = 'We need your consent to keep in touch';
     return e;
@@ -216,6 +217,16 @@ export default function Join() {
                     {fieldError('phone')}
                   </div>
 
+                  <div data-field="email">
+                    <label htmlFor="j-email" className="input-label">Email *</label>
+                    <input id="j-email" type="email" autoComplete="email" inputMode="email" value={form.email}
+                      onChange={(e) => set('email', e.target.value)} placeholder="e.g. amina@gmail.com" aria-required="true"
+                      aria-describedby="j-email-hint"
+                      className={`input-field ${errRing('email')}`} maxLength={120} />
+                    <p id="j-email-hint" className="font-sans text-xs text-ink-faint mt-1">We send your member login link to this email.</p>
+                    {fieldError('email')}
+                  </div>
+
                   <fieldset data-field="ageBand">
                     <legend className="input-label">Age group *</legend>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -262,21 +273,12 @@ export default function Join() {
                     <p className="font-sans text-xs text-ink-faint mt-1.5">Not sure yet? Leave these blank and we’ll help you choose.</p>
                   </fieldset>
 
-                  <div className="grid sm:grid-cols-2 gap-5">
-                    <div>
-                      <label htmlFor="j-heard" className="input-label">How did you hear about us?</label>
-                      <select id="j-heard" value={form.heardFrom} onChange={(e) => set('heardFrom', e.target.value)} className="input-field">
-                        <option value="">Choose one</option>
-                        {HEARD_FROM.map((h) => <option key={h.value} value={h.value}>{h.label}</option>)}
-                      </select>
-                    </div>
-                    <div data-field="email">
-                      <label htmlFor="j-email" className="input-label">Email</label>
-                      <input id="j-email" type="email" autoComplete="email" value={form.email}
-                        onChange={(e) => set('email', e.target.value)} placeholder="optional"
-                        className={`input-field ${errRing('email')}`} maxLength={120} />
-                      {fieldError('email')}
-                    </div>
+                  <div className="sm:max-w-xs">
+                    <label htmlFor="j-heard" className="input-label">How did you hear about us?</label>
+                    <select id="j-heard" value={form.heardFrom} onChange={(e) => set('heardFrom', e.target.value)} className="input-field">
+                      <option value="">Choose one</option>
+                      {HEARD_FROM.map((h) => <option key={h.value} value={h.value}>{h.label}</option>)}
+                    </select>
                   </div>
 
                   <div className="space-y-3 pt-1">
