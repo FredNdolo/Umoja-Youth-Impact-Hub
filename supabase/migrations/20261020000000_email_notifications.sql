@@ -833,6 +833,27 @@ $$;
 -- (names: email_sender_url, email_cron_secret). Until they're set, emails
 -- simply wait in the outbox.
 -- ════════════════════════════════════════════════════════════════════
+
+-- The Edge Function reads the shared secret from here (service role only),
+-- so it never has to be copied into Edge Function secrets by hand.
+create or replace function public.email_sender_secret()
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare v text;
+begin
+  begin
+    execute $q$select decrypted_secret from vault.decrypted_secrets where name = 'email_cron_secret'$q$ into v;
+  exception when others then v := null;
+  end;
+  return v;
+end;
+$$;
+revoke all on function public.email_sender_secret() from public, anon, authenticated;
+grant execute on function public.email_sender_secret() to service_role;
+
 create or replace function public.kick_email_sender()
 returns void
 language plpgsql

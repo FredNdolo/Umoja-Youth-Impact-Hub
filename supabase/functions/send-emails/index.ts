@@ -6,7 +6,7 @@
 // pg_cron to retry anything that failed. Each email is tried up to 5 times.
 //
 // Secrets (Supabase → Edge Functions → Secrets):
-//   EMAIL_CRON_SECRET  shared with the database (Vault: email_cron_secret)
+//   EMAIL_CRON_SECRET  optional; by default read from Vault (email_cron_secret)
 //   SMTP_USER          the Gmail address that sends (umojayouthhub@gmail.com)
 //   SMTP_PASS          a Gmail App Password for that account (not the normal password)
 //   EMAIL_FROM_NAME    optional, default "Umoja Youth Impact Hub"
@@ -74,8 +74,20 @@ function isServerProblem(err: unknown) {
     || e?.responseCode === 535 || e?.responseCode === 421 || /Resend 5\d\d|Resend 401|Resend 403/.test(e?.message ?? "");
 }
 
+// Shared secret: EMAIL_CRON_SECRET if set, otherwise read from Vault
+let vaultSecret = "";
+async function sharedSecret() {
+  if (SECRET) return SECRET;
+  if (!vaultSecret) {
+    const { data } = await db.rpc("email_sender_secret");
+    vaultSecret = typeof data === "string" ? data : "";
+  }
+  return vaultSecret;
+}
+
 Deno.serve(async (req) => {
-  if (!SECRET || req.headers.get("x-uyih-secret") !== SECRET) {
+  const secret = await sharedSecret();
+  if (!secret || req.headers.get("x-uyih-secret") !== secret) {
     return new Response(JSON.stringify({ ok: false, message: "Not allowed" }), { status: 401 });
   }
   const configured = Boolean(smtp || (RESEND_API_KEY && EMAIL_FROM));
