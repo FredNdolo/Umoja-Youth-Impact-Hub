@@ -1,6 +1,6 @@
 // File: src/member/pages/Profile.jsx
 // Get-to-know-you profile, activity history and personal details.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { UYIH_WHATSAPP_NUMBER } from '../../lib/config';
 import { CURRENT_STATUS, AVAILABILITY, HOURS, labelFor } from '../../lib/profileOptions';
@@ -70,9 +70,45 @@ export default function Profile() {
           </Section>
         )}
 
+        <EmailSettings email={person.email} />
         <MyDetails person={person} reload={reload} />
       </div>
     </>
+  );
+}
+
+// Reminders can be switched off; notices about their own record always go
+function EmailSettings({ email }) {
+  const [s, setS] = useState(null);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { supabase.rpc('get_my_email_settings').then(({ data }) => setS(data || { reminders: true })); }, [email]);
+  const [err, setErr] = useState('');
+  const toggle = async () => {
+    const want = !s.reminders;
+    setS({ ...s, reminders: want }); setSaving(true); setErr('');   // show it straight away
+    const { error } = await supabase.rpc('set_my_email_reminders', { p_on: want });
+    if (error) { setS((x) => ({ ...x, reminders: !want })); setErr('Couldn’t save that. Please try again.'); }
+    setSaving(false);
+  };
+  const realEmail = email && !/\.invalid$/i.test(email);
+  return (
+    <Section title="Emails from UYIH">
+      {!realEmail ? (
+        <p className="font-sans text-sm text-ink-muted">Add your email under My details below to get updates about your tasks, certificates and events.</p>
+      ) : (
+        <div className="space-y-3 font-sans text-sm">
+          <p className="text-ink">We email <strong>{email}</strong> when something changes for you: a task assigned or reviewed, a certificate, documents checked, events and payments.</p>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" className="mt-0.5 w-4 h-4 accent-[#1A3C2A]" checked={!!s?.reminders} disabled={!s} onChange={() => { if (!saving) toggle(); }} />
+            <span>
+              <span className="font-semibold text-forest">Send me reminders</span>
+              <span className="block text-ink-muted text-xs">Tasks due soon or overdue, events the day before, and Tree Monitor check-ins. Updates about your own record are always sent.</span>
+            </span>
+          </label>
+          {err && <p className="text-xs text-red-700" role="alert">{err}</p>}
+        </div>
+      )}
+    </Section>
   );
 }
 

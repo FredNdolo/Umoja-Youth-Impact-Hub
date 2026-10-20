@@ -150,7 +150,9 @@ function Signatories({ setError }) {
   useEffect(() => { load(); }, [load]);
   const save = async (r) => {
     try {
-      await q(supabase.from('signatories').update({ name: r.name.trim(), title: r.title.trim(), updated_at: new Date().toISOString() }).eq('role', r.role));
+      const email = (r.email || '').trim();
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setError('Check the email address.'); return; }
+      await q(supabase.from('signatories').update({ name: r.name.trim(), title: r.title.trim(), email: email || null, updated_at: new Date().toISOString() }).eq('role', r.role));
       setSaved(r.role); setTimeout(() => setSaved(''), 2000); load();
     } catch (e) { setError(e.message); }
   };
@@ -167,6 +169,11 @@ function Signatories({ setError }) {
             <p className="font-sans text-xs font-semibold text-forest">{r.role === 'dsl' ? 'Designated Safeguarding Lead' : 'Executive Director'}</p>
             <label className="block"><span className={labelCls}>Name</span><input className={inputCls} value={r.name} onChange={(e) => set(r.role, 'name', e.target.value)} /></label>
             <label className="block"><span className={labelCls}>Title</span><input className={inputCls} value={r.title} onChange={(e) => set(r.role, 'title', e.target.value)} /></label>
+            {r.role === 'dsl' && (
+              <label className="block"><span className={labelCls}>Email for safeguarding alerts</span>
+                <input type="email" className={inputCls} value={r.email || ''} placeholder="The DSL gets an email when a declaration needs countersigning" onChange={(e) => set(r.role, 'email', e.target.value)} />
+              </label>
+            )}
             <button className={btnPrimary} onClick={() => save(r)}>{saved === r.role ? 'Saved ✓' : 'Save'}</button>
           </div>
         ))}
