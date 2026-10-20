@@ -250,3 +250,29 @@ To set a school up: open **Sites & plots → Edit site**, stand in the middle of
 - **Add a site:** Sites & plots → + Add a site.
 - **Archive** (coordinators and admins): use this when work at a site ends. It disappears from the field app and the public page, but all its records are kept. Archived sites are listed at the bottom of the page with a **Restore** button.
 - **Delete** (admins only): available only while nothing has been recorded at the site (no plots, nursery or trees). Plots can be deleted the same way while they have no trees and no locked baseline.
+
+## Email notifications (task assigned, contact messages, reminders)
+
+The website emails people automatically. Every email is queued in the
+`email_outbox` table and sent by the `send-emails` Edge Function, which
+the database wakes straight away (and pg_cron every 5 minutes for retries).
+Admins can see every email, and resend failed ones, under **Admin → Emails**.
+
+| Who | When |
+|---|---|
+| Member | Welcome; task assigned / approved / marked done / returned; certificate issued, revoked or restored; document verified or rejected; fee confirmed or rejected; donation receipt; stage changed; added to an event, project or Tree Monitor team; event role; safeguarding declaration countersigned |
+| Member (reminders, 07:00, can be turned off on their profile) | Task due in 2 days; task overdue; open task untouched for a week; event tomorrow; Monday tree round-up for the field team |
+| Public | Receipt for a contact message or document request; document request declined |
+| Admins | Contact message and document request (Reply goes straight to the sender); new sign-up; M-Pesa code to check; task to review; document to check; safeguarding declaration (also to the DSL); deletion request; daily digest at 07:00 |
+
+**One step to turn sending on:** Supabase → **Edge Functions → Secrets**, add
+`SMTP_PASS` = the Gmail app password from step 3a (the same one works).
+If you send from a different Gmail address, also add `SMTP_USER`.
+Until then emails wait in the queue and nothing is lost.
+
+Gmail sends about 500 emails a day. If UYIH outgrows that, get a domain,
+create a Resend account and add `RESEND_API_KEY` and `EMAIL_FROM`
+(e.g. `UYIH <hello@uyih.org>`); the function switches to Resend automatically.
+
+Set the DSL's email under **Admin → Certificates → Who signs certificates**
+so safeguarding declarations reach them.

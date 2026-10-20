@@ -12,6 +12,7 @@ import Messages from './Messages';
 import Payments from './Payments';
 import Metrics from './Metrics';
 import Certificates from './Certificates';
+import Emails from './Emails';
 import logo from '../assets/logo.jpg';
 import { rememberAdmin } from '../lib/authState';
 
@@ -114,6 +115,7 @@ const TABS = [
   { to: '/admin/messages', label: 'Messages' },
   { to: '/admin/payments', label: 'Payments' },
   { to: '/admin/certificates', label: 'Certificates' },
+  { to: '/admin/emails', label: 'Emails' },
   { to: '/admin/metrics',  label: 'Metrics'  },
 ];
 
@@ -174,6 +176,7 @@ function Shell({ email }) {
           <Route path="messages" element={<Messages />} />
           <Route path="payments" element={<Payments />} />
           <Route path="certificates" element={<Certificates />} />
+          <Route path="emails" element={<Emails />} />
           <Route path="metrics" element={<Metrics />} />
           <Route path="*" element={<People />} />
         </Routes>
